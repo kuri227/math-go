@@ -1,0 +1,142 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-03T10:16:00+09:00",
+  "title": "Design System: 数学でGO",
+  "extensions": {
+    "colorMeta": {
+      "stage-navy": {
+        "role": "primary",
+        "displayName": "舞台の藍",
+        "canonical": "#101b3d",
+        "tonalRamp": ["#080d1f", "#101b3d", "#1b2b5b", "#354777", "#6473a0", "#98a4c7", "#cbd1e3", "#f2f4fa"]
+      },
+      "ink-navy": {
+        "role": "neutral",
+        "displayName": "数式の墨",
+        "canonical": "#10182d",
+        "tonalRamp": ["#080c17", "#10182d", "#242f4b", "#46516d", "#707a94", "#a0a7ba", "#d0d4de", "#f4f5f8"]
+      },
+      "answer-paper": {
+        "role": "neutral",
+        "displayName": "回答の紙",
+        "canonical": "#fffdf7",
+        "tonalRamp": ["#282722", "#4d4b43", "#747168", "#9b978d", "#c1bdb3", "#e1ddd4", "#f3efe7", "#fffdf7"]
+      },
+      "outer-paper": {
+        "role": "neutral",
+        "displayName": "外側の紙",
+        "canonical": "#e6e2d8",
+        "tonalRamp": ["#25241f", "#49473f", "#6e6b62", "#959188", "#bbb7ad", "#d5d1c7", "#e6e2d8", "#f8f5ee"]
+      },
+      "action-coral": {
+        "role": "primary",
+        "displayName": "提出の朱",
+        "canonical": "#e84f2f",
+        "tonalRamp": ["#401108", "#70200f", "#a6321b", "#d74627", "#e84f2f", "#f17f68", "#f8b4a5", "#fde7e1"]
+      },
+      "ready-teal": {
+        "role": "secondary",
+        "displayName": "準備完了の青緑",
+        "canonical": "#117a70",
+        "tonalRamp": ["#062420", "#0a433c", "#0e635a", "#117a70", "#2aa396", "#69c7bd", "#aae3dd", "#e5f7f5"]
+      },
+      "focus-gold": {
+        "role": "tertiary",
+        "displayName": "焦点の金",
+        "canonical": "#ffd166",
+        "tonalRamp": ["#3b2b00", "#6b4e00", "#9b7307", "#c99b2c", "#ffd166", "#ffdf91", "#ffedbe", "#fff8e6"]
+      }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Problem Display", "purpose": "問題式を最初の視線として提示する。" },
+      "headline": { "displayName": "Action Headline", "purpose": "入力指示と認識結果の見出し。" },
+      "metric": { "displayName": "Performance Metric", "purpose": "推論時間と画像サイズを安定表示する。" },
+      "title": { "displayName": "Game Title", "purpose": "プレイ前の期待を作り、コース選択へ視線を導く。" }
+    },
+    "shadows": [
+      { "name": "input-paper", "value": "0 18px 40px rgb(2 10 35 / 28%)", "purpose": "白い手書き面を暗い舞台から分離する。" },
+      { "name": "result-paper", "value": "0 18px 48px rgb(38 43 57 / 16%)", "purpose": "認識結果を外側の紙から分離する。" }
+    ],
+    "motion": [
+      { "name": "control-response", "value": "140ms ease", "purpose": "ボタンのhoverとpress。" },
+      { "name": "result-reveal", "value": "430ms cubic-bezier(.16, 1, .3, 1)", "purpose": "認識結果を一度だけ展開する。" },
+      { "name": "phaser-question", "value": "420ms Expo.Out", "purpose": "問題切替時に式をわずかに拡大する。" },
+      { "name": "stage-intro", "value": "1050ms cubic-bezier(.16, 1, .3, 1)", "purpose": "コース開始を短く区切り、本編へ接続する。" }
+    ],
+    "breakpoints": [
+      { "name": "mobile", "value": "640px" },
+      { "name": "title-stack", "value": "860px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "その時点の主要操作ひとつだけに使用する。",
+      "html": "<button class=\"ds-button-primary\">回答を提出</button>",
+      "css": ".ds-button-primary { min-height: 52px; padding: 0 22px; border: 0; border-radius: 12px; color: #fff; background: #e84f2f; font: 780 17px 'M PLUS 1 Variable', sans-serif; transition: transform 140ms ease, background-color 140ms ease; } .ds-button-primary:hover { background: #b9341c; transform: translateY(-2px); } .ds-button-primary:focus-visible { outline: 3px solid #ffd166; outline-offset: 3px; } .ds-button-primary:disabled { opacity: .58; cursor: not-allowed; }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "undo、clear、再試行に使用する。",
+      "html": "<button class=\"ds-button-secondary\">1画戻す</button>",
+      "css": ".ds-button-secondary { min-height: 52px; padding: 0 22px; border: 0; border-radius: 12px; color: #fff; background: #2d3a62; font: 780 16px 'M PLUS 1 Variable', sans-serif; transition: transform 140ms ease, background-color 140ms ease; } .ds-button-secondary:hover { background: #3b4c7b; transform: translateY(-2px); } .ds-button-secondary:focus-visible { outline: 3px solid #ffd166; outline-offset: 3px; }"
+    },
+    {
+      "name": "Model Status",
+      "kind": "custom",
+      "refersTo": "status-indicator",
+      "description": "色、点、文字を組み合わせてモデル状態を伝える。",
+      "html": "<div class=\"ds-model-status\"><span></span>TexTeller 準備完了</div>",
+      "css": ".ds-model-status { display: inline-flex; align-items: center; gap: 9px; color: #9ee8d8; font: 650 14px 'M PLUS 1 Variable', sans-serif; } .ds-model-status span { width: 9px; height: 9px; border-radius: 50%; background: #42d6b8; box-shadow: 0 0 0 5px rgb(66 214 184 / 16%); }"
+    },
+    {
+      "name": "Handwriting Surface",
+      "kind": "custom",
+      "refersTo": "handwriting-surface",
+      "description": "手書き入力の主領域。白い面と明示的な開始案内を持つ。",
+      "html": "<div class=\"ds-handwriting\">ここから書き始める</div>",
+      "css": ".ds-handwriting { min-height: 250px; display: grid; place-items: center; color: #8a91a2; background: #fff; box-shadow: 0 18px 40px rgb(2 10 35 / 28%); font: 650 22px 'M PLUS 1 Variable', sans-serif; }"
+    },
+    {
+      "name": "Recognition Result",
+      "kind": "card",
+      "refersTo": "result-surface",
+      "description": "LaTeX、レンダリング結果、性能指標をひとつの読み取り面へまとめる。",
+      "html": "<section class=\"ds-result\"><h2>認識結果</h2><p>2x + 3</p></section>",
+      "css": ".ds-result { padding: 32px; border-radius: 14px; color: #10182d; background: #fffdf7; box-shadow: 0 18px 48px rgb(38 43 57 / 16%); font-family: 'M PLUS 1 Variable', sans-serif; } .ds-result h2 { margin: 0 0 10px; font-size: 28px; letter-spacing: -.025em; } .ds-result p { margin: 0; font-size: 32px; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "数式のステージ",
+    "overview": "問題が舞台中央に現れ、その直下の白い回答面へプレイヤーの一筆が入る構成を基本とする。ゲームらしい強さは装飾の多さではなく、問題、入力、提出の順序が迷いなく見えることと、状態が即座に反応することから生む。暗い舞台と明るい回答面を大きな面で切り替え、提出だけを朱色で強く扱う。",
+    "keyCharacteristics": [
+      "数式を中央へ大きく置く一画面の舞台構成",
+      "白いCanvasと濃紺の周囲による明確な入力領域",
+      "提出操作だけに使う朱色の強いアクセント",
+      "準備、認識、失敗を文字と色の両方で示す状態表現",
+      "結果表示に限って一度だけ使う展開モーション",
+      "プレイ前のコース選択と約1秒の導入を、本編から交換可能な面として分離"
+    ],
+    "rules": [
+      { "name": "The One Coral Action Rule", "body": "朱色はその時点で最も重要な操作ひとつだけに使い、同一画面内で競合する主要操作を作らない。", "section": "colors" },
+      { "name": "The Formula Leads Rule", "body": "問題文より問題式を大きくし、説明文が数式より先に主役にならないようにする。", "section": "typography" },
+      { "name": "The Paper Only Lifts Rule", "body": "影を持てるのは書く・読むための紙面だけで、ボタンや状態表示は色と動きで応答する。", "section": "elevation" }
+    ],
+    "dos": [
+      "Do 問題、入力、提出の順序を最初の画面内で明示する。",
+      "Do ロード中・認識中・失敗を同じ位置の文言と操作状態で伝える。",
+      "Do 速度指標を小数1桁とtabular numeralsで安定して表示する。",
+      "Do Phaserの演出とHTMLの入力・結果を明確な責務境界で保つ。"
+    ],
+    "donts": [
+      "Don't 複数の主要ボタンを同じ朱色で競わせない。",
+      "Don't 統計や説明を同じ大きさの小カード群へ分割しない。",
+      "Don't 手書きCanvasをPhaser WebGL textureへ統合しない。",
+      "Don't モデル準備中の提出操作を、理由なしで押せる状態にしない。"
+    ]
+  }
+}
