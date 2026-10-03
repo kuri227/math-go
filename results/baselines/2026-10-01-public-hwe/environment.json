@@ -1,0 +1,24 @@
+{
+  "captured_at": "2026-10-01T12:13:52.249138+00:00",
+  "os": "Windows-10-10.0.26200-SP0",
+  "machine": "AMD64",
+  "processor": "AMD64 Family 25 Model 80 Stepping 0, AuthenticAMD",
+  "python": "3.10.5",
+  "logical_cpu_count": 12,
+  "gpu": "NVIDIA GeForce RTX 3050 Laptop GPU",
+  "gpu_vram_mib": 4096,
+  "cuda_driver_version": "13.3",
+  "texteller_python": ".venv-texteller/Scripts/python.exe",
+  "unimernet_python": ".venv-unimernet/Scripts/python.exe",
+  "texteller_variant": "3.0",
+  "unimernet_variant": "tiny",
+  "runtime_versions": {
+    "texteller": "torch=2.14.0+cu132; transformers=4.47.0; texteller=1.0.2; cuda=13.2",
+    "unimernet": "torch=2.14.0+cu132; transformers=4.42.4; unimernet=0.2.3; cuda=13.2"
+  },
+  "source_revisions": {
+    "unimernet_git": "5a2c80d96b1d2dba447ff18d873e5fb73ba03c35",
+    "unimernet_tiny_hf_revision": "3f09ac4b1cd583be47ea20a7d7daef839473028a",
+    "unimer_test_sha256": "9bf370b8cac868fee84835f40dec26c477430611253e3feb681356a8149a3a90"
+  }
+}

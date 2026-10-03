@@ -1,0 +1,3 @@
+dataset,model,category,sample_count,success_count,failure_count,failure_rate,exact_accuracy,normalized_accuracy,latency_mean_ms,latency_p50_ms,latency_p95_ms,latency_max_ms,initialization_ms,peak_vram_mb
+public_hwe,texteller,all,6332,6332,0,0.0,0.0,0.9091914087176247,620.8602734838913,552.0731000000001,1204.8282599999998,4754.9158,31610.5107,1264.414
+public_hwe,unimernet,all,6332,6332,0,0.0,0.5955464308275427,0.5960202147820594,1224.36021151295,1083.3713,2550.0928949999998,13326.8481,43338.9072,483.594

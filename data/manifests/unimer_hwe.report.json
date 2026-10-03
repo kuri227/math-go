@@ -1,0 +1,13 @@
+{
+  "archive": "data/downloads/UniMER-Test.zip",
+  "sha256": "9bf370b8cac868fee84835f40dec26c477430611253e3feb681356a8149a3a90",
+  "expected_pairs": 6332,
+  "label_count": 6332,
+  "image_count": 6332,
+  "usable_pairs": 6332,
+  "missing_images": [],
+  "corrupt_images": [],
+  "extra_images": [],
+  "empty_labels": [],
+  "manifest": "data/manifests/unimer_hwe.csv"
+}

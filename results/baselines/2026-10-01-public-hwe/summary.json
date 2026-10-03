@@ -1,0 +1,36 @@
+[
+  {
+    "dataset": "public_hwe",
+    "model": "texteller",
+    "category": "all",
+    "sample_count": 6332,
+    "success_count": 6332,
+    "failure_count": 0,
+    "failure_rate": 0.0,
+    "exact_accuracy": 0.0,
+    "normalized_accuracy": 0.9091914087176247,
+    "latency_mean_ms": 620.8602734838913,
+    "latency_p50_ms": 552.0731000000001,
+    "latency_p95_ms": 1204.8282599999998,
+    "latency_max_ms": 4754.9158,
+    "initialization_ms": 31610.5107,
+    "peak_vram_mb": 1264.414
+  },
+  {
+    "dataset": "public_hwe",
+    "model": "unimernet",
+    "category": "all",
+    "sample_count": 6332,
+    "success_count": 6332,
+    "failure_count": 0,
+    "failure_rate": 0.0,
+    "exact_accuracy": 0.5955464308275427,
+    "normalized_accuracy": 0.5960202147820594,
+    "latency_mean_ms": 1224.36021151295,
+    "latency_p50_ms": 1083.3713,
+    "latency_p95_ms": 2550.0928949999998,
+    "latency_max_ms": 13326.8481,
+    "initialization_ms": 43338.9072,
+    "peak_vram_mb": 483.594
+  }
+]
