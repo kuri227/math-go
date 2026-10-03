@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import logging
 import json
 import tempfile
@@ -9,18 +10,27 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
+from fastapi.concurrency import run_in_threadpool
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from PIL import Image, UnidentifiedImageError
 
 from backend.app.config import REPO_ROOT, load_paths
 from backend.app.custom_samples import save_custom_sample
+from backend.app.game_questions import QUESTIONS, judge_answer
+from backend.app.latex import normalize_latex
 from backend.app.recognizers.registry import RecognizerRegistry
 from backend.app.recognizers.worker import WorkerError
 from backend.app.schemas import (
     ComparisonResponse,
+    GameQuestionResponse,
+    GameRecognitionResponse,
+    JudgementRequest,
+    JudgementResponse,
     ModelStatus,
+    RecognitionImage,
     RecognitionResponse,
+    RecognitionTiming,
     SavedSampleResponse,
 )
 
@@ -29,6 +39,7 @@ MAX_IMAGE_BYTES = 10 * 1024 * 1024
 ALLOWED_FORMATS = {"PNG", "JPEG", "WEBP"}
 registry = RecognizerRegistry()
 paths = load_paths()
+inference_locks = {"texteller": asyncio.Lock(), "unimernet": asyncio.Lock()}
 
 
 @asynccontextmanager
@@ -40,11 +51,24 @@ async def lifespan(_: FastAPI):
 
 app = FastAPI(title="数学でGO HMER PoC", version="0.1.0", lifespan=lifespan)
 FRONTEND_DIR = REPO_ROOT / "frontend"
+GAME_DIST_DIR = REPO_ROOT / "game" / "dist"
 app.mount("/assets", StaticFiles(directory=FRONTEND_DIR), name="assets")
+if (GAME_DIST_DIR / "game-assets").is_dir():
+    app.mount(
+        "/game-assets",
+        StaticFiles(directory=GAME_DIST_DIR / "game-assets"),
+        name="game-assets",
+    )
 
 
 @app.get("/", include_in_schema=False)
 def index() -> FileResponse:
+    game_index = GAME_DIST_DIR / "index.html"
+    return FileResponse(game_index if game_index.is_file() else FRONTEND_DIR / "index.html")
+
+
+@app.get("/evaluation", include_in_schema=False)
+def evaluation() -> FileResponse:
     return FileResponse(FRONTEND_DIR / "index.html")
 
 
@@ -61,6 +85,103 @@ def models() -> list[dict[str, object]]:
 @app.post("/models/preload")
 def preload_models() -> dict[str, str]:
     return {"status": registry.begin_preload()}
+
+
+@app.get("/api/v1/health/live")
+def api_liveness() -> dict[str, str]:
+    return {"status": "ok"}
+
+
+@app.get("/api/v1/questions", response_model=list[GameQuestionResponse])
+def api_game_questions() -> list[dict[str, str]]:
+    """Return sample-game prompts without exposing their accepted answers."""
+    return [question.public_dict() for question in QUESTIONS]
+
+
+@app.post("/api/v1/judgements", response_model=JudgementResponse)
+def api_judge_answer(request: JudgementRequest) -> dict[str, object]:
+    try:
+        return judge_answer(request.question_id, request.recognized_latex)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="Unknown question_id") from exc
+
+
+@app.get("/api/v1/health/ready")
+def api_readiness(model: str = "texteller") -> dict[str, object]:
+    try:
+        recognizer = registry.get(model.lower())
+    except KeyError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    status = "ready" if recognizer.available else "loading" if recognizer.loading else "unavailable"
+    return {
+        "status": status,
+        "model": recognizer.name,
+        "variant": recognizer.variant,
+        "device": recognizer.device,
+        "detail": recognizer.detail,
+        "initialization_ms": recognizer.initialization_ms,
+    }
+
+
+@app.post("/api/v1/models/{model}/preload")
+def api_preload_model(model: str) -> dict[str, str]:
+    name = model.lower()
+    try:
+        status = registry.begin_preload((name,))
+    except KeyError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    return {"status": status, "model": name}
+
+
+@app.post("/api/v1/recognitions", response_model=GameRecognitionResponse)
+async def api_recognize(
+    image: UploadFile = File(...),
+    model: str = Form("texteller"),
+    request_id: str | None = Form(None),
+) -> GameRecognitionResponse:
+    """Recognize one cropped handwriting image and return end-to-end timing."""
+    total_started = time.perf_counter()
+    name = model.lower()
+    try:
+        recognizer = registry.get(name)
+    except KeyError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    try:
+        temp_path, width, height = await _validated_temp_image(image)
+    except (UnidentifiedImageError, OSError) as exc:
+        raise HTTPException(status_code=400, detail="Invalid or corrupt image") from exc
+    preprocessing_ms = (time.perf_counter() - total_started) * 1000
+    image_bytes = temp_path.stat().st_size
+
+    queue_started = time.perf_counter()
+    try:
+        async with inference_locks[name]:
+            queue_ms = (time.perf_counter() - queue_started) * 1000
+            result = await run_in_threadpool(recognizer.recognize, temp_path)
+        total_ms = (time.perf_counter() - total_started) * 1000
+        return GameRecognitionResponse(
+            request_id=request_id or str(uuid.uuid4()),
+            model=result.model,
+            model_variant=result.model_variant,
+            device=result.device,
+            raw_latex=result.latex,
+            normalized_latex=normalize_latex(result.latex),
+            timing=RecognitionTiming(
+                preprocessing_ms=preprocessing_ms,
+                queue_ms=queue_ms,
+                inference_ms=result.inference_ms,
+                total_ms=total_ms,
+            ),
+            image=RecognitionImage(width=width, height=height, bytes=image_bytes),
+            initialization_ms=result.initialization_ms,
+            peak_vram_mb=result.peak_vram_mb,
+        )
+    except WorkerError as exc:
+        LOGGER.exception("Game recognition failed for %s", name)
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+    finally:
+        temp_path.unlink(missing_ok=True)
 
 
 @app.post("/recognize", response_model=RecognitionResponse)
