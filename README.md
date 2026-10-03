@@ -140,6 +140,34 @@ production相当の同一Origin構成は次で起動します。
 
 生データは `results/game_ux_benchmark.json` と `results/game_ux_predictions.csv`、仕様は `docs/kanji-go-inspired-game-spec.md`、検証レポートは `reports/game_ux_validation.md` にあります。
 
+## 文化祭向け開発版Release
+
+文化祭PCへGitやNode.jsを要求せずに配布できるよう、Windows用ZIPを生成できます。現段階では正式版ではなく、セットアップと運用を検証するPre-releaseです。
+
+```powershell
+.\scripts\package_release.ps1
+```
+
+`release-build/math-go-0.1.0-alpha.1-windows.zip` とSHA-256ファイルが生成され、展開後の必須ファイルと禁止データを自動検査します。ZIPにはbuild済みゲーム、FastAPI、起動・診断スクリプトを含みます。仮想環境、モデル重み、個人筆跡、実行ログ、公開データセット本体は含みません。
+
+展開先PCでは次を実行します。
+
+```powershell
+Set-ExecutionPolicy -Scope Process Bypass
+.\scripts\setup_festival.ps1
+.\scripts\start_festival.ps1
+```
+
+初回セットアップはゲーム用のTexTellerだけを導入します。比較画面でUniMERNetも使う開発PCでは、`setup_festival.ps1 -IncludeEvaluationModels` を指定します。複数端末から同一LANで接続する場合は `start_festival.ps1 -Lan` を使用しますが、Windows Firewallの受信規則と会場ネットワークを事前確認してください。
+
+配布前の環境診断だけを実行する場合：
+
+```powershell
+.\scripts\check_environment.ps1 -RequireReady
+```
+
+リリースノートは `docs/releases/v0.1.0-alpha.1.md` を参照してください。
+
 ## ベンチマーク
 
 環境情報を記録してから評価します。

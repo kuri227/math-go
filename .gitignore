@@ -32,4 +32,6 @@ results/failures/**/*.png
 .impeccable/review/
 game/node_modules/
 game/dist/
+.runtime/
+release-build/
 
