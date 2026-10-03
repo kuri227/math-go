@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#101b3d" />
+    <meta name="description" content="手書き数式を認識して遊ぶ数学ゲーム" />
+    <link rel="icon" href="data:," />
+    <title>数学でGO</title>
+  </head>
+  <body>
+    <main id="app" class="app-shell">
+      <section class="title-screen" id="startScreen" aria-labelledby="titleHeading">
+        <div class="formula-field" aria-hidden="true">
+          <span>x²</span><span>∫</span><span>√</span><span>Σ</span><span>π</span><span>lim</span>
+        </div>
+        <header class="title-header">
+          <span class="title-brand">数学でGO</span>
+          <a href="/evaluation">モデル比較・データ収集</a>
+        </header>
+        <div class="title-layout">
+          <div class="title-copy">
+            <p class="title-lead">手書きの一筆を、答えに変えろ。</p>
+            <h1 id="titleHeading">数学で<span>GO</span></h1>
+            <p class="title-description">
+              画面に現れる数式を解き、答えをそのまま書いて提出。
+              AIがLaTeXへ変換し、その場で判定します。
+            </p>
+            <div class="title-rules" aria-label="ゲームの特徴">
+              <span>手書き認識</span><span>即時判定</span><span>マウス・ペン・タッチ</span>
+            </div>
+          </div>
+
+          <section class="course-selector" aria-labelledby="courseHeading">
+            <h2 id="courseHeading">挑戦するコース</h2>
+            <div class="course-list" role="radiogroup" aria-label="コース選択">
+              <button type="button" class="course-option" data-course="practice" role="radio" aria-checked="false">
+                <span class="course-number">5</span>
+                <span class="course-copy"><strong>じっくり練習</strong><small>時間制限なし · 5問 · 残機3</small></span>
+                <span class="course-arrow" aria-hidden="true">→</span>
+              </button>
+              <button type="button" class="course-option is-selected" data-course="challenge" role="radio" aria-checked="true">
+                <span class="course-number">7</span>
+                <span class="course-copy"><strong>30秒チャレンジ</strong><small>1問30秒 · 7問 · 残機3 · 速度ボーナス</small></span>
+                <span class="course-arrow" aria-hidden="true">→</span>
+              </button>
+            </div>
+            <div class="start-state">
+              <div class="model-state" data-model-state="loading" role="status" aria-live="polite">
+                <span class="state-dot" aria-hidden="true"></span>
+                <span data-model-state-text>TexTellerを準備中</span>
+              </div>
+              <button type="button" class="button button-primary start-button" id="startButton" disabled>
+                モデル準備中…
+              </button>
+            </div>
+            <p class="course-note">モデルは画面表示と同時に読み込んでいます。問題に答えている間は再読込しません。</p>
+          </section>
+        </div>
+      </section>
+
+      <div id="gameShell" hidden>
+        <header class="app-header">
+          <div class="brand-lockup">
+            <button type="button" class="brand brand-button" id="titleButton">数学でGO</button>
+            <span id="courseName">30秒チャレンジ</span>
+          </div>
+          <div class="header-status">
+            <dl class="run-stats" aria-label="ゲーム状況">
+              <div><dt>スコア</dt><dd id="scoreValue">0</dd></div>
+              <div><dt>連続</dt><dd id="streakValue">0</dd></div>
+              <div><dt>残機</dt><dd id="livesValue" aria-label="残機3">● ● ●</dd></div>
+              <div class="time-stat"><dt>残り</dt><dd id="timeValue">30.0</dd></div>
+            </dl>
+            <div class="model-state" data-model-state="loading" role="status" aria-live="polite">
+              <span class="state-dot" aria-hidden="true"></span>
+              <span data-model-state-text>認識モデルを準備中</span>
+            </div>
+          </div>
+        </header>
+
+        <section class="game-stage" aria-label="数学問題">
+          <div class="timer-track" id="timerTrack" aria-hidden="true"><span id="timerFill"></span></div>
+          <div id="phaserGame" aria-hidden="true"></div>
+          <div class="progress-track" aria-label="問題の進行状況"><span id="progressFill"></span></div>
+          <div class="stage-intro" id="stageIntro" hidden aria-hidden="true">
+            <span id="stageIntroCourse"></span>
+            <strong id="stageIntroTitle">準備はいい？</strong>
+          </div>
+          <div class="stage-feedback" id="stageFeedback" hidden aria-hidden="true">
+            <strong id="stageFeedbackTitle"></strong>
+          </div>
+          <div class="accessible-question" aria-live="polite">
+            <p id="questionInstruction"></p>
+            <p id="questionExpression"></p>
+          </div>
+
+          <div class="answer-panel" id="answerPanel">
+            <div class="answer-heading">
+              <div>
+                <h1>答えを手書き</h1>
+                <p id="questionMeta">基礎 · 微分</p>
+              </div>
+              <p>マウス・ペン・タッチ対応</p>
+            </div>
+            <div class="canvas-wrap" id="canvasWrap" tabindex="-1">
+              <canvas id="handwritingCanvas" aria-label="数式の回答を書く手書き入力欄"></canvas>
+              <p class="canvas-hint" id="canvasHint">ここから書き始める</p>
+              <span class="pointer-preview" id="pointerPreview" aria-hidden="true" hidden></span>
+            </div>
+            <div class="controls">
+              <div class="edit-controls">
+                <button type="button" class="button button-secondary" id="undoButton">1画戻す</button>
+                <button type="button" class="button button-secondary" id="clearButton">書き直す</button>
+                <button type="button" class="button button-quiet" id="skipButton">わからない <span aria-hidden="true">Q</span></button>
+              </div>
+              <button type="button" class="button button-primary" id="submitButton" disabled>モデル準備中…</button>
+            </div>
+            <p class="action-status" id="actionStatus" role="status" aria-live="polite">
+              モデル準備完了まで少しお待ちください。
+            </p>
+          </div>
+        </section>
+
+        <section class="recognition-result" id="recognitionResult" aria-live="polite" hidden>
+          <div class="verdict-line" id="verdictLine">
+            <h2 id="verdictTitle">判定中</h2>
+            <p id="verdictMessage"></p>
+          </div>
+          <div class="result-main">
+            <section>
+              <p class="result-label">認識した回答</p>
+              <div class="rendered-math" id="renderedMath" aria-label="認識した数式"></div>
+              <p class="raw-latex" id="rawLatex"></p>
+            </section>
+            <section>
+              <p class="result-label">正答</p>
+              <div class="rendered-math expected-math" id="expectedMath" aria-label="正答の数式"></div>
+              <p class="judge-note">保守的なLaTeX正規化と登録済み別表記で判定</p>
+            </section>
+          </div>
+          <dl class="performance-grid">
+            <div><dt>画像化</dt><dd id="encodeTime">—</dd></div>
+            <div><dt>推論</dt><dd id="inferenceTime">—</dd></div>
+            <div><dt>判定</dt><dd id="judgementTime">—</dd></div>
+            <div><dt>反応まで</dt><dd id="feedbackTime">—</dd></div>
+            <div><dt>PNG</dt><dd id="imageSize">—</dd></div>
+          </dl>
+          <div class="result-actions">
+            <button type="button" class="button button-secondary" id="retryButton">認識結果が違う・書き直す</button>
+            <button type="button" class="button button-primary" id="nextButton">次の問題へ</button>
+          </div>
+        </section>
+
+        <section class="end-screen" id="endScreen" hidden aria-live="polite">
+          <h2>チャレンジ結果</h2>
+          <p class="end-score"><span id="finalScore">0</span><small>pts</small></p>
+          <p id="finalMessage">おつかれさまでした。</p>
+          <dl class="end-summary">
+            <div><dt>正解</dt><dd id="finalCorrect">0 / 7</dd></div>
+            <div><dt>平均応答</dt><dd id="finalLatency">—</dd></div>
+            <div><dt>残機</dt><dd id="finalLives">0</dd></div>
+          </dl>
+          <div class="end-actions">
+            <button type="button" class="button button-secondary" id="backToTitleButton">コースを選び直す</button>
+            <button type="button" class="button button-primary" id="restartButton">同じコースでもう一度</button>
+          </div>
+        </section>
+
+        <footer class="app-footer">
+          <span>Prototype — 正規化LaTeXによるサンプル判定</span>
+          <a href="/evaluation">モデル比較・データ収集画面</a>
+        </footer>
+      </div>
+    </main>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
