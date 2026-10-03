@@ -1,0 +1,7 @@
+[paths]
+unimer_archive = "data/downloads/UniMER-Test.zip"
+unimer_test = "data/external/UniMER-Test"
+hwe_manifest = "data/manifests/unimer_hwe.csv"
+custom_eval = "data/custom"
+results = "results"
+

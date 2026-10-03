@@ -1,0 +1,35 @@
+.venv*/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.coverage
+.env
+
+# Downloaded datasets and model weights
+data/downloads/
+data/download/
+data/external/
+third_party/
+models/
+.model-cache/
+
+# User-collected data may contain personal handwriting
+data/custom/*
+!data/custom/.gitkeep
+
+# Generated benchmark artifacts
+results/*.csv
+results/*.json
+results/figures/
+results/logs/
+results/tmp/
+results/*.log
+results/failures/**/*.png
+
+# Local inspection artifacts
+.codex-doc-review/
+.impeccable/review/
+game/node_modules/
+game/dist/
+

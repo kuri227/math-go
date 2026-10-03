@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>数学でGO 手書き数式認識 PoC</title>
+    <link rel="stylesheet" href="/assets/styles.css?v=3" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css" />
+  </head>
+  <body>
+    <main>
+      <header>
+        <p class="eyebrow">LOCAL HMER PROTOTYPE</p>
+        <h1>数学でGO 手書き数式認識</h1>
+        <p class="lead">マウス、ペン、タッチで数式を書き、同じ画像を2つの認識モデルで比較します。</p>
+      </header>
+
+      <section class="workspace" aria-label="手書き入力">
+        <div class="toolbar">
+          <button id="undo" type="button">1画戻す</button>
+          <button id="clear" type="button">全消去</button>
+          <button id="download" type="button">PNGと筆跡をダウンロード</button>
+          <button id="recognize" class="primary" type="button" disabled>モデルを読み込み中…</button>
+        </div>
+        <div class="canvas-frame">
+          <canvas id="canvas" width="900" height="360" aria-label="数式入力キャンバス"></canvas>
+          <div id="pointerIndicator" aria-hidden="true" hidden></div>
+          <p id="emptyHint">ここに数式を書いてください</p>
+        </div>
+        <p class="status" id="status" role="status">モデル状態を確認中です</p>
+      </section>
+
+      <section class="result" aria-live="polite">
+        <div class="input-preview">
+          <h2>入力画像</h2>
+          <div class="preview-frame"><img id="preview" alt="認識に使用したcrop済みPNG" hidden /></div>
+          <p id="inputMeta">未実行</p>
+        </div>
+        <div class="model-result" id="textellerResult">
+          <h2>TexTeller</h2>
+          <p class="model-error" data-field="error"></p>
+          <h3>LaTeX</h3>
+          <pre data-field="latex">未実行</pre>
+          <h3>Rendered</h3>
+          <div data-field="rendered" class="rendered">未実行</div>
+          <p data-field="latency">Latency: -</p>
+        </div>
+        <div class="model-result" id="unimernetResult">
+          <h2>UniMERNet</h2>
+          <p class="model-error" data-field="error"></p>
+          <h3>LaTeX</h3>
+          <pre data-field="latex">未実行</pre>
+          <h3>Rendered</h3>
+          <div data-field="rendered" class="rendered">未実行</div>
+          <p data-field="latency">Latency: -</p>
+        </div>
+      </section>
+
+      <section class="collection" aria-label="評価データ収集">
+        <div>
+          <p class="eyebrow">TEST B DATA COLLECTION</p>
+          <h2>数学でGO Web実入力を保存</h2>
+          <p>Ground Truthは保存前に人間が確認してください。writer IDには実名を使わないでください。</p>
+        </div>
+        <label class="wide">正解LaTeX<input id="groundTruth" type="text" placeholder="例: \\frac{x^2+1}{2}" /></label>
+        <label>カテゴリ
+          <select id="category">
+            <option value="integer">整数</option><option value="decimal">小数</option>
+            <option value="arithmetic">四則演算</option><option value="parentheses">括弧</option>
+            <option value="variable">変数</option><option value="equation">方程式</option>
+            <option value="exponent">指数</option><option value="root">平方根</option>
+            <option value="fraction">分数</option><option value="trigonometry">三角関数</option>
+            <option value="logarithm">対数</option><option value="exponential">指数関数</option>
+            <option value="limit">極限</option><option value="summation">Σ・数列</option>
+            <option value="derivative">微分</option><option value="integral">積分</option>
+            <option value="partial_derivative">偏微分</option><option value="multiple_integral">多重積分</option>
+            <option value="vector">ベクトル</option><option value="matrix">行列</option>
+            <option value="simultaneous_equations">連立式</option><option value="set">集合</option>
+            <option value="nested_fraction">入れ子分数</option><option value="advanced">高度・その他</option>
+          </select>
+        </label>
+        <label>難易度<select id="difficulty"><option value="easy">易</option><option value="medium">中</option><option value="hard">難</option></select></label>
+        <label>匿名writer ID<input id="writerId" type="text" value="anonymous" maxlength="64" /></label>
+        <button id="saveSample" class="primary" type="button">評価データとして保存</button>
+      </section>
+    </main>
+
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js"></script>
+    <script defer src="/assets/app.js?v=3"></script>
+  </body>
+</html>
