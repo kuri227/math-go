@@ -55,9 +55,10 @@ def main() -> None:
     base = ensure_venv(".venv")
     run(base, "-m", "pip", "install", "--upgrade", "pip")
     requirements = ROOT / "requirements" / ("festival.txt" if args.runtime_only else "test.txt")
-    run(base, "-m", "pip", "install", "-r", requirements)
     target = str(ROOT) if args.runtime_only else f"{ROOT}[benchmark,test]"
-    run(base, "-m", "pip", "install", "-c", requirements, "-e", target)
+    # Resolve exact requirements and the editable package together; constraint
+    # files cannot contain extras such as uvicorn[standard].
+    run(base, "-m", "pip", "install", "-r", requirements, "-e", target)
     run(base, "-m", "pip", "check")
 
     model = ensure_venv(".venv-texteller")

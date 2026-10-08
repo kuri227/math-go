@@ -43,3 +43,15 @@ def test_preflight_fails_for_an_unbuilt_clone(monkeypatch, tmp_path):
     rows = check.inspect(True, "cpu")
     assert any(row["check"] == "Build: display.html" and row["status"] == "FAIL" for row in rows)
     assert next(row for row in rows if row["check"] == "NVIDIA driver")["status"] == "WARN"
+
+
+def test_setup_resolves_pins_with_editable_package_without_invalid_extra_constraints(monkeypatch):
+    setup = module("setup_festival")
+    calls = []
+    monkeypatch.setattr(setup.sys, "argv", ["setup_festival.py", "--runtime-only", "--skip-build", "--device", "cpu"])
+    monkeypatch.setattr(setup, "ensure_venv", lambda name: Path(name) / "python")
+    monkeypatch.setattr(setup, "run", lambda *args, **kwargs: calls.append(tuple(str(arg) for arg in args)))
+    setup.main()
+    install = next(call for call in calls if "-e" in call)
+    assert "-r" in install and "-c" not in install
+    assert install[install.index("-r") + 1].endswith("festival.txt")
