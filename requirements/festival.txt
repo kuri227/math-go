@@ -1,0 +1,7 @@
+# Direct dependencies validated on 2026-10-08; frontend uses pnpm-lock.yaml.
+fastapi==0.141.1
+uvicorn[standard]==0.53.0
+python-multipart==0.0.32
+pillow==11.3.0
+pydantic==2.13.5
+tomli==2.4.1; python_version < "3.11"

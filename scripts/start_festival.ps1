@@ -2,7 +2,9 @@
 param(
     [int]$Port = 8000,
     [switch]$Lan,
-    [switch]$NoBrowser
+    [switch]$NoBrowser,
+    [switch]$SingleScreen,
+    [ValidateSet("auto", "cuda", "cpu")][string]$Device = "auto"
 )
 
 $ErrorActionPreference = "Stop"
@@ -14,10 +16,11 @@ $RuntimeDir = Join-Path $RepoRoot ".runtime"
 $StdoutLog = Join-Path $RuntimeDir "server.stdout.log"
 $StderrLog = Join-Path $RuntimeDir "server.stderr.log"
 
-& (Join-Path $PSScriptRoot "check_environment.ps1") -RequireReady -Port $Port
+& (Join-Path $PSScriptRoot "check_environment.ps1") -RequireReady -Port $Port -Device $Device
 New-Item -ItemType Directory -Force -Path $RuntimeDir | Out-Null
 
 $env:HMER_EAGER_MODELS = "texteller"
+$env:TEXTELLER_DEVICE = $Device
 $Server = Start-Process -FilePath $Python `
     -ArgumentList "-m", "uvicorn", "backend.app.main:app", "--host", $BindHost, "--port", "$Port" `
     -WorkingDirectory $RepoRoot -WindowStyle Hidden -PassThru `
@@ -32,8 +35,8 @@ try {
             throw "サーバーが起動中に終了しました。`n$Detail"
         }
         try {
-            $Health = Invoke-RestMethod "$LocalUrl/api/v1/health/live" -TimeoutSec 2
-            if ($Health.status -eq "ok") {
+            $Health = Invoke-RestMethod "$LocalUrl/api/v1/health/ready?model=texteller" -TimeoutSec 2
+            if ($Health.status -eq "ready") {
                 $Ready = $true
                 break
             }
@@ -42,10 +45,11 @@ try {
         }
     }
     if (-not $Ready) {
-        throw "サーバーが3分以内に起動しませんでした。"
+        throw "TexTellerが3分以内に準備完了になりませんでした。.runtime/server.stderr.log と results/logs/texteller.log を確認してください。"
     }
 
-    Write-Host "数学でGO: $LocalUrl"
+    $GameUrl = if ($SingleScreen) { $LocalUrl } else { "$LocalUrl/display" }
+    Write-Host "数学でGO: $GameUrl"
     if ($Lan) {
         $Addresses = Get-NetIPAddress -AddressFamily IPv4 -ErrorAction SilentlyContinue |
             Where-Object { $_.IPAddress -notmatch '^(127\.|169\.254\.)' } |
@@ -56,7 +60,7 @@ try {
         Write-Warning "LAN利用時はWindows FirewallでTCP $Port の受信許可が必要な場合があります。"
     }
     if (-not $NoBrowser) {
-        Start-Process $LocalUrl
+        Start-Process $GameUrl
     }
     Write-Host "停止するにはこの画面でCtrl+Cを押してください。"
     Wait-Process -Id $Server.Id

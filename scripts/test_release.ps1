@@ -23,6 +23,14 @@ try {
         "config\paths.toml",
         "frontend\index.html",
         "game\dist\index.html",
+        "game\dist\display.html",
+        "game\dist\controller.html",
+        "config\game_questions.json",
+        "requirements\festival.txt",
+        "docs\festival-operation.md",
+        "scripts\setup_festival.py",
+        "scripts\preflight.py",
+        "scripts\smoke_exhibition.py",
         "release-manifest.json",
         "scripts\build_game.ps1",
         "scripts\check_environment.ps1",
@@ -36,7 +44,7 @@ try {
 
     $Forbidden = @(Get-ChildItem -LiteralPath $PackageRoot.FullName -File -Recurse | Where-Object {
         $_.FullName -match '\\(\.venv[^\\]*|\.model-cache|node_modules|data\\custom\\.+|results\\logs)\\' -or
-        $_.Extension -in @(".pt", ".pth", ".safetensors", ".log")
+        $_.Extension -in @(".pt", ".pth", ".safetensors", ".log", ".pyc")
     })
     if ($Forbidden.Count -gt 0) {
         throw "Private or generated artifacts were packaged: $($Forbidden.FullName -join ', ')"
@@ -45,6 +53,8 @@ try {
     Write-Host "Release archive verified: $Archive"
 } finally {
     if (Test-Path $TestRoot) {
+        $ResolvedTemp = [IO.Path]::GetFullPath([IO.Path]::GetTempPath()).TrimEnd('\') + '\'
+        if (-not [IO.Path]::GetFullPath($TestRoot).StartsWith($ResolvedTemp + 'math-go-release-test-', [StringComparison]::OrdinalIgnoreCase)) { throw "Unsafe cleanup path" }
         Remove-Item -LiteralPath $TestRoot -Recurse -Force
     }
 }

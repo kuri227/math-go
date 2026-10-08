@@ -18,8 +18,10 @@ if ($Version -notmatch '^[0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z.-]+)?$') {
 if (-not $SkipBuild) {
     & (Join-Path $PSScriptRoot "build_game.ps1")
 }
-if (-not (Test-Path (Join-Path $RepoRoot "game\dist\index.html"))) {
-    throw "game/dist is missing. Build the game before packaging."
+foreach ($Page in @("index", "display", "controller")) {
+    if (-not (Test-Path (Join-Path $RepoRoot "game\dist\$Page.html"))) {
+        throw "game/dist/$Page.html is missing. Build the game before packaging."
+    }
 }
 
 New-Item -ItemType Directory -Force -Path $ReleaseRoot | Out-Null
@@ -33,13 +35,16 @@ if (Test-Path $ArchivePath) { Remove-Item -LiteralPath $ArchivePath -Force }
 New-Item -ItemType Directory -Force -Path $StageRoot | Out-Null
 
 $Files = @("README.md", "VERSION", "pyproject.toml")
-$Directories = @("backend", "config", "frontend", "game\dist")
+$Directories = @("backend", "config", "frontend", "game\dist", "requirements", "docs")
 $ScriptFiles = @(
     "build_game.ps1",
     "check_environment.ps1",
     "setup_models.ps1",
     "setup_festival.ps1",
     "start_festival.ps1"
+    "setup_festival.py"
+    "preflight.py"
+    "smoke_exhibition.py"
 )
 
 foreach ($File in $Files) {
@@ -49,6 +54,13 @@ foreach ($Directory in $Directories) {
     $Destination = Join-Path $StageRoot $Directory
     New-Item -ItemType Directory -Force -Path (Split-Path -Parent $Destination) | Out-Null
     Copy-Item -LiteralPath (Join-Path $RepoRoot $Directory) -Destination $Destination -Recurse
+}
+# Never include interpreter caches copied from a developer's environment.
+$CacheDirectories = @(Get-ChildItem -LiteralPath $StageRoot -Directory -Recurse | Where-Object { $_.Name -eq "__pycache__" })
+foreach ($Cache in $CacheDirectories) {
+    $CachePath = [IO.Path]::GetFullPath($Cache.FullName)
+    if (-not $CachePath.StartsWith($ResolvedStageRoot + '\', [StringComparison]::OrdinalIgnoreCase)) { throw "Unsafe cache path" }
+    Remove-Item -LiteralPath $CachePath -Recurse -Force
 }
 $StageScripts = Join-Path $StageRoot "scripts"
 New-Item -ItemType Directory -Force -Path $StageScripts | Out-Null
