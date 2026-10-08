@@ -1,9 +1,20 @@
 # 高専祭 展示PCの設営・運用マニュアル
 
+## 目的別入口
+
+- 改修しない配布先: READMEの「配布先PCに必要な環境」→CPU/GPU別の手順へ。
+- GPUあり: `setup_festival_gpu.ps1`（初回）→`start_festival_gpu.ps1`（毎回）。
+- GPUなし・GPUを使わない: `setup_festival_cpu.ps1`（初回）→`start_festival_cpu.ps1`（毎回）。
+- 問題がある: 下の「トラブル対処」へ。
+
+ZIPを使う展示PCにはGit・Node・pnpmは不要ですが、64bit Python本体・ブラウザーは必要です。
+初回は依存関係と約1.2GBのモデル重みをインターネットから取得します。会場前に済ませてください。
+CPU版のモデル環境は `.venv-texteller-cpu`、GPU版は `.venv-texteller`。両方を導入しても重みの保存先は共通です。
+
 ## 対応範囲
 
 Windows 11 x64 / Python 3.10 / Node 22.17.1 / pnpm 11.25.0 / NVIDIA RTX 3050 Laptop 4GB / RAM 16GBで検証。
-64bit Python 3.10–3.12を受け付けます。Linux x64向け手順とCPU版を用意していますが、これらは実機での性能未検証です。
+64bit Python 3.10–3.12を受け付けます。CPU版はRyzen 5 5600Hで実測済み（GPU無効・CPU専用wheel）。Linux x64向け手順は未実機検証です。
 空き20GB以上を目安に確保してください。モデルだけで約1.2GB、他にPyTorch・仮想環境・ダウンロードキャッシュが必要です。
 評価用UniMERNetやデータセットを入れる場合はさらに容量が必要です。
 
@@ -41,7 +52,8 @@ Windows 11 x64 / Python 3.10 / Node 22.17.1 / pnpm 11.25.0 / NVIDIA RTX 3050 Lap
 .\scripts\start_festival.ps1 -Device cpu
 ```
 
-GPU版とCPU版を切り替える場合は必ずセットアップを再実行してください。CPU推論は遅く、展示の時間制限に不向きな場合があります。
+CPU/GPUの必要な環境を初回にセットアップした後は、それぞれの起動スクリプトだけで切り替えられます。
+CPU性能と検証条件は `reports/cpu_performance_validation_2026-10-08.md` を参照してください。
 `-Lan` は信頼できる閉じたLANに限ること。問題編集APIに認証はなく、不特定ネットワークへ公開しないでください。
 LAN公開してもDisplayとControllerの別PC間同期はできません。
 

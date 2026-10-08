@@ -2,15 +2,139 @@
 
 文化祭向けの手書き数学ゲームと、その認識基盤を開発するプロジェクトです。ゲームではTexTellerを低遅延で利用し、評価画面ではTexTellerとUniMERNetを同一条件で比較できます。初期PoCで得た評価結果、共通API、データ収集基盤を保持しながら、最終展示へ向けたゲーム本体を同じリポジトリで育てています。
 
-## 高専祭展示PCでのクイックスタート
+## 目次・目的別入口
+
+**改修しない展示PCには、ビルド済みZIPを配布してください。Git・Node.js・pnpmは不要です。Python本体は必要です。**
+
+- [配布先PCに必要な環境](#exhibition-requirements)
+- [NVIDIA GPUで使う：初回セットアップと起動](#gpu-start)
+- [GPUなし・GPUを使わない：CPUでセットアップと起動](#cpu-start)
+- [モデルの取得・保存先・ネット接続](#model-download)
+- [CPUの実測結果](#cpu-performance)
+- [設営・日々の運用・困ったとき](docs/festival-operation.md)
+- [ソースから準備する場合（配布先では不要）](#source-setup)
+- [検証結果](reports/exhibition_release_validation_2026-10-08.md) / [開発履歴](docs/development-history.md)
+
+<a id="exhibition-requirements"></a>
+
+## 配布先PCに必要な環境
+
+配布ZIPを展開して使う場合の要件です。ZIPは実行環境込みの単体exeではありません。
+
+| 項目 | CPUで使う | NVIDIA GPUで使う |
+| --- | --- | --- |
+| OS | Windows 11 x64で検証 | Windows 11 x64で検証 |
+| Python本体 | **64bit Pythonが必要**。3.10系で検証、3.10–3.12を受け付ける | 同左 |
+| ブラウザー | Display/Controllerを同じブラウザー・プロファイルで開く | 同左 |
+| RAM | 16GBを目安。実測環境は16GB | 同左 |
+| 導入前の空き容量 | 20GB以上を目安（依存とモデルのダウンロード含む） | 同左 |
+| GPU・NVIDIAドライバー | **不要**。GPUがあっても使わない設定が可能 | CUDA対応NVIDIA GPUと互換ドライバーが必要。4GB VRAMで検証 |
+| 初回ネット接続 | 依存ライブラリ・モデル取得に必要 | 同左 |
+| 液タブ | ペン用のメーカー製ドライバーとOSの拡張ディスプレイ設定 | 同左 |
+| Git・Node.js・pnpm | **不要** | **不要** |
+
+Pythonは [公式配布元](https://www.python.org/downloads/) から事前に導入し、インストール時にPATHを設定してください。
+PowerShellで `python --version` を実行して確認します。複数バージョンがある場合はセットアップの `-Python` にpython.exeのフルパスを指定します。
+Python仮想環境の作成とライブラリの導入はスクリプトが行います。Anacondaや開発用エディターは不要です。
+CPU版ではCUDA ToolkitもNVIDIAドライバーも不要。GPU版でも別途CUDA Toolkitを入れる手順ではなく、PyTorchのCUDA wheelと互換ドライバーを使います。
+
+ZIPを展開し、READMEがあるフォルダーでPowerShellを開いて、以下のCPU/GPUどちらかへ進んでください。
+書き込みできるユーザーフォルダーを使い、ZIPの中から直接起動しないでください。初回に大きなファイルを取得するため、会場へ行く前にセットアップを済ませます。
+
+<a id="gpu-start"></a>
+
+## NVIDIA GPUで使う
+
+初回だけ実行：
+
+```powershell
+Set-ExecutionPolicy -Scope Process Bypass
+.\scripts\setup_festival_gpu.ps1 -Python python
+.\scripts\check_environment.ps1 -RequireReady -Device cuda
+```
+
+普段の起動：
+
+```powershell
+Set-ExecutionPolicy -Scope Process Bypass
+.\scripts\start_festival_gpu.ps1
+```
+
+`.venv`（アプリ）と `.venv-texteller`（GPUモデル）の環境を自動作成します。
+モデル準備完了後にブラウザーを開きます。ドライバー未導入やCUDA利用不可の場合は理由を表示して止めます。勝手にCPUへ切り替えません。
+
+<a id="cpu-start"></a>
+
+## GPUなし・GPUを使わないPCで使う
+
+GPUなしでも起動・認識を行うためのCPU専用スクリプトです。GPU搭載PCでもCPUで使いたい場合はこちらを選びます。
+
+初回だけ実行：
+
+```powershell
+Set-ExecutionPolicy -Scope Process Bypass
+.\scripts\setup_festival_cpu.ps1 -Python python
+.\scripts\check_environment.ps1 -RequireReady -Device cpu
+```
+
+普段の起動：
+
+```powershell
+Set-ExecutionPolicy -Scope Process Bypass
+.\scripts\start_festival_cpu.ps1
+```
+
+`.venv`（アプリ）と `.venv-texteller-cpu`（**CPU専用PyTorch**）を自動作成します。
+GPU版とはモデル環境を分離し、CPU起動スクリプトではCUDAを無効化してGPUを使わないようにします。
+GPU/CPU両方を用意したPCでも、それぞれの起動スクリプトで選べます。重みは共通で、2種類のモデルをダウンロードする必要はありません。
+CPUでは式の長さやPC性能で待ち時間が変わります。まず「じっくり練習」で実際のペン入力・認識待ちを試してください。
+
+両方の起動スクリプトで `-SingleScreen`（1画面版）、`-Port 8001`（ポート変更）、`-NoBrowser` を使えます。
+停止は起動したPowerShellのCtrl+C。毎回セットアップをやり直す必要はありません。
+`Set-ExecutionPolicy -Scope Process Bypass` はそのPowerShellだけに適用されるため、新しく開いたPowerShellでは必要に応じて再実行します。PC全体の実行ポリシーは変更しません。
+
+<a id="model-download"></a>
+
+## モデル取得・保存先・ネット接続
+
+- ZIPにはモデル、Python本体、仮想環境を入れません。初回セットアップがPyTorch・TexTellerなどを導入し、公式Hugging Faceからモデルを取得します。
+- 使用モデルはTexTellerのみ。検証済みの固定revision `7b96df06b9d81cdb129c3bef68b7250bc3e2b0ea` の必要な9ファイルを取得します。重みだけで約1.2GBです。
+- 保存先は展開フォルダー内の `.model-cache/texteller`。CPU/GPUで同じ重みを共有します。
+- 通常展示にUniMERNet・学習データ・公開評価データセットのダウンロードは不要です。
+- セットアップ完了後、認識はローカルPC内で処理します。回答画像を外部認識サービスへ送信しません。
+- 再セットアップ時には配布元へ確認通信が発生します。オフラインの日は「起動」スクリプトだけを使います。旧モデル比較画面のCDN利用は展示ゲームとは別です。
+- フォルダー内のvenvやモデルを勝手に消さないでください。配布場所を移した場合、venvは移動に対応しないためセットアップし直します。
+
+<a id="cpu-performance"></a>
+
+## CPU性能の検証
+
+**GPUなし相当のCPU環境で起動・認識に成功しました。** Ryzen 5 5600H（6コア12スレッド）、RAM 16GB、Windows 11、CPU専用torch 2.14.0+cpuで測定しています。CUDAは使用不可の状態です。
+
+| 測定 | 結果 |
+| --- | --- |
+| サーバー起動→モデル準備完了（事前チェック除外） | 約10.79秒 |
+| 公開手書き画像16枚を各2回（32要求・逐次） | エラー0、中央値1.55秒、P95 2.71秒、最大2.75秒 |
+| 同じ合成筆跡で同時2要求・計30回 | エラー0、中央値1.95秒、最大1.97秒（待ち行列を含む） |
+| モデルプロセスのRAM | 測定時約1.52GiB、OS記録のピーク約2.60GiB |
+
+このPCでは数秒の認識待ちで動作しました。GPU必須ではありませんが、まず「じっくり練習」で使用感を確認してください。
+認識待ち中はゲームの時計を止めます。画面の認識リクエストには30秒の上限があるため、低速PCや混雑で30秒を超えるとエラーになります。
+モデルロード・応答時間・認識の正確さは別物です。今回のエラー0はAPI処理の成功を意味し、全式を正しく読み取った保証ではありません。
+詳細と再実行方法は [CPU検証レポート](reports/cpu_performance_validation_2026-10-08.md) を参照してください。
+測定値は検証PCと入力画像に依存し、別のPCで同じ速度を保証するものではありません。
+
+<a id="source-setup"></a>
+
+## ソースからのセットアップ（配布先では不要）
 
 通常の展示では **TexTellerだけ** を使用します。UniMERNet・評価データの取得は不要です。
 Git cloneだけではモデルや依存関係は入りません。初回セットアップにはインターネットが必要です。
 
 検証済み環境はWindows 11 x64、64bit Python 3.10.5、Node.js 22.17.1、pnpm 11.25.0、RAM 16GB、RTX 3050 Laptop GPU（VRAM 4GB）です。
 展示用の推奨目安はRAM 16GB以上・空き容量20GB以上・CUDA対応NVIDIA GPU（4GB以上。ただしモデル同時ロードは避ける）です。
-Python 3.10–3.12を受け付けますが、3.11/3.12およびLinux・CPU推論の速度はこの検証では未測定です。
-CPU用セットアップも提供します。macOS・ARM・AMD GPU・WSLでの動作は保証しません。
+Python 3.10–3.12を受け付けますが、3.11/3.12およびLinuxは未実機検証です。CPU推論はRyzen 5 5600Hで実測済み（上のCPU性能項目参照）。
+CPU推論はAMD Ryzenで検証済みです。macOS・ARM・WSLは未実機検証で、AMD GPUを使うGPU推論方式は対象外です。
 「どの環境でも」無条件に動くとはせず、対応条件と未検証条件を分けています。
 
 事前にGit、64bit Python 3.10系、Node.js 22.12以上（検証系列は22）を導入し、PowerShellで実行してください。
@@ -224,10 +348,10 @@ production相当の同一Origin構成は次で起動します。
 文化祭PCへGitやNode.jsを要求せずに配布できるよう、Windows用ZIPを生成できます。現段階では正式版ではなく、セットアップと運用を検証するPre-releaseです。
 
 ```powershell
-.\scripts\package_release.ps1 -Version 0.1.0-alpha.2
+.\scripts\package_release.ps1 -Version 0.1.0-alpha.3
 ```
 
-`release-build/math-go-0.1.0-alpha.2-windows.zip` とSHA-256ファイルが生成され、展開後の必須ファイルと禁止データを自動検査します。ZIPにはbuild済みの3画面、FastAPI、固定直接依存、起動・診断スクリプト、運用マニュアルを含みます。仮想環境、モデル重み、個人筆跡、実行ログ、公開データセット本体は含みません。これはローカル生成物であり、GitHub Releaseの公開やタグ作成は別の操作です。
+`release-build/math-go-0.1.0-alpha.3-windows.zip` とSHA-256ファイルが生成され、展開後の必須ファイルと禁止データを自動検査します。ZIPにはbuild済みの3画面、FastAPI、固定直接依存、CPU/GPU別の起動・診断スクリプト、運用マニュアルとCPU検証結果を含みます。仮想環境、モデル重み、個人筆跡、実行ログ、公開データセット本体は含みません。これはローカル生成物であり、GitHub Releaseの公開やタグ作成は別の操作です。
 
 展開先PCでは次を実行します。
 

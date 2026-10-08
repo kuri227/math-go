@@ -34,13 +34,17 @@ if (Test-Path $StageRoot) { Remove-Item -LiteralPath $StageRoot -Recurse -Force 
 if (Test-Path $ArchivePath) { Remove-Item -LiteralPath $ArchivePath -Force }
 New-Item -ItemType Directory -Force -Path $StageRoot | Out-Null
 
-$Files = @("README.md", "VERSION", "pyproject.toml")
+$Files = @("README.md", "VERSION", "pyproject.toml", "reports\exhibition_release_validation_2026-10-08.md", "reports\cpu_performance_validation_2026-10-08.md")
 $Directories = @("backend", "config", "frontend", "game\dist", "requirements", "docs")
 $ScriptFiles = @(
     "build_game.ps1",
     "check_environment.ps1",
     "setup_models.ps1",
     "setup_festival.ps1",
+    "setup_festival_cpu.ps1",
+    "setup_festival_gpu.ps1",
+    "start_festival_cpu.ps1",
+    "start_festival_gpu.ps1",
     "start_festival.ps1"
     "setup_festival.py"
     "preflight.py"
@@ -48,6 +52,7 @@ $ScriptFiles = @(
 )
 
 foreach ($File in $Files) {
+    New-Item -ItemType Directory -Force -Path (Split-Path -Parent (Join-Path $StageRoot $File)) | Out-Null
     Copy-Item -LiteralPath (Join-Path $RepoRoot $File) -Destination (Join-Path $StageRoot $File)
 }
 foreach ($Directory in $Directories) {

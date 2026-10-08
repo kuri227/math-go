@@ -28,6 +28,7 @@ try {
         "config\game_questions.json",
         "requirements\festival.txt",
         "docs\festival-operation.md",
+        "reports\cpu_performance_validation_2026-10-08.md",
         "scripts\setup_festival.py",
         "scripts\preflight.py",
         "scripts\smoke_exhibition.py",
@@ -35,6 +36,10 @@ try {
         "scripts\build_game.ps1",
         "scripts\check_environment.ps1",
         "scripts\setup_festival.ps1",
+        "scripts\setup_festival_cpu.ps1",
+        "scripts\setup_festival_gpu.ps1",
+        "scripts\start_festival_cpu.ps1",
+        "scripts\start_festival_gpu.ps1",
         "scripts\start_festival.ps1"
     )
     $Missing = @($Required | Where-Object { -not (Test-Path (Join-Path $PackageRoot.FullName $_)) })
