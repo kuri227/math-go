@@ -2,12 +2,13 @@
 
 ## 目的別入口
 
-- 改修しない配布先: READMEの「配布先PCに必要な環境」→CPU/GPU別の手順へ。
+- 初めて使う展示PC: READMEの「必要なPC環境」→「共通準備」→CPU/GPU別の手順へ。
 - GPUあり: `setup_festival_gpu.ps1`（初回）→`start_festival_gpu.ps1`（毎回）。
 - GPUなし・GPUを使わない: `setup_festival_cpu.ps1`（初回）→`start_festival_cpu.ps1`（毎回）。
 - 問題がある: 下の「トラブル対処」へ。
 
-ZIPを使う展示PCにはGit・Node・pnpmは不要ですが、64bit Python本体・ブラウザーは必要です。
+取得・更新はgit clone / git pullに統一します。改修しない展示PCでもGit・64bit Python・Node.js・pnpm・ブラウザーが必要です。
+CPU/GPU別セットアップスクリプトが依存導入と画面ビルドまで行います。グローバルpnpmの手動導入の影響はREADMEを確認してください。
 初回は依存関係と約1.2GBのモデル重みをインターネットから取得します。会場前に済ませてください。
 CPU版のモデル環境は `.venv-texteller-cpu`、GPU版は `.venv-texteller`。両方を導入しても重みの保存先は共通です。
 
@@ -92,7 +93,6 @@ CUDA版には対応NVIDIAドライバーが必要です。
 ```bash
 git clone https://github.com/kuri227/math-go.git
 cd math-go
-npm install -g pnpm@11.25.0
 python3 scripts/setup_festival.py --runtime-only --device cuda
 .venv/bin/python scripts/preflight.py --require-ready --device cuda --port 8000
 HMER_EAGER_MODELS=texteller TEXTELLER_DEVICE=cuda .venv/bin/python -m uvicorn backend.app.main:app --host 127.0.0.1 --port 8000
@@ -101,9 +101,3 @@ HMER_EAGER_MODELS=texteller TEXTELLER_DEVICE=cuda .venv/bin/python -m uvicorn ba
 準備完了後に同じブラウザーで `http://127.0.0.1:8000/display` を開きます。停止はCtrl+C。
 CPU版はセットアップの `--device cpu` と起動の `TEXTELLER_DEVICE=cpu` の両方を指定します。
 WindowsのPowerShell起動スクリプトはLinuxでは使いません。
-
-## ZIPを使う場合
-
-ソースcloneの代わりにビルド済みZIPを展開して `setup_festival.ps1` → `start_festival.ps1` を実行できます。
-Node/pnpmは再buildしない限り不要ですが、Python・モデル取得・互換ドライバーは必要です。
-ZIPにはモデル・個人筆跡・venvを含めません。ZIP内はフロントエンドのソースを含まないため、改修にはGit cloneを使ってください。
