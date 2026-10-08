@@ -14,6 +14,8 @@ def _venv_python(name: str) -> Path:
     configured = os.getenv(f"{name.upper()}_PYTHON")
     if configured:
         return Path(configured).expanduser().resolve()
+    if name == "texteller" and os.getenv("TEXTELLER_DEVICE") == "cpu":
+        name = "texteller-cpu"
     if sys.platform == "win32":
         return REPO_ROOT / f".venv-{name}" / "Scripts" / "python.exe"
     return REPO_ROOT / f".venv-{name}" / "bin" / "python"

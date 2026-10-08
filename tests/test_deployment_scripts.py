@@ -55,3 +55,36 @@ def test_setup_resolves_pins_with_editable_package_without_invalid_extra_constra
     install = next(call for call in calls if "-e" in call)
     assert "-r" in install and "-c" not in install
     assert install[install.index("-r") + 1].endswith("festival.txt")
+    assert any(call[0].startswith(".venv-texteller-cpu") for call in calls)
+
+
+def test_cpu_preflight_uses_separate_model_environment(monkeypatch):
+    check = module("preflight")
+    monkeypatch.delenv("TEXTELLER_PYTHON", raising=False)
+    assert ".venv-texteller-cpu" in str(check.venv_python("texteller", "cpu"))
+    assert ".venv-texteller-cpu" not in str(check.venv_python("texteller", "cuda"))
+
+
+def test_registry_cpu_default_never_selects_gpu_environment(monkeypatch):
+    from backend.app.recognizers.registry import _venv_python
+    monkeypatch.delenv("TEXTELLER_PYTHON", raising=False)
+    monkeypatch.setenv("TEXTELLER_DEVICE", "cpu")
+    assert ".venv-texteller-cpu" in str(_venv_python("texteller"))
+
+
+def test_ready_cpu_install_does_not_require_nvidia_driver(monkeypatch, tmp_path):
+    import backend.app.game_questions as questions
+    check = module("preflight")
+    monkeypatch.setattr(check, "ROOT", tmp_path)
+    monkeypatch.setattr(check.shutil, "which", lambda _: None)
+    monkeypatch.setattr(questions, "get_questions", lambda: [object()])
+    monkeypatch.setattr(check.subprocess, "run", lambda *args, **kwargs: subprocess.CompletedProcess(args, 0, '{"cuda":false,"torch":"2.14.0+cpu"}'))
+    for name in ("TEXTELLER_PYTHON", "TEXTELLER_MODEL_DIR"):
+        monkeypatch.delenv(name, raising=False)
+    paths = [check.venv_python("base", "cpu"), check.venv_python("texteller", "cpu")]
+    paths += [tmp_path / ".model-cache/texteller" / name for name in ("model.safetensors", "config.json", "tokenizer.json", "tokenizer_config.json")]
+    paths += [tmp_path / "game/dist" / name for name in ("index.html", "display.html", "controller.html", "game-assets/test.js")]
+    for path in paths:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.touch()
+    assert not any(row["status"] == "FAIL" for row in check.inspect(True, "cpu"))

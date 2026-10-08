@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-    [int]$Port = 8000,
+    [ValidateRange(1, 65535)][int]$Port = 8000,
     [switch]$Lan,
     [switch]$NoBrowser,
     [switch]$SingleScreen,
@@ -21,15 +21,17 @@ New-Item -ItemType Directory -Force -Path $RuntimeDir | Out-Null
 
 $env:HMER_EAGER_MODELS = "texteller"
 $env:TEXTELLER_DEVICE = $Device
+$StartupWatch = [Diagnostics.Stopwatch]::StartNew()
 $Server = Start-Process -FilePath $Python `
     -ArgumentList "-m", "uvicorn", "backend.app.main:app", "--host", $BindHost, "--port", "$Port" `
     -WorkingDirectory $RepoRoot -WindowStyle Hidden -PassThru `
     -RedirectStandardOutput $StdoutLog -RedirectStandardError $StderrLog
 
 try {
-    Write-Host "TexTellerを読み込んでいます。初回は数秒かかります。"
+    Write-Host "TexTellerを読み込んでいます。CPUや低速PCでは時間がかかる場合があります。"
     $Ready = $false
-    for ($Attempt = 0; $Attempt -lt 180; $Attempt++) {
+    $ReadyDeadline = [DateTime]::UtcNow.AddMinutes(3)
+    while ([DateTime]::UtcNow -lt $ReadyDeadline) {
         if ($Server.HasExited) {
             $Detail = if (Test-Path $StderrLog) { Get-Content $StderrLog -Tail 30 | Out-String } else { "" }
             throw "サーバーが起動中に終了しました。`n$Detail"
@@ -40,15 +42,16 @@ try {
                 $Ready = $true
                 break
             }
-        } catch {
-            Start-Sleep -Seconds 1
-        }
+        } catch { }
+        Start-Sleep -Seconds 1
     }
     if (-not $Ready) {
         throw "TexTellerが3分以内に準備完了になりませんでした。.runtime/server.stderr.log と results/logs/texteller.log を確認してください。"
     }
 
     $GameUrl = if ($SingleScreen) { $LocalUrl } else { "$LocalUrl/display" }
+    $StartupWatch.Stop()
+    Write-Host "準備完了まで: $([Math]::Round($StartupWatch.Elapsed.TotalSeconds, 2)) 秒"
     Write-Host "数学でGO: $GameUrl"
     if ($Lan) {
         $Addresses = Get-NetIPAddress -AddressFamily IPv4 -ErrorAction SilentlyContinue |

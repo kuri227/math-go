@@ -61,7 +61,7 @@ def main() -> None:
     run(base, "-m", "pip", "install", "-r", requirements, "-e", target)
     run(base, "-m", "pip", "check")
 
-    model = ensure_venv(".venv-texteller")
+    model = ensure_venv(".venv-texteller-cpu" if args.device == "cpu" else ".venv-texteller")
     run(model, "-m", "pip", "install", "--upgrade", "pip")
     install_torch(model, args.device, args.torch_index_url, args.torch_version, args.torchvision_version)
     run(model, "-m", "pip", "install", "texteller==1.0.2", "huggingface-hub==0.36.2")

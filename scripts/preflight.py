@@ -13,9 +13,10 @@ import sys
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def venv_python(name: str) -> Path:
+def venv_python(name: str, device: str = "auto") -> Path:
     override = os.getenv(f"{name.upper()}_PYTHON") if name != "base" else None
-    return Path(override) if override else ROOT / (".venv" if name == "base" else f".venv-{name}") / ("Scripts/python.exe" if os.name == "nt" else "bin/python")
+    folder = ".venv" if name == "base" else ".venv-texteller-cpu" if name == "texteller" and device == "cpu" else f".venv-{name}"
+    return Path(override) if override else ROOT / folder / ("Scripts/python.exe" if os.name == "nt" else "bin/python")
 
 
 def inspect(require_ready: bool, device: str, port: int | None = None) -> list[dict]:
@@ -30,7 +31,7 @@ def inspect(require_ready: bool, device: str, port: int | None = None) -> list[d
     free_gib = shutil.disk_usage(ROOT).free / 1024**3
     add("Disk space", free_gib >= 20, f"{free_gib:.1f} GiB free; 20 GiB recommended for initial installation", False)
     for name in ("base", "texteller"):
-        executable = venv_python(name)
+        executable = venv_python(name, device)
         add(name + " environment", executable.is_file(), str(executable), require_ready)
     model = Path(os.getenv("TEXTELLER_MODEL_DIR", ROOT / ".model-cache/texteller"))
     for file in ("model.safetensors", "config.json", "tokenizer.json", "tokenizer_config.json"):
@@ -44,7 +45,7 @@ def inspect(require_ready: bool, device: str, port: int | None = None) -> list[d
             add("Question bank", bool(get_questions()), f"{len(get_questions())} validated questions")
         except Exception as exc:
             add("Question bank", False, str(exc))
-        model_python = venv_python("texteller")
+        model_python = venv_python("texteller", device)
         if model_python.is_file():
             code = "import json, torch, texteller; print(json.dumps({'cuda':torch.cuda.is_available(),'torch':torch.__version__}))"
             try:
