@@ -1,10 +1,11 @@
 from io import BytesIO
+import mimetypes
 
 from fastapi.testclient import TestClient
 from PIL import Image
 
 from backend.app.config import Paths
-from backend.app.main import app
+from backend.app.main import GAME_DIST_DIR, app
 from backend.app.recognizers.base import Recognition
 
 
@@ -17,6 +18,22 @@ def png_bytes() -> bytes:
 def test_health():
     with TestClient(app) as client:
         assert client.get("/health").json() == {"status": "ok"}
+
+
+def test_javascript_mime_type_is_safe_for_es_modules():
+    assert mimetypes.guess_type("bundle.js")[0] == "text/javascript"
+
+
+def test_built_game_javascript_is_served_as_a_module_compatible_type():
+    javascript_assets = sorted((GAME_DIST_DIR / "game-assets").glob("*.js"))
+    if not javascript_assets:
+        return
+
+    with TestClient(app) as client:
+        response = client.get(f"/game-assets/{javascript_assets[0].name}")
+
+    assert response.status_code == 200
+    assert response.headers["content-type"].split(";", 1)[0] == "text/javascript"
 
 
 def test_model_preload_starts_background_loading(monkeypatch):
@@ -140,10 +157,18 @@ def test_game_questions_do_not_expose_answers():
         response = client.get("/api/v1/questions")
     assert response.status_code == 200
     body = response.json()
-    assert len(body) == 7
-    assert body[0]["id"] == "differentiate-quadratic"
+    assert len(body) >= 50
+    assert body[0]["id"] == "add-single"
+    assert body[0]["difficulty"] == 1
+    assert body[0]["difficulty_label"] == "小学校低学年"
+    assert body[0]["display_latex"] == "7+5"
     assert "answer_latex" not in body[0]
     assert "accepted_latex" not in body[0]
+
+    by_id = {question["id"]: question for question in body}
+    assert by_id["definite-integral"]["display_latex"] == r"\int_{0}^{1}x\,dx"
+    assert by_id["standard-limit"]["display_latex"] == r"\lim_{x\to0}\frac{\sin x}{x}"
+    assert by_id["matrix-determinant"]["display_latex"] == r"\begin{vmatrix}1&2\\3&4\end{vmatrix}"
 
 
 def test_game_judgement_accepts_normalized_aliases():
@@ -160,6 +185,32 @@ def test_game_judgement_accepts_normalized_aliases():
     assert body["correct"] is True
     assert body["recognized_normalized"] == "3+2x"
     assert body["judge_method"] == "normalized_alias"
+    assert "導関数" in body["explanation"]
+
+
+def test_game_judgement_preserves_function_command_boundary():
+    with TestClient(app) as client:
+        response = client.post(
+            "/api/v1/judgements",
+            json={
+                "question_id": "differentiate-sine",
+                "recognized_latex": r"\[\cos x\]",
+            },
+        )
+    assert response.status_code == 200
+    body = response.json()
+    assert body["correct"] is True
+    assert body["recognized_normalized"] == r"\cos x"
+    assert body["expected_latex"] == r"\cos x"
+
+
+def test_game_solution_reveals_answer_after_skip_or_timeout():
+    with TestClient(app) as client:
+        response = client.get("/api/v1/solutions/fraction-add")
+    assert response.status_code == 200
+    body = response.json()
+    assert body["expected_latex"] == r"\frac{3}{4}"
+    assert "3/4" in body["explanation"]
 
 
 def test_game_judgement_rejects_unknown_question():

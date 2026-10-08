@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class RecognitionResponse(BaseModel):
@@ -69,8 +69,27 @@ class GameQuestionResponse(BaseModel):
     id: str
     instruction: str
     display: str
+    display_latex: str
     category: str
-    difficulty: str
+    difficulty: int
+    difficulty_label: str
+
+
+class GameQuestionCreateRequest(BaseModel):
+    id: str = Field(pattern=r"^[a-z0-9][a-z0-9-]*$")
+    question: str = Field(min_length=1)
+    question_latex: str = Field(min_length=1)
+    instruction: str = Field(min_length=1)
+    answer: list[str] = Field(min_length=1)
+    description: str = Field(min_length=1)
+    difficulty: int = Field(ge=1, le=7)
+    category: str = Field(min_length=1)
+
+
+class GameQuestionCreateResponse(BaseModel):
+    id: str
+    total: int
+    message: str
 
 
 class JudgementRequest(BaseModel):
@@ -84,5 +103,12 @@ class JudgementResponse(BaseModel):
     recognized_latex: str
     recognized_normalized: str
     expected_latex: str
+    explanation: str
     judge_method: str
     message: str
+
+
+class SolutionResponse(BaseModel):
+    question_id: str
+    expected_latex: str
+    explanation: str

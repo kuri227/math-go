@@ -1,0 +1,60 @@
+{
+  "questions": [
+    {"id":"add-single","question":"7 + 5","question_latex":"7+5","instruction":"計算しなさい","answer":["12"],"description":"7に5を足すと12です。","difficulty":1,"category":"たし算"},
+    {"id":"subtract-single","question":"14 - 8","question_latex":"14-8","instruction":"計算しなさい","answer":["6"],"description":"14から8を引くと6です。","difficulty":1,"category":"ひき算"},
+    {"id":"multiply-basic","question":"6 × 4","question_latex":"6\\times4","instruction":"計算しなさい","answer":["24"],"description":"6を4回足すと24です。","difficulty":1,"category":"かけ算"},
+    {"id":"divide-basic","question":"20 ÷ 5","question_latex":"20\\div5","instruction":"計算しなさい","answer":["4"],"description":"20を5個ずつ分けると4個です。","difficulty":1,"category":"わり算"},
+    {"id":"add-carry","question":"36 + 27","question_latex":"36+27","instruction":"計算しなさい","answer":["63"],"description":"一の位と十の位を順に足すと63です。","difficulty":1,"category":"たし算"},
+    {"id":"subtract-borrow","question":"80 - 37","question_latex":"80-37","instruction":"計算しなさい","answer":["43"],"description":"80から37を引くと43です。","difficulty":1,"category":"ひき算"},
+    {"id":"multiply-nine","question":"9 × 8","question_latex":"9\\times8","instruction":"計算しなさい","answer":["72"],"description":"9の段より、9かける8は72です。","difficulty":1,"category":"かけ算"},
+    {"id":"add-two-digit","question":"25 + 17","question_latex":"25+17","instruction":"計算しなさい","answer":["42"],"description":"25に17を足すと42です。","difficulty":1,"category":"たし算"},
+    {"id":"divide-nine","question":"63 ÷ 9","question_latex":"63\\div9","instruction":"計算しなさい","answer":["7"],"description":"63を9で割ると7です。","difficulty":1,"category":"わり算"},
+    {"id":"multiply-seven","question":"7 × 6","question_latex":"7\\times6","instruction":"計算しなさい","answer":["42"],"description":"7の段より、7かける6は42です。","difficulty":1,"category":"かけ算"},
+
+    {"id":"fraction-add","question":"1/2 + 1/4","question_latex":"\\frac{1}{2}+\\frac{1}{4}","instruction":"答えを約分して書きなさい","answer":["\\frac{3}{4}","3/4"],"description":"1/2を2/4に直すと、2/4+1/4=3/4です。","difficulty":2,"category":"分数"},
+    {"id":"decimal-add","question":"2.5 + 1.7","question_latex":"2.5+1.7","instruction":"計算しなさい","answer":["4.2"],"description":"小数点をそろえて足すと4.2です。","difficulty":2,"category":"小数"},
+    {"id":"fraction-reduce","question":"18/24","question_latex":"\\frac{18}{24}","instruction":"最も簡単な分数にしなさい","answer":["\\frac{3}{4}","3/4"],"description":"分子と分母を最大公約数6で割ると3/4です。","difficulty":2,"category":"約分"},
+    {"id":"fraction-subtract","question":"3/4 - 1/4","question_latex":"\\frac{3}{4}-\\frac{1}{4}","instruction":"答えを約分して書きなさい","answer":["\\frac{1}{2}","1/2","0.5"],"description":"分母が同じなので分子を引き、2/4を約分すると1/2です。","difficulty":2,"category":"分数"},
+    {"id":"decimal-multiply","question":"1.2 × 3","question_latex":"1.2\\times3","instruction":"計算しなさい","answer":["3.6"],"description":"12×3=36として小数点を1桁戻すと3.6です。","difficulty":2,"category":"小数"},
+    {"id":"percent-eighty","question":"80の25%","question_latex":"80\\times25\\%","instruction":"計算しなさい","answer":["20"],"description":"80の4分の1は20なので、25%は20です。","difficulty":2,"category":"割合"},
+    {"id":"rectangle-area","question":"たて5、よこ8の長方形","question_latex":"5\\times8","instruction":"面積を求めなさい","answer":["40"],"description":"長方形の面積は、たて×よこより5×8=40です。","difficulty":2,"category":"図形"},
+
+    {"id":"solve-linear","question":"2x + 6 = 0","question_latex":"2x+6=0","instruction":"方程式を解きなさい","answer":["x=-3","-3=x"],"description":"両辺から6を引き、2で割るとx=-3です。","difficulty":3,"category":"方程式"},
+    {"id":"expand-binomial","question":"(x + 2)²","question_latex":"(x+2)^2","instruction":"式を展開しなさい","answer":["x^2+4x+4","4+4x+x^2"],"description":"(x+2)(x+2)を展開するとx²+4x+4です。","difficulty":3,"category":"展開"},
+    {"id":"evaluate-root","question":"√49","question_latex":"\\sqrt{49}","instruction":"計算しなさい","answer":["7","+7"],"description":"7²=49なので、√49=7です。","difficulty":3,"category":"平方根"},
+    {"id":"solve-linear-seven","question":"3x - 9 = 12","question_latex":"3x-9=12","instruction":"方程式を解きなさい","answer":["x=7","7=x"],"description":"両辺に9を足して3で割るとx=7です。","difficulty":3,"category":"方程式"},
+    {"id":"factor-difference-squares","question":"x² - 9","question_latex":"x^2-9","instruction":"因数分解しなさい","answer":["(x-3)(x+3)","(x+3)(x-3)"],"description":"平方の差a²-b²=(a-b)(a+b)を使います。","difficulty":3,"category":"因数分解"},
+    {"id":"pythagorean-three-four","question":"直角をはさむ2辺が3と4","question_latex":"3^2+4^2=c^2","instruction":"斜辺の長さを求めなさい","answer":["5","c=5","5=c"],"description":"三平方の定理よりc²=9+16=25なので、c=5です。","difficulty":3,"category":"図形"},
+    {"id":"simultaneous-equations","question":"x+y=7, x-y=1","question_latex":"\\begin{cases}x+y=7\\\\x-y=1\\end{cases}","instruction":"連立方程式を解きなさい","answer":["x=4,y=3","y=3,x=4"],"description":"2式を足すと2x=8でx=4、代入してy=3です。","difficulty":3,"category":"連立方程式"},
+
+    {"id":"differentiate-quadratic","question":"f(x) = x² + 3x","question_latex":"f(x)=x^2+3x","instruction":"f(x)を微分しなさい","answer":["2x+3","3+2x"],"description":"x²の導関数は2x、3xの導関数は3です。","difficulty":4,"category":"微分"},
+    {"id":"differentiate-sine","question":"f(x) = sin x","question_latex":"f(x)=\\sin x","instruction":"f(x)を微分しなさい","answer":["\\cos x","\\cos(x)"],"description":"sin xの導関数はcos xです。","difficulty":4,"category":"微分"},
+    {"id":"integrate-linear","question":"∫ 2x dx","question_latex":"\\int 2x\\,dx","instruction":"不定積分を求めなさい","answer":["x^2+C","C+x^2"],"description":"2xを積分するとx²となり、積分定数Cを加えます。","difficulty":4,"category":"積分"},
+    {"id":"differentiate-cubic","question":"f(x)=x³-2x","question_latex":"f(x)=x^3-2x","instruction":"f(x)を微分しなさい","answer":["3x^2-2","-2+3x^2"],"description":"x³の導関数は3x²、-2xの導関数は-2です。","difficulty":4,"category":"微分"},
+    {"id":"definite-integral-two","question":"0から2までのxの積分","question_latex":"\\int_{0}^{2}x\\,dx","instruction":"定積分を求めなさい","answer":["2"],"description":"原始関数x²/2に2と0を代入すると2です。","difficulty":4,"category":"定積分"},
+    {"id":"sine-thirty","question":"sin(π/6)","question_latex":"\\sin\\frac{\\pi}{6}","instruction":"値を求めなさい","answer":["\\frac{1}{2}","1/2","0.5"],"description":"30度の正弦は1/2です。","difficulty":4,"category":"三角関数"},
+    {"id":"log-two-eight","question":"log₂ 8","question_latex":"\\log_{2}8","instruction":"値を求めなさい","answer":["3"],"description":"2³=8なので、log₂8=3です。","difficulty":4,"category":"対数"},
+
+    {"id":"complex-square","question":"(1 + i)²","question_latex":"(1+i)^2","instruction":"計算しなさい","answer":["2i"],"description":"1+2i+i²で、i²=-1より2iです。","difficulty":5,"category":"複素数"},
+    {"id":"matrix-determinant","question":"det [[1,2],[3,4]]","question_latex":"\\begin{vmatrix}1&2\\\\3&4\\end{vmatrix}","instruction":"行列式を求めなさい","answer":["-2"],"description":"1×4-2×3=-2です。","difficulty":5,"category":"行列"},
+    {"id":"vector-dot","question":"(1,2)・(3,4)","question_latex":"\\begin{pmatrix}1&2\\end{pmatrix}\\cdot\\begin{pmatrix}3\\\\4\\end{pmatrix}","instruction":"内積を求めなさい","answer":["11"],"description":"1×3+2×4=11です。","difficulty":5,"category":"ベクトル"},
+    {"id":"complex-product","question":"(2+i)(2-i)","question_latex":"(2+i)(2-i)","instruction":"計算しなさい","answer":["5"],"description":"和と差の積より4-i²=4+1=5です。","difficulty":5,"category":"複素数"},
+    {"id":"matrix-trace","question":"[[2,1],[0,3]]のトレース","question_latex":"\\operatorname{tr}\\begin{pmatrix}2&1\\\\0&3\\end{pmatrix}","instruction":"トレースを求めなさい","answer":["5"],"description":"対角成分の和は2+3=5です。","difficulty":5,"category":"行列"},
+    {"id":"vector-norm","question":"ベクトル(3,4)の長さ","question_latex":"\\left\\|\\begin{pmatrix}3\\\\4\\end{pmatrix}\\right\\|","instruction":"長さを求めなさい","answer":["5"],"description":"√(3²+4²)=√25=5です。","difficulty":5,"category":"ベクトル"},
+    {"id":"sigma-five","question":"1から5までの和","question_latex":"\\sum_{k=1}^{5}k","instruction":"和を求めなさい","answer":["15"],"description":"1+2+3+4+5=15です。","difficulty":5,"category":"数列"},
+
+    {"id":"partial-derivative","question":"f=x²y+y³","question_latex":"f=x^2y+y^3,\\quad\\frac{\\partial f}{\\partial x}","instruction":"偏導関数を求めなさい","answer":["2xy","2yx"],"description":"yを定数としてxで偏微分すると2xyです。","difficulty":6,"category":"偏微分"},
+    {"id":"definite-integral","question":"∫₀¹ x dx","question_latex":"\\int_{0}^{1}x\\,dx","instruction":"定積分を求めなさい","answer":["\\frac{1}{2}","1/2","0.5"],"description":"原始関数x²/2に1と0を代入すると1/2です。","difficulty":6,"category":"定積分"},
+    {"id":"standard-limit","question":"lim(x→0) sin x / x","question_latex":"\\lim_{x\\to0}\\frac{\\sin x}{x}","instruction":"極限を求めなさい","answer":["1"],"description":"基本極限lim(x→0) sin x / x = 1を用います。","difficulty":6,"category":"極限"},
+    {"id":"partial-derivative-y","question":"f=x²y+y³ をyで偏微分","question_latex":"f=x^2y+y^3,\\quad\\frac{\\partial f}{\\partial y}","instruction":"偏導関数を求めなさい","answer":["x^2+3y^2","3y^2+x^2"],"description":"xを定数としてyで偏微分するとx²+3y²です。","difficulty":6,"category":"偏微分"},
+    {"id":"cosine-limit","question":"lim(x→0) (1-cos x)/x²","question_latex":"\\lim_{x\\to0}\\frac{1-\\cos x}{x^2}","instruction":"極限を求めなさい","answer":["\\frac{1}{2}","1/2","0.5"],"description":"標準極限(1-cos x)/x²=1/2を用います。","difficulty":6,"category":"極限"},
+    {"id":"double-integral-unit-square","question":"単位正方形上のx+yの積分","question_latex":"\\int_{0}^{1}\\int_{0}^{1}(x+y)\\,dx\\,dy","instruction":"二重積分を求めなさい","answer":["1"],"description":"xとyの各積分が1/2ずつとなり、合計は1です。","difficulty":6,"category":"多重積分"},
+
+    {"id":"laplace-one","question":"L{1}","question_latex":"\\mathcal{L}\\{1\\}","instruction":"ラプラス変換を求めなさい","answer":["\\frac{1}{s}","1/s"],"description":"定義により0から∞までe^{-st}を積分すると1/sです。","difficulty":7,"category":"ラプラス変換"},
+    {"id":"identity-eigenvalue","question":"I₂ の固有値","question_latex":"I_2","instruction":"固有値を答えなさい","answer":["1"],"description":"単位行列はすべてのベクトルを変えないため、固有値は1です。","difficulty":7,"category":"線形代数"},
+    {"id":"gaussian-integral","question":"∫₋∞^∞ e^{-x²} dx","question_latex":"\\int_{-\\infty}^{\\infty}e^{-x^2}\\,dx","instruction":"積分値を答えなさい","answer":["\\sqrt{\\pi}","\\pi^{1/2}"],"description":"ガウス積分の値は√πです。","difficulty":7,"category":"解析学"},
+    {"id":"diagonal-determinant","question":"diag(2,3,4)の行列式","question_latex":"\\det\\begin{pmatrix}2&0&0\\\\0&3&0\\\\0&0&4\\end{pmatrix}","instruction":"行列式を求めなさい","answer":["24"],"description":"対角行列の行列式は対角成分の積なので2×3×4=24です。","difficulty":7,"category":"線形代数"},
+    {"id":"infinite-geometric-series","question":"1/2+1/4+1/8+…","question_latex":"\\sum_{n=1}^{\\infty}\\left(\\frac{1}{2}\\right)^n","instruction":"無限級数の和を求めなさい","answer":["1"],"description":"初項1/2、公比1/2の等比級数なので、和は(1/2)/(1-1/2)=1です。","difficulty":7,"category":"無限級数"},
+    {"id":"gamma-four","question":"Γ(4)","question_latex":"\\Gamma(4)","instruction":"値を求めなさい","answer":["6"],"description":"Γ(n)=(n-1)!より、Γ(4)=3!=6です。","difficulty":7,"category":"特殊関数"}
+  ]
+}

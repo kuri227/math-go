@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#101b3d" />
+    <title>問題登録 | 数学でGO</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="/assets/question-editor.css" />
+  </head>
+  <body>
+    <header class="editor-header">
+      <a href="/" class="brand">数学でGO</a>
+      <p>問題登録</p>
+    </header>
+    <main>
+      <section class="intro" aria-labelledby="editorHeading">
+        <div>
+          <h1 id="editorHeading">新しい問題を登録</h1>
+          <p>必要な内容を入力して保存すると、次にゲームを始めたときから問題候補へ加わります。</p>
+        </div>
+        <p class="bank-count" id="bankCount" aria-live="polite">問題数を確認中…</p>
+      </section>
+
+      <form id="questionForm">
+        <section class="form-section" aria-labelledby="promptHeading">
+          <div class="section-heading">
+            <h2 id="promptHeading">出題内容</h2>
+            <p>ゲーム画面に表示する問題と指示です。</p>
+          </div>
+          <div class="field-grid">
+            <label class="field field-wide">
+              <span>問題の数式（LaTeX）</span>
+              <input id="questionLatex" name="question_latex" required placeholder="例: \frac{1}{2}+\frac{1}{4}" />
+            </label>
+            <label class="field field-wide">
+              <span>読み上げ・予備表示用テキスト</span>
+              <input id="questionText" name="question" required placeholder="例: 1/2 + 1/4" />
+            </label>
+            <label class="field">
+              <span>プレイヤーへの指示</span>
+              <input name="instruction" required value="計算しなさい" />
+            </label>
+            <label class="field">
+              <span>カテゴリ</span>
+              <input name="category" required placeholder="例: 分数" />
+            </label>
+            <label class="field">
+              <span>難易度</span>
+              <select name="difficulty" required>
+                <option value="1">1 · 小学校低学年</option>
+                <option value="2">2 · 小学校高学年</option>
+                <option value="3" selected>3 · 中学校</option>
+                <option value="4">4 · 高校</option>
+                <option value="5">5 · 高専</option>
+                <option value="6">6 · 大学</option>
+                <option value="7">7 · 大学院</option>
+              </select>
+            </label>
+            <label class="field">
+              <span>管理ID（省略可）</span>
+              <input name="id" pattern="[a-z0-9][a-z0-9-]*" placeholder="自動で作成します" />
+              <small>半角小文字・数字・ハイフンのみ</small>
+            </label>
+          </div>
+        </section>
+
+        <section class="form-section" aria-labelledby="answerHeading">
+          <div class="section-heading">
+            <h2 id="answerHeading">正答と解説</h2>
+            <p>1行目を代表正答として表示し、2行目以降も正解として受け付けます。</p>
+          </div>
+          <div class="field-grid">
+            <label class="field field-wide">
+              <span>正答候補（1行に1つ）</span>
+              <textarea name="answer" rows="4" required placeholder="\frac{3}{4}&#10;3/4"></textarea>
+            </label>
+            <label class="field field-wide">
+              <span>解説</span>
+              <textarea name="description" rows="3" required placeholder="例: 通分すると2/4+1/4=3/4です。"></textarea>
+            </label>
+          </div>
+        </section>
+
+        <aside class="preview" aria-labelledby="previewHeading">
+          <div>
+            <h2 id="previewHeading">登録前の確認</h2>
+            <p id="previewInstruction">計算しなさい</p>
+          </div>
+          <code id="previewLatex">数式を入力してください</code>
+          <p id="previewAnswer">正答: 未入力</p>
+        </aside>
+
+        <div class="form-actions">
+          <a href="/" class="secondary-action">ゲームへ戻る</a>
+          <button type="submit" id="saveButton">この問題を登録</button>
+        </div>
+        <p class="form-status" id="formStatus" role="status" aria-live="polite"></p>
+      </form>
+    </main>
+    <script type="module" src="/assets/question-editor.js"></script>
+  </body>
+</html>

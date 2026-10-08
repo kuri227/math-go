@@ -13,6 +13,12 @@ def test_normalize_safe_formatting_variants():
     assert normalized_match(r"\[b_{n+1}-b_n=-1\]", r"b _ { n + 1 } - b _ { n } = - 1")
 
 
+def test_normalize_preserves_latex_control_word_boundaries():
+    assert normalize_latex(r"\[\cos x\]") == r"\cos x"
+    assert normalize_latex(r"\sin   x") == r"\sin x"
+    assert normalized_match(r"\[\cos x\]", r"\cos x")
+
+
 def test_normalization_does_not_claim_algebraic_equivalence():
     assert not normalized_match(r"x(x+1)", r"x^2+x")
 

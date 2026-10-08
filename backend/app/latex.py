@@ -6,6 +6,8 @@ import re
 _SPACING_COMMANDS = re.compile(r"\\(?:,|;|!|quad|qquad|\s)")
 _WHITESPACE = re.compile(r"\s+")
 _SINGLE_SCRIPT_GROUP = re.compile(r"([_^])\{([A-Za-z0-9])\}")
+_CONTROL_WORD_BOUNDARY = re.compile(r"(\\[A-Za-z]+)\s+(?=[A-Za-z])")
+_CONTROL_WORD_SEPARATOR = "\ue000"
 
 
 def _strip_math_delimiters(value: str) -> str:
@@ -23,7 +25,13 @@ def normalize_latex(value: str) -> str:
     value = value.replace("\\left", "").replace("\\right", "")
     value = value.replace("\\dfrac", "\\frac").replace("\\tfrac", "\\frac")
     value = _SPACING_COMMANDS.sub("", value)
+    # A space after an alphabetic TeX control word terminates that command.
+    # Removing it would turn valid ``\cos x`` into the unknown command
+    # ``\cosx``. Preserve only boundaries that are syntactically required;
+    # all other presentation whitespace remains removable.
+    value = _CONTROL_WORD_BOUNDARY.sub(rf"\1{_CONTROL_WORD_SEPARATOR}", value)
     value = _WHITESPACE.sub("", value)
+    value = value.replace(_CONTROL_WORD_SEPARATOR, " ")
     value = _SINGLE_SCRIPT_GROUP.sub(r"\1\2", value)
     while value.startswith("{") and value.endswith("}"):
         depth = 0

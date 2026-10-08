@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 import logging
 import json
+import mimetypes
 import tempfile
 import time
 import uuid
@@ -17,12 +18,14 @@ from PIL import Image, UnidentifiedImageError
 
 from backend.app.config import REPO_ROOT, load_paths
 from backend.app.custom_samples import save_custom_sample
-from backend.app.game_questions import QUESTIONS, judge_answer
+from backend.app.game_questions import add_question, get_questions, get_solution, judge_answer
 from backend.app.latex import normalize_latex
 from backend.app.recognizers.registry import RecognizerRegistry
 from backend.app.recognizers.worker import WorkerError
 from backend.app.schemas import (
     ComparisonResponse,
+    GameQuestionCreateRequest,
+    GameQuestionCreateResponse,
     GameQuestionResponse,
     GameRecognitionResponse,
     JudgementRequest,
@@ -32,11 +35,21 @@ from backend.app.schemas import (
     RecognitionResponse,
     RecognitionTiming,
     SavedSampleResponse,
+    SolutionResponse,
 )
 
 LOGGER = logging.getLogger("math_go_hmer")
 MAX_IMAGE_BYTES = 10 * 1024 * 1024
 ALLOWED_FORMATS = {"PNG", "JPEG", "WEBP"}
+
+# Windows can inherit a registry mapping that labels JavaScript as text/plain.
+# Browsers reject ES modules served with that MIME type, so keep the static
+# asset contract deterministic across development and exhibition machines.
+mimetypes.add_type("text/javascript", ".js", strict=True)
+mimetypes.add_type("text/javascript", ".mjs", strict=True)
+mimetypes.add_type("application/json", ".map", strict=True)
+mimetypes.add_type("application/wasm", ".wasm", strict=True)
+
 registry = RecognizerRegistry()
 paths = load_paths()
 inference_locks = {"texteller": asyncio.Lock(), "unimernet": asyncio.Lock()}
@@ -49,7 +62,7 @@ async def lifespan(_: FastAPI):
     registry.close()
 
 
-app = FastAPI(title="数学でGO HMER PoC", version="0.1.0", lifespan=lifespan)
+app = FastAPI(title="数学でGO Recognition Service", version="0.1.0a1", lifespan=lifespan)
 FRONTEND_DIR = REPO_ROOT / "frontend"
 GAME_DIST_DIR = REPO_ROOT / "game" / "dist"
 app.mount("/assets", StaticFiles(directory=FRONTEND_DIR), name="assets")
@@ -67,9 +80,30 @@ def index() -> FileResponse:
     return FileResponse(game_index if game_index.is_file() else FRONTEND_DIR / "index.html")
 
 
+@app.get("/display", include_in_schema=False)
+def display_game() -> FileResponse:
+    display_index = GAME_DIST_DIR / "display.html"
+    if not display_index.is_file():
+        raise HTTPException(status_code=503, detail="Build the game before opening the display")
+    return FileResponse(display_index)
+
+
+@app.get("/controller", include_in_schema=False)
+def controller_game() -> FileResponse:
+    controller_index = GAME_DIST_DIR / "controller.html"
+    if not controller_index.is_file():
+        raise HTTPException(status_code=503, detail="Build the game before opening the controller")
+    return FileResponse(controller_index)
+
+
 @app.get("/evaluation", include_in_schema=False)
 def evaluation() -> FileResponse:
     return FileResponse(FRONTEND_DIR / "index.html")
+
+
+@app.get("/questions/editor", include_in_schema=False)
+def question_editor() -> FileResponse:
+    return FileResponse(FRONTEND_DIR / "question-editor.html")
 
 
 @app.get("/health")
@@ -93,15 +127,39 @@ def api_liveness() -> dict[str, str]:
 
 
 @app.get("/api/v1/questions", response_model=list[GameQuestionResponse])
-def api_game_questions() -> list[dict[str, str]]:
-    """Return sample-game prompts without exposing their accepted answers."""
-    return [question.public_dict() for question in QUESTIONS]
+def api_game_questions() -> list[dict[str, object]]:
+    """Return exhibition-game prompts without exposing accepted answers."""
+    return [question.public_dict() for question in get_questions()]
+
+
+@app.post("/api/v1/admin/questions", response_model=GameQuestionCreateResponse, status_code=201)
+def api_add_game_question(request: GameQuestionCreateRequest) -> dict[str, object]:
+    """Append one validated question from the local authoring screen."""
+    try:
+        question = add_question(request.model_dump())
+    except ValueError as exc:
+        status_code = 409 if "duplicate id" in str(exc) else 400
+        raise HTTPException(status_code=status_code, detail=str(exc)) from exc
+    return {
+        "id": question.id,
+        "total": len(get_questions()),
+        "message": "問題を登録しました。次のゲーム開始時から出題されます。",
+    }
 
 
 @app.post("/api/v1/judgements", response_model=JudgementResponse)
 def api_judge_answer(request: JudgementRequest) -> dict[str, object]:
     try:
         return judge_answer(request.question_id, request.recognized_latex)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="Unknown question_id") from exc
+
+
+@app.get("/api/v1/solutions/{question_id}", response_model=SolutionResponse)
+def api_game_solution(question_id: str) -> dict[str, str]:
+    """Reveal one solution after a timeout or player-requested skip."""
+    try:
+        return get_solution(question_id)
     except KeyError as exc:
         raise HTTPException(status_code=404, detail="Unknown question_id") from exc
 
