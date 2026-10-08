@@ -19,6 +19,7 @@ def main() -> None:
     parser.add_argument("--base-url", default="http://127.0.0.1:8000")
     parser.add_argument("--requests", type=int, default=30)
     parser.add_argument("--concurrency", type=int, default=2)
+    parser.add_argument("--expected-device", choices=["cpu", "cuda"])
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()
     if args.requests < 1 or args.concurrency < 1:
@@ -34,6 +35,8 @@ def main() -> None:
         assert body, path
     ready = json.loads(get("/api/v1/health/ready?model=texteller")[0])
     assert ready["status"] == "ready", ready
+    if args.expected_device:
+        assert ready["device"] == args.expected_device, ready
     image = Image.new("RGB", (260, 140), "white")
     draw = ImageDraw.Draw(image)
     draw.line([(40, 45), (60, 25), (60, 115)], fill="black", width=6)
@@ -57,7 +60,9 @@ def main() -> None:
             raise RuntimeError(f"Recognition {index}: HTTP {exc.code}: {exc.read().decode(errors='replace')}") from exc
         assert result["request_id"] == f"smoke-{index}", result
         assert result["normalized_latex"] and result["model"] == "texteller", result
-        return {"elapsed_ms": round((time.perf_counter() - start) * 1000, 1), "latex": result["normalized_latex"], "device": result["device"]}
+        if args.expected_device:
+            assert result["device"] == args.expected_device, result
+        return {"elapsed_ms": round((time.perf_counter() - start) * 1000, 1), "latex": result["normalized_latex"], "device": result["device"], "timing": result["timing"]}
 
     with ThreadPoolExecutor(max_workers=args.concurrency) as executor:
         results = list(executor.map(recognize, range(args.requests)))
