@@ -145,7 +145,17 @@ class WorkerRecognizer:
             self._detail = self._read_log_tail() or "Worker stopped during inference"
             raise WorkerError(self._detail)
         if response.get("error"):
-            raise WorkerError(str(response["error"]))
+            detail = str(response["error"])
+            if "CUDA" in detail or "AcceleratorError" in detail:
+                # A process with a failed CUDA context must not remain ready.
+                # The next submission starts a fresh worker before inference.
+                self._detail = detail
+                self.close()
+                raise WorkerError(
+                    "GPU認識処理が停止しました。回答を残したまま、もう一度提出してください。"
+                    "次の提出で認識モデルを再起動します。"
+                ) from WorkerError(detail)
+            raise WorkerError(detail)
         if response.get("peak_vram_mb") is not None:
             self.peak_vram_mb = float(response["peak_vram_mb"])
         return Recognition(
