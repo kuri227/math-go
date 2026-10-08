@@ -12,3 +12,7 @@ export function pulseSubmission(): void {
   gameEvents.dispatchEvent(new Event("submitted"));
 }
 
+export function updateUrgency(ratio: number, urgent: boolean): void {
+  gameEvents.dispatchEvent(new CustomEvent("urgency", { detail: { ratio, urgent } }));
+}
+

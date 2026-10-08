@@ -1,0 +1,50 @@
+.course-guide {
+  min-height: 100dvh;
+  color: #fffdf7;
+  background: #101b3d;
+  padding: clamp(24px, 4vw, 56px);
+}
+.guide-layout { width: min(1120px, 100%); margin: auto; display: grid; grid-template-columns: 1fr 1fr; gap: 32px 64px; }
+.guide-heading, .guide-actions { grid-column: 1 / -1; }
+.guide-heading h1 { margin: 24px 0 12px; font-size: clamp(2rem, 4vw, 3.25rem); line-height: 1.2; letter-spacing: -.025em; text-wrap: balance; }
+.guide-description { margin: 0; font-size: 1.1rem; line-height: 1.6; }
+.guide-difficulty { margin: 10px 0 0; color: #b8c5e5; font-size: .875rem; }
+.course-guide h2 { margin: 0 0 20px; font-size: 1.3rem; }
+.guide-play ol { padding: 0; margin: 0; list-style: none; counter-reset: guide-step; }
+.guide-play li { position: relative; padding: 0 0 20px 42px; counter-increment: guide-step; }
+.guide-play li::before { content: counter(guide-step); position: absolute; left: 0; top: 0; color: #65d5c8; font-size: 1.5rem; font-weight: 800; line-height: 1; }
+.guide-play strong { font-size: 1.05rem; }
+.guide-play li p { margin: 6px 0 0; color: #b8c5e5; line-height: 1.6; }
+.guide-result-note { margin: 0; padding-top: 16px; border-top: 1px solid #34436d; color: #b8c5e5; line-height: 1.6; font-size: .875rem; }
+.guide-rules { align-self: start; background: #fffdf7; color: #10182d; padding: 28px; border-radius: 14px; box-shadow: 0 16px 40px rgb(2 8 26 / 25%); }
+.guide-rules dl { display: flex; flex-wrap: wrap; gap: 16px 28px; margin: 0; }
+.guide-rules dt { font-size: .8rem; color: #4b5673; }
+.guide-rules dd { margin: 4px 0 0; font-weight: 800; font-size: 1.2rem; }
+.guide-timing { margin: 20px 0; line-height: 1.65; font-size: .875rem; }
+.guide-ending { padding-top: 18px; border-top: 1px solid #c4c9d7; }
+.guide-ending h3 { margin: 0 0 8px; font-size: 1rem; }
+.guide-end-condition { margin: 0; line-height: 1.65; font-weight: 700; }
+.guide-penalty { margin: 8px 0 0; line-height: 1.6; font-size: .8rem; color: #4b5673; }
+.guide-actions { display: flex; gap: 24px; align-items: center; justify-content: space-between; padding-top: 24px; border-top: 1px solid #34436d; }
+.guide-status { margin: 0; color: #b8c5e5; line-height: 1.5; font-size: .875rem; }
+.guide-start, .guide-back { font: inherit; font-weight: 800; border: 0; border-radius: 12px; cursor: pointer; min-height: 48px; padding: 12px 24px; }
+.guide-start { flex-shrink: 0; color: #fffdf7; background: #b9341c; min-width: 220px; }
+.guide-start:hover:not(:disabled) { background: #8f2513; }
+.guide-back { background: #2d3a62; color: #fffdf7; }
+.guide-back:hover { background: #3b4b78; }
+.guide-start:disabled { opacity: .48; cursor: not-allowed; }
+.course-guide button:focus-visible, .course-guide [tabindex]:focus-visible { outline: 3px solid #ffd166; outline-offset: 4px; }
+@media (max-width: 760px) {
+  .guide-layout { grid-template-columns: 1fr; gap: 28px; }
+  .guide-heading h1 { margin-top: 20px; }
+  .guide-actions { flex-direction: column; align-items: stretch; gap: 16px; }
+  .guide-rules { padding: 24px; }
+}
+@media (min-width: 761px) and (max-height: 700px) {
+  .course-guide { padding-top: 20px; padding-bottom: 20px; }
+  .guide-layout { gap: 20px 40px; }
+  .guide-heading h1 { margin-top: 12px; font-size: 2rem; }
+  .guide-play li { padding-bottom: 14px; }
+  .guide-rules { padding: 20px; }
+  .guide-actions { padding-top: 16px; }
+}

@@ -1,4 +1,4 @@
-import type { JudgementResponse, Question, RecognitionResponse } from "../domain/types";
+import type { JudgementResponse, Question, RecognitionResponse, SolutionResponse } from "../domain/types";
 
 interface ReadyResponse {
   status: "ready" | "loading" | "unavailable";
@@ -41,11 +41,11 @@ export class RecognitionClient {
     throw new Error("モデルの準備が3分以内に完了しませんでした");
   }
 
-  async recognize(image: Blob): Promise<RecognitionResponse> {
+  async recognize(image: Blob, requestId = crypto.randomUUID()): Promise<RecognitionResponse> {
     const form = new FormData();
     form.append("image", image, "answer.png");
     form.append("model", this.model);
-    form.append("request_id", crypto.randomUUID());
+    form.append("request_id", requestId);
 
     const controller = new AbortController();
     const timeout = window.setTimeout(() => controller.abort(), 30_000);
@@ -84,6 +84,14 @@ export class RecognitionClient {
     });
     if (!response.ok) throw new Error(await this.readError(response));
     return (await response.json()) as JudgementResponse;
+  }
+
+  async fetchSolution(questionId: string): Promise<SolutionResponse> {
+    const response = await fetch(`${this.baseUrl}/solutions/${encodeURIComponent(questionId)}`, {
+      cache: "no-store",
+    });
+    if (!response.ok) throw new Error(await this.readError(response));
+    return (await response.json()) as SolutionResponse;
   }
 
   private async readError(response: Response): Promise<string> {

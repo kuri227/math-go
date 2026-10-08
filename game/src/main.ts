@@ -1,54 +1,33 @@
 import "@fontsource-variable/m-plus-1";
 import "katex/dist/katex.min.css";
-import katex from "katex";
 import "./styles.css";
 
 import { RecognitionClient } from "./api/RecognitionClient";
+import { courses, type CourseConfig, type CourseId } from "./domain/courses";
+import { difficulties, difficultyById } from "./domain/difficulties";
 import { GameSession } from "./domain/GameSession";
+import { CourseGuide } from "./ui/CourseGuide";
+import { gameEndMessage } from "./domain/gameEndMessage";
+import { selectQuestions } from "./domain/questionSelection";
 import { questions as fallbackQuestions } from "./domain/questions";
-import type { PerformanceSample, Question } from "./domain/types";
-import { gameEvents, pulseSubmission, showQuestion } from "./events";
+import { URGENCY_SECONDS } from "./domain/timing";
+import type { PerformanceSample, Question, SolutionResponse } from "./domain/types";
+import { gameEvents, pulseSubmission, showQuestion, updateUrgency } from "./events";
+import { required, ui } from "./ui/dom";
 import { HandwritingPad } from "./ui/HandwritingPad";
+import { renderMath } from "./ui/renderMath";
+import { UrgencySound } from "./ui/UrgencySound";
 
-type CourseId = "practice" | "challenge";
-
-interface CourseConfig {
-  id: CourseId;
-  name: string;
-  intro: string;
-  questionCount: number;
-  timeLimitSeconds: number | null;
-  initialLives: number;
-  speedBonusPerSecond: number;
+declare global {
+  interface Window {
+    mathGoBootTimer?: number;
+  }
 }
 
-// Pre-play rules live here so the next UX specification can change course
-// wording, pacing and scoring without rewriting the game loop.
-const courses: Record<CourseId, CourseConfig> = {
-  practice: {
-    id: "practice",
-    name: "じっくり練習",
-    intro: "時間を気にせず、認識の感触を確かめよう",
-    questionCount: 5,
-    timeLimitSeconds: null,
-    initialLives: 3,
-    speedBonusPerSecond: 0,
-  },
-  challenge: {
-    id: "challenge",
-    name: "30秒チャレンジ",
-    intro: "1問30秒。テンポよく全問突破しよう",
-    questionCount: 7,
-    timeLimitSeconds: 30,
-    initialLives: 3,
-    speedBonusPerSecond: 2,
-  },
-};
-
-function required<T extends Element>(selector: string): T {
-  const element = document.querySelector<T>(selector);
-  if (!element) throw new Error(`Missing element: ${selector}`);
-  return element;
+document.documentElement.dataset.mathGoBooted = "true";
+if (window.mathGoBootTimer !== undefined) {
+  window.clearTimeout(window.mathGoBootTimer);
+  delete window.mathGoBootTimer;
 }
 
 const client = new RecognitionClient();
@@ -57,30 +36,46 @@ const pad = new HandwritingPad(
   required<HTMLElement>("#canvasHint"),
   required<HTMLElement>("#pointerPreview"),
 );
-
-const startScreen = required<HTMLElement>("#startScreen");
-const gameShell = required<HTMLElement>("#gameShell");
-const startButton = required<HTMLButtonElement>("#startButton");
-const courseButtons = [...document.querySelectorAll<HTMLButtonElement>("[data-course]")];
-const gameStage = required<HTMLElement>(".game-stage");
-const answerPanel = required<HTMLElement>("#answerPanel");
-const actionStatus = required<HTMLElement>("#actionStatus");
-const submitButton = required<HTMLButtonElement>("#submitButton");
-const undoButton = required<HTMLButtonElement>("#undoButton");
-const clearButton = required<HTMLButtonElement>("#clearButton");
-const skipButton = required<HTMLButtonElement>("#skipButton");
-const retryButton = required<HTMLButtonElement>("#retryButton");
-const nextButton = required<HTMLButtonElement>("#nextButton");
-const restartButton = required<HTMLButtonElement>("#restartButton");
-const backToTitleButton = required<HTMLButtonElement>("#backToTitleButton");
-const titleButton = required<HTMLButtonElement>("#titleButton");
-const resultSection = required<HTMLElement>("#recognitionResult");
-const endScreen = required<HTMLElement>("#endScreen");
-const stageFeedback = required<HTMLElement>("#stageFeedback");
-const stageIntro = required<HTMLElement>("#stageIntro");
-const timerTrack = required<HTMLElement>("#timerTrack");
-const timerFill = required<HTMLElement>("#timerFill");
-const timeStat = required<HTMLElement>(".time-stat");
+const {
+  startScreen,
+  gameShell,
+  startButton,
+  courseButtons,
+  difficultyList,
+  difficultyPrevious,
+  difficultyNext,
+  difficultyPageLabel,
+  selectedDifficultyLabel,
+  gameStage,
+  answerPanel,
+  actionStatus,
+  submitButton,
+  undoButton,
+  clearButton,
+  skipButton,
+  retryButton,
+  nextButton,
+  restartButton,
+  backToTitleButton,
+  titleButton,
+  resultSection,
+  endScreen,
+  stageFeedback,
+  stageIntro,
+  timerTrack,
+  timerFill,
+  timeStat,
+  soundButton,
+  explanationText,
+  answerPreview,
+  answerPreviewEmpty,
+} = ui;
+const urgencySound = new UrgencySound();
+const guide = new CourseGuide(required<HTMLElement>("#app"), false, () => void startSelectedCourse(), () => {
+  guide.hide();
+  startScreen.hidden = false;
+  startButton.focus();
+});
 
 let loadedQuestions: Question[] = fallbackQuestions;
 let questionsReady = false;
@@ -89,14 +84,18 @@ let modelFailed = false;
 let gameCreated = false;
 let sceneReady = false;
 let selectedCourseId: CourseId = "challenge";
+let selectedDifficultyId = 3;
+let difficultyPage = 0;
 let currentCourse = courses[selectedCourseId];
 let session = createSession(currentCourse);
 let pendingSample: PerformanceSample | null = null;
-let pendingBonus = 0;
+let pendingForced: { reason: "timeout" | "skip"; solution: SolutionResponse } | null = null;
 let timerRemainingMs = 0;
 let timerEndsAt = 0;
 let timerHandle: number | null = null;
 let flowToken = 0;
+let lastCueSecond: number | null = null;
+let answerPreviewUrl: string | null = null;
 
 gameEvents.addEventListener("scene-ready", () => {
   sceneReady = true;
@@ -105,10 +104,17 @@ gameEvents.addEventListener("scene-ready", () => {
 
 void preloadModel();
 void loadQuestions();
+renderDifficultyPage();
+renderSoundButton();
 
 function createSession(course: CourseConfig): GameSession {
+  const questionSet = selectQuestions(
+    loadedQuestions,
+    selectedDifficultyId,
+    course.questionCount,
+  );
   return new GameSession(
-    loadedQuestions.slice(0, Math.min(course.questionCount, loadedQuestions.length)),
+    questionSet,
     course.initialLives,
   );
 }
@@ -125,6 +131,55 @@ async function loadQuestions(): Promise<void> {
   }
 }
 
+function renderDifficultyPage(): void {
+  const pageSize = 3;
+  const pageCount = Math.ceil(difficulties.length / pageSize);
+  difficultyPage = Math.max(0, Math.min(pageCount - 1, difficultyPage));
+  const pageItems = difficulties.slice(difficultyPage * pageSize, difficultyPage * pageSize + pageSize);
+  difficultyList.replaceChildren(...pageItems.map((difficulty) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "difficulty-option";
+    button.dataset.difficulty = String(difficulty.id);
+    button.setAttribute("role", "radio");
+    button.setAttribute("aria-checked", String(difficulty.id === selectedDifficultyId));
+    if (difficulty.id === selectedDifficultyId) button.classList.add("is-selected");
+
+    const level = document.createElement("span");
+    level.className = "difficulty-level";
+    level.textContent = difficulty.audience;
+    const label = document.createElement("strong");
+    label.textContent = difficulty.label;
+    const description = document.createElement("small");
+    description.textContent = difficulty.description;
+    button.append(level, label, description);
+    button.addEventListener("click", () => selectDifficulty(difficulty.id));
+    return button;
+  }));
+  difficultyPageLabel.textContent = `${difficultyPage + 1} / ${pageCount}`;
+  difficultyPrevious.disabled = difficultyPage === 0;
+  difficultyNext.disabled = difficultyPage === pageCount - 1;
+  selectedDifficultyLabel.textContent = `${difficultyById(selectedDifficultyId).label}までを出題`;
+}
+
+function selectDifficulty(id: number): void {
+  selectedDifficultyId = difficultyById(id).id;
+  const selectedIndex = difficulties.findIndex((difficulty) => difficulty.id === selectedDifficultyId);
+  difficultyPage = Math.floor(selectedIndex / 3);
+  renderDifficultyPage();
+  syncStartButton();
+}
+
+function renderSoundButton(): void {
+  soundButton.textContent = urgencySound.isEnabled ? "警告音 ON" : "警告音 OFF";
+  soundButton.setAttribute("aria-pressed", String(urgencySound.isEnabled));
+}
+
+function toggleSound(): void {
+  urgencySound.toggle();
+  renderSoundButton();
+}
+
 function setModelState(state: "loading" | "ready" | "error", label: string): void {
   document.querySelectorAll<HTMLElement>("[data-model-state]").forEach((element) => {
     element.dataset.state = state;
@@ -135,34 +190,34 @@ function setModelState(state: "loading" | "ready" | "error", label: string): voi
 }
 
 function syncStartButton(): void {
+  guide.setReadiness(modelReady && questionsReady, modelFailed ? "ゲームを準備できませんでした。設定に戻り、準備をやり直してください。" : modelReady && questionsReady ? "準備完了。開始を押すまで、時計は進みません。" : "認識モデルと問題を準備中です。");
   if (modelFailed) {
     startButton.disabled = false;
-    startButton.textContent = "モデル読込を再試行";
+    startButton.textContent = "準備をやり直す";
     return;
   }
-  startButton.disabled = !(modelReady && questionsReady);
-  startButton.textContent = modelReady && questionsReady
-    ? `${currentCourse.name}を開始`
-    : "モデル準備中…";
+  startButton.disabled = false;
+  startButton.textContent = "このモードの説明へ";
+  startButton.setAttribute("aria-label", `${difficultyById(selectedDifficultyId).label}・${currentCourse.name}の説明へ`);
 }
 
 async function preloadModel(): Promise<void> {
-  setModelState("loading", "TexTellerを準備中");
+  setModelState("loading", "ゲームを準備中");
   try {
     await client.beginPreload();
     await client.waitUntilReady((status) => {
       setModelState(
         status.status === "ready" ? "ready" : "loading",
-        status.status === "ready" ? "TexTeller 準備完了" : "TexTellerを読み込み中",
+        status.status === "ready" ? "準備完了" : "ゲームを準備中",
       );
     });
     modelReady = true;
     modelFailed = false;
-    setModelState("ready", "TexTeller 準備完了");
+    setModelState("ready", "準備完了");
   } catch (error) {
     modelFailed = true;
-    setModelState("error", "モデル準備エラー");
-    actionStatus.textContent = error instanceof Error ? error.message : "モデルを準備できませんでした。";
+    setModelState("error", "ゲームを準備できませんでした");
+    actionStatus.textContent = error instanceof Error ? error.message : "ゲームを準備できませんでした。";
   } finally {
     syncStartButton();
   }
@@ -192,19 +247,19 @@ async function startSelectedCourse(): Promise<void> {
     return;
   }
   if (!modelReady || !questionsReady) return;
+  guide.hide();
 
   flowToken += 1;
   currentCourse = courses[selectedCourseId];
   session = createSession(currentCourse);
   pendingSample = null;
-  pendingBonus = 0;
+  pendingForced = null;
   startScreen.hidden = true;
   gameShell.hidden = false;
-  answerPanel.hidden = false;
-  resultSection.hidden = true;
-  endScreen.hidden = true;
-  gameStage.classList.remove("is-finished");
-  required<HTMLElement>("#courseName").textContent = currentCourse.name;
+  clearAnswerPreview();
+  showPlayView();
+  required<HTMLElement>("#courseName").textContent =
+    `${difficultyById(selectedDifficultyId).label} · ${currentCourse.name}`;
   timeStat.hidden = currentCourse.timeLimitSeconds === null;
   timerTrack.hidden = currentCourse.timeLimitSeconds === null;
   window.scrollTo({ top: 0 });
@@ -248,13 +303,13 @@ function updateQuestion(): void {
   required<HTMLElement>("#questionInstruction").textContent = session.question.instruction;
   required<HTMLElement>("#questionExpression").textContent = session.question.display;
   required<HTMLElement>("#questionMeta").textContent =
-    `${session.question.difficulty} · ${session.question.category}`;
+    `${session.question.difficulty_label} · ${session.question.category}`;
   gameStage.style.setProperty("--progress", String(current / total));
 }
 
 function updateHud(): void {
   const stats = session.stats;
-  required<HTMLElement>("#scoreValue").textContent = stats.score.toLocaleString("ja-JP");
+  required<HTMLElement>("#correctValue").textContent = String(stats.correct);
   required<HTMLElement>("#streakValue").textContent = String(stats.streak);
   const lives = required<HTMLElement>("#livesValue");
   lives.textContent = Array.from(
@@ -274,6 +329,8 @@ function setBusy(busy: boolean): void {
 
 function prepareTimer(): void {
   timerRemainingMs = (currentCourse.timeLimitSeconds ?? 0) * 1_000;
+  lastCueSecond = null;
+  updateUrgency(1, false);
   renderTimer();
 }
 
@@ -302,30 +359,51 @@ function renderTimer(): void {
   if (currentCourse.timeLimitSeconds === null) {
     required<HTMLElement>("#timeValue").textContent = "∞";
     timerFill.style.width = "100%";
+    updateUrgency(1, false);
     return;
   }
   const seconds = timerRemainingMs / 1_000;
   const ratio = Math.max(0, seconds / currentCourse.timeLimitSeconds);
   required<HTMLElement>("#timeValue").textContent = seconds.toFixed(1);
   timerFill.style.width = `${ratio * 100}%`;
-  timerTrack.dataset.urgent = String(seconds <= 10);
+  timerTrack.dataset.urgent = String(seconds <= URGENCY_SECONDS);
+  updateUrgency(ratio, seconds <= URGENCY_SECONDS);
+  const wholeSecond = Math.ceil(seconds);
+  if (wholeSecond <= 5 && wholeSecond > 0 && wholeSecond !== lastCueSecond) {
+    lastCueSecond = wholeSecond;
+    urgencySound.play(wholeSecond);
+  }
 }
 
 function handleTimeout(): void {
   if (session.state !== "writing") return;
+  void revealWithoutAnswer("timeout");
+}
+
+async function revealWithoutAnswer(reason: "timeout" | "skip"): Promise<void> {
+  if (session.state !== "writing") return;
   pauseTimer();
   session.setState("result");
   setBusy(true);
-  showStageFeedback(false, "時間切れ");
-  actionStatus.textContent = "時間切れです。次の問題へ進みます。";
-  const finished = session.commit(false, 0);
-  updateHud();
-  const token = flowToken;
-  window.setTimeout(() => {
-    if (token !== flowToken) return;
-    if (finished) showEndScreen();
-    else beginNextQuestion("時間切れ。気持ちを切り替えて次の問題へ。");
-  }, 850);
+  showStageFeedback(false, reason === "timeout" ? "時間切れ" : "わからない");
+  actionStatus.textContent = "正答と解説を読み込んでいます。";
+  const questionId = session.question.id;
+  let solution: SolutionResponse;
+  try {
+    solution = await client.fetchSolution(questionId);
+  } catch {
+    solution = {
+      question_id: questionId,
+      expected_latex: "?",
+      explanation: "解説を取得できませんでした。スタッフにお知らせください。",
+    };
+  }
+  pendingSample = null;
+  pendingForced = { reason, solution };
+  renderForcedResult(reason, solution);
+  actionStatus.textContent = reason === "timeout"
+    ? "時間切れです。正答と解説を確認してから次へ進んでください。"
+    : "正答と解説を確認してから次へ進んでください。";
 }
 
 async function submitAnswer(): Promise<void> {
@@ -348,6 +426,7 @@ async function submitAnswer(): Promise<void> {
   try {
     const encodeStarted = performance.now();
     const image = await pad.toCroppedPng();
+    setAnswerPreview(image.blob);
     const encodeMs = performance.now() - encodeStarted;
     const requestStarted = performance.now();
     const response = await client.recognize(image.blob);
@@ -357,9 +436,6 @@ async function submitAnswer(): Promise<void> {
     const judgementMs = performance.now() - judgementStarted;
     const feedbackMs = performance.now() - feedbackStarted;
     pendingSample = { encodeMs, requestMs, judgementMs, feedbackMs, response, judgement };
-    pendingBonus = judgement.correct
-      ? Math.floor(timerRemainingMs / 1_000) * currentCourse.speedBonusPerSecond
-      : 0;
     renderResult(pendingSample);
     session.setState("result");
     succeeded = true;
@@ -382,16 +458,36 @@ async function submitAnswer(): Promise<void> {
   }
 }
 
-function renderMath(latex: string, target: HTMLElement): void {
-  try {
-    katex.render(latex, target, {
-      throwOnError: false,
-      displayMode: true,
-      trust: false,
-    });
-  } catch {
-    target.textContent = latex;
-  }
+function clearAnswerPreview(): void {
+  if (answerPreviewUrl) URL.revokeObjectURL(answerPreviewUrl);
+  answerPreviewUrl = null;
+  answerPreview.removeAttribute("src");
+  answerPreview.hidden = true;
+  answerPreviewEmpty.hidden = false;
+}
+
+function setAnswerPreview(blob: Blob): void {
+  clearAnswerPreview();
+  answerPreviewUrl = URL.createObjectURL(blob);
+  answerPreview.src = answerPreviewUrl;
+  answerPreview.hidden = false;
+  answerPreviewEmpty.hidden = true;
+}
+
+function showPlayView(): void {
+  gameStage.classList.remove("is-result", "is-finished");
+  answerPanel.hidden = false;
+  resultSection.hidden = true;
+  endScreen.hidden = true;
+}
+
+function showResultView(): void {
+  answerPanel.hidden = true;
+  endScreen.hidden = true;
+  resultSection.hidden = false;
+  gameStage.classList.remove("is-finished");
+  gameStage.classList.add("is-result");
+  window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
 function renderResult(sample: PerformanceSample): void {
@@ -400,24 +496,29 @@ function renderResult(sample: PerformanceSample): void {
   verdictLine.dataset.result = judgement.correct ? "correct" : "incorrect";
   required<HTMLElement>("#verdictTitle").textContent = judgement.correct ? "正解！" : "おしい！";
   required<HTMLElement>("#verdictMessage").textContent = judgement.correct
-    ? pendingBonus > 0
-      ? `認識成功。残り時間ボーナス +${pendingBonus}点を獲得します。`
-      : "手書き回答を正しく数式として認識できました。"
+    ? "手書き回答を正しく数式として認識できました。"
     : "認識結果と正答を比べてください。認識違いなら書き直せます。";
-  required<HTMLElement>("#rawLatex").textContent = response.raw_latex;
   renderMath(response.normalized_latex, required<HTMLElement>("#renderedMath"));
   renderMath(judgement.expected_latex, required<HTMLElement>("#expectedMath"));
-  required<HTMLElement>("#encodeTime").textContent = `${sample.encodeMs.toFixed(1)} ms`;
-  required<HTMLElement>("#inferenceTime").textContent = `${response.timing.inference_ms.toFixed(1)} ms`;
-  required<HTMLElement>("#judgementTime").textContent = `${sample.judgementMs.toFixed(1)} ms`;
-  required<HTMLElement>("#feedbackTime").textContent = `${sample.feedbackMs.toFixed(1)} ms`;
-  required<HTMLElement>("#imageSize").textContent = `${(response.image.bytes / 1_024).toFixed(1)} KB`;
+  explanationText.textContent = judgement.explanation;
+  retryButton.hidden = false;
   nextButton.textContent = judgement.correct ? "次の問題へ" : "次へ（ミスを確定）";
-  showStageFeedback(judgement.correct);
-  resultSection.hidden = false;
-  window.setTimeout(() => {
-    resultSection.scrollIntoView({ behavior: "smooth", block: "nearest" });
-  }, 820);
+  showResultView();
+}
+
+function renderForcedResult(reason: "timeout" | "skip", solution: SolutionResponse): void {
+  const verdictLine = required<HTMLElement>("#verdictLine");
+  verdictLine.dataset.result = "incorrect";
+  required<HTMLElement>("#verdictTitle").textContent = reason === "timeout" ? "時間切れ" : "ここで中断";
+  required<HTMLElement>("#verdictMessage").textContent =
+    "未回答として記録します。正答と考え方を確認しましょう。";
+  required<HTMLElement>("#renderedMath").textContent = "未回答";
+  clearAnswerPreview();
+  renderMath(solution.expected_latex, required<HTMLElement>("#expectedMath"));
+  explanationText.textContent = solution.explanation;
+  retryButton.hidden = true;
+  nextButton.textContent = "解説を確認して次へ";
+  showResultView();
 }
 
 function showStageFeedback(correct: boolean, label?: string): void {
@@ -429,9 +530,10 @@ function showStageFeedback(correct: boolean, label?: string): void {
 
 function beginNextQuestion(message = "回答を書いて提出してください。"): void {
   pendingSample = null;
-  pendingBonus = 0;
+  pendingForced = null;
   pad.clear();
-  resultSection.hidden = true;
+  clearAnswerPreview();
+  showPlayView();
   session.setState("writing");
   actionStatus.textContent = message;
   submitButton.textContent = "回答を提出";
@@ -445,9 +547,10 @@ function beginNextQuestion(message = "回答を書いて提出してください
 function retryCurrentQuestion(): void {
   if (session.state !== "result") return;
   pendingSample = null;
-  pendingBonus = 0;
+  pendingForced = null;
   pad.clear();
-  resultSection.hidden = true;
+  clearAnswerPreview();
+  showPlayView();
   session.setState("writing");
   actionStatus.textContent = "失点は確定していません。もう一度書いてください。";
   submitButton.textContent = "回答を提出";
@@ -456,13 +559,18 @@ function retryCurrentQuestion(): void {
 }
 
 function advanceFromResult(): void {
-  if (!pendingSample || session.state !== "result") return;
-  const finished = session.commit(
-    pendingSample.judgement.correct,
-    pendingSample.feedbackMs,
-    false,
-    pendingBonus,
-  );
+  if (session.state !== "result") return;
+  let finished: boolean;
+  if (pendingSample) {
+    finished = session.commit(
+      pendingSample.judgement.correct,
+      pendingSample.feedbackMs,
+    );
+  } else if (pendingForced) {
+    finished = session.commit(false, 0);
+  } else {
+    return;
+  }
   updateHud();
   if (finished) {
     showEndScreen();
@@ -473,36 +581,25 @@ function advanceFromResult(): void {
 
 function skipQuestion(): void {
   if (session.state !== "writing") return;
-  pauseTimer();
-  const finished = session.commit(false, 0, true);
-  updateHud();
-  showStageFeedback(false, "スキップ");
-  if (finished) {
-    window.setTimeout(showEndScreen, 650);
-    return;
-  }
-  window.setTimeout(() => beginNextQuestion("1問スキップしました。次の問題に挑戦してください。"), 650);
+  void revealWithoutAnswer("skip");
 }
 
 function showEndScreen(): void {
   pauseTimer();
   const stats = session.stats;
   pendingSample = null;
+  pendingForced = null;
   answerPanel.hidden = true;
   resultSection.hidden = true;
   endScreen.hidden = false;
+  gameStage.classList.remove("is-result");
   gameStage.classList.add("is-finished");
   gameStage.style.setProperty("--progress", "1");
-  required<HTMLElement>("#finalScore").textContent = stats.score.toLocaleString("ja-JP");
+  const accuracy = stats.answered === 0 ? 0 : stats.correct / stats.answered * 100;
+  required<HTMLElement>("#finalAccuracy").textContent = accuracy.toLocaleString("ja-JP", { maximumFractionDigits: 1 });
   required<HTMLElement>("#finalCorrect").textContent = `${stats.correct} / ${stats.answered}`;
-  required<HTMLElement>("#finalLatency").textContent = stats.averageFeedbackMs > 0
-    ? `${stats.averageFeedbackMs.toFixed(0)} ms`
-    : "—";
-  required<HTMLElement>("#finalLives").textContent = String(stats.lives);
-  required<HTMLElement>("#finalMessage").textContent = stats.correct === stats.answered
-    ? "全問正解。すばらしいテンポでした！"
-    : "認識結果を見返しながら、同じコースへすぐ再挑戦できます。";
-  endScreen.scrollIntoView({ behavior: "smooth", block: "center" });
+  required<HTMLElement>("#finalMessage").textContent = gameEndMessage(session.endReason, stats.answered, session.progress.total);
+  window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
 function restartGame(): void {
@@ -510,9 +607,9 @@ function restartGame(): void {
   pauseTimer();
   session = createSession(currentCourse);
   pendingSample = null;
-  answerPanel.hidden = false;
-  endScreen.hidden = true;
-  gameStage.classList.remove("is-finished");
+  pendingForced = null;
+  clearAnswerPreview();
+  showPlayView();
   void launchCourse();
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
@@ -521,13 +618,16 @@ function returnToTitle(): void {
   flowToken += 1;
   pauseTimer();
   pendingSample = null;
+  pendingForced = null;
   pad.clear();
+  clearAnswerPreview();
   gameShell.hidden = true;
   startScreen.hidden = false;
   stageIntro.hidden = true;
   stageFeedback.hidden = true;
   resultSection.hidden = true;
   endScreen.hidden = true;
+  gameStage.classList.remove("is-result", "is-finished");
   syncStartButton();
   window.scrollTo({ top: 0 });
 }
@@ -535,7 +635,21 @@ function returnToTitle(): void {
 courseButtons.forEach((button) => {
   button.addEventListener("click", () => selectCourse(button.dataset.course as CourseId));
 });
-startButton.addEventListener("click", () => void startSelectedCourse());
+difficultyPrevious.addEventListener("click", () => {
+  difficultyPage -= 1;
+  renderDifficultyPage();
+});
+difficultyNext.addEventListener("click", () => {
+  difficultyPage += 1;
+  renderDifficultyPage();
+});
+soundButton.addEventListener("click", toggleSound);
+startButton.addEventListener("click", () => {
+  if (modelFailed) { window.location.reload(); return; }
+  startScreen.hidden = true;
+  guide.open(currentCourse, difficultyById(selectedDifficultyId).label);
+  syncStartButton();
+});
 undoButton.addEventListener("click", () => pad.undo());
 clearButton.addEventListener("click", () => pad.clear());
 skipButton.addEventListener("click", skipQuestion);
@@ -547,6 +661,12 @@ backToTitleButton.addEventListener("click", returnToTitle);
 titleButton.addEventListener("click", returnToTitle);
 
 window.addEventListener("keydown", (event) => {
+  if (!startScreen.hidden && (event.key === "ArrowLeft" || event.key === "ArrowRight")) {
+    event.preventDefault();
+    const delta = event.key === "ArrowLeft" ? -1 : 1;
+    selectDifficulty(Math.max(1, Math.min(7, selectedDifficultyId + delta)));
+    return;
+  }
   if (gameShell.hidden || event.target instanceof HTMLButtonElement) return;
   if (event.key.toLowerCase() === "q" && session.state === "writing") {
     event.preventDefault();

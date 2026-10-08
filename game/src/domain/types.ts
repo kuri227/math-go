@@ -6,12 +6,16 @@ export type GameState =
   | "finished"
   | "error";
 
+export type GameEndReason = "all-questions-completed" | "lives-exhausted";
+
 export interface Question {
   id: string;
   instruction: string;
   display: string;
+  display_latex: string;
   category: string;
-  difficulty: string;
+  difficulty: number;
+  difficulty_label: string;
 }
 
 export interface RecognitionTiming {
@@ -49,8 +53,15 @@ export interface JudgementResponse {
   recognized_latex: string;
   recognized_normalized: string;
   expected_latex: string;
+  explanation: string;
   judge_method: "normalized_alias" | string;
   message: string;
+}
+
+export interface SolutionResponse {
+  question_id: string;
+  expected_latex: string;
+  explanation: string;
 }
 
 export interface RoundOutcome {
@@ -61,7 +72,6 @@ export interface RoundOutcome {
 }
 
 export interface GameStats {
-  score: number;
   lives: number;
   streak: number;
   correct: number;

@@ -31,3 +31,24 @@ FastAPIはモデル依存処理を持たず、Recognizer Registryだけを参照
 ## セキュリティとプライバシー
 
 入力画像とstrokeデータはローカル処理のみで、外部認識APIには送信しない。独自データは匿名 `writer_id` のみを使い、Git管理対象外とする。アップロードは10 MiBまでのPNG、JPEG、WebPに制限する。
+
+## 2画面境界
+
+現行1画面版をフォールバックとして維持しながら、同一PC上の別ブラウザーウィンドウへDisplayとControllerを分ける実装を追加している。入口は `/display` と `/controller?session=...` である。
+
+```text
+Display window                       Controller window
+GameCoordinator                     HandwritingPad
+GameSession / timer / score          Pointer Events / strokes
+problem / result / effects           crop PNG / answer controls
+        │                                  │
+        └── BroadcastChannel (small JSON) ──┘
+                                           │
+                                           └── POST cropped PNG
+                                                  ↓
+                                             FastAPI / TexTeller
+```
+
+Displayの `GameCoordinator` だけが問題選択、得点、残機、タイマー、判定確定を所有する。ControllerはCanvas、stroke、undo履歴、PNG生成を所有し、正誤を独自判断しない。PNGやstroke列は `BroadcastChannel` へ載せず、Controllerから既存APIへ直接送る。現行1画面routeはフォールバックとして残す。
+
+`GameCoordinator`、型付きメッセージ、in-memory transport、BroadcastChannel transport、Display／Controller entryは実装済みである。接続ごとの `connectionId` と単調増加 `sequence` で再読込後の順序を分離し、同じ `requestId` の提出はCoordinatorで重複排除する。実装判断と残る実機受入条件は `docs/dual-screen-game-design.md`、ADRは `docs/adr/0003-dual-screen-game-ui.md` を参照する。

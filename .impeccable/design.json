@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-03T10:16:00+09:00",
+  "generatedAt": "2026-10-06T17:45:00+09:00",
   "title": "Design System: 数学でGO",
   "extensions": {
     "colorMeta": {
@@ -61,6 +61,7 @@
       { "name": "control-response", "value": "140ms ease", "purpose": "ボタンのhoverとpress。" },
       { "name": "result-reveal", "value": "430ms cubic-bezier(.16, 1, .3, 1)", "purpose": "認識結果を一度だけ展開する。" },
       { "name": "phaser-question", "value": "420ms Expo.Out", "purpose": "問題切替時に式をわずかに拡大する。" },
+      { "name": "question-urgency", "value": "100ms timer step / nonlinear adaptive max 1.35–1.6 scale", "purpose": "20秒の経過を視認できる強さで問題を接近させ、背の高い数式は表示領域内に収める。" },
       { "name": "stage-intro", "value": "1050ms cubic-bezier(.16, 1, .3, 1)", "purpose": "コース開始を短く区切り、本編へ接続する。" }
     ],
     "breakpoints": [

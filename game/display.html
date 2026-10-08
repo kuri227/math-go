@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#101b3d" />
+    <title>数学でGO — Display</title>
+  </head>
+  <body class="dual-display">
+    <main class="display-shell">
+      <section class="display-setup" id="setupView" aria-labelledby="displayTitle">
+        <div class="display-setup-copy">
+          <h1 id="displayTitle">数学で<span>GO</span></h1>
+          <p>この画面に問題と判定を表示します。液タブ画面を接続してからゲームを始めてください。</p>
+          <div class="connection-badge" id="connectionBadge" data-state="waiting" role="status" aria-live="polite">
+            <span aria-hidden="true"></span><strong id="connectionText">液タブを待っています</strong>
+          </div>
+          <button class="dual-button dual-button-secondary" id="openControllerButton" type="button">液タブ画面を開く</button>
+        </div>
+        <section class="display-settings" aria-label="ゲーム設定">
+          <label>難易度
+            <select id="difficultySelect"></select>
+          </label>
+          <label>コース
+            <select id="courseSelect">
+              <option value="practice">じっくり練習 — 5問</option>
+              <option value="challenge" selected>20秒チャレンジ — 7問</option>
+              <option value="marathon">30問マラソン — 30問</option>
+            </select>
+          </label>
+          <div class="setup-readiness" id="readinessText" role="status">問題と認識モデルを準備中です。</div>
+          <button class="dual-button dual-button-primary" id="startDualButton" type="button" disabled>準備中…</button>
+          <a class="single-screen-link" href="/">1画面版を使う</a>
+        </section>
+      </section>
+
+      <section class="display-game" id="gameView" hidden aria-label="ゲーム進行">
+        <header class="display-hud">
+          <button id="displayHomeButton" type="button" class="display-brand">数学でGO</button>
+          <dl>
+            <div><dt id="displayRoundLabel">ROUND</dt><dd id="displayRound">1 / 7</dd></div>
+            <div><dt>正解数</dt><dd id="displayCorrect">0</dd></div>
+            <div><dt>連続正解</dt><dd id="displayStreak">0</dd></div>
+            <div><dt>残機</dt><dd id="displayLives">● ● ●</dd></div>
+            <div id="displayTimeBlock"><dt>残り</dt><dd id="displayTime">20.0</dd></div>
+          </dl>
+          <div class="connection-badge compact" id="gameConnectionBadge" data-state="waiting"><span></span><strong>液タブ待ち</strong></div>
+        </header>
+        <div class="display-timer" id="displayTimer"><span id="displayTimerFill"></span></div>
+        <section class="display-stage" id="displayStage">
+          <div id="displayPhaser" aria-hidden="true"></div>
+          <div class="display-question" aria-live="polite">
+            <p id="displayInstruction">問題を準備しています</p>
+            <div id="displayExpression" class="display-expression"></div>
+            <p id="displayMeta"></p>
+          </div>
+          <div class="display-status" id="displayStatus" role="status" aria-live="polite">液タブに答えを書いてください。</div>
+          <section class="display-result" id="displayResult" hidden>
+            <div class="display-verdict" id="displayVerdict">判定</div>
+            <div class="display-answer-grid">
+              <div><p>読み取った答え</p><div id="displayRecognized" class="display-math"></div></div>
+              <div><p>正答</p><div id="displayExpected" class="display-math"></div></div>
+            </div>
+            <div class="display-explanation"><h2>考え方</h2><p id="displayExplanation"></p></div>
+          </section>
+          <section class="display-finished" id="displayFinished" hidden>
+            <p id="displayEndReason">ゲームが終了しました。</p><strong id="displayFinalCorrect">0 / 0 問正解</strong>
+            <p id="displayFinalSummary"></p>
+            <button type="button" class="dual-button dual-button-primary" id="displayRestartButton">同じコースでもう一度</button>
+          </section>
+        </section>
+      </section>
+    </main>
+    <script type="module" src="/src/entries/display.ts"></script>
+  </body>
+</html>

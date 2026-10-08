@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+    <meta name="theme-color" content="#fffdf7" />
+    <title>数学でGO — Controller</title>
+  </head>
+  <body class="dual-controller">
+    <main class="controller-shell">
+      <header class="controller-header">
+        <div><strong>数学でGO</strong><span id="controllerRound">液タブ画面</span></div>
+        <div class="controller-header-actions">
+          <div class="connection-badge compact" id="controllerConnection" data-state="waiting" role="status"><span></span><strong>モニターへ接続中</strong></div>
+          <button type="button" class="dual-button dual-button-quiet controller-fullscreen" id="controllerFullscreen">全画面にする</button>
+        </div>
+      </header>
+      <p class="controller-fullscreen-message" id="controllerFullscreenMessage" role="status" hidden></p>
+      <section class="controller-answer" aria-labelledby="controllerHeading">
+        <div class="controller-heading"><div><h1 id="controllerHeading">答えを手書き</h1><p>大きく、はっきり書こう</p></div><p id="controllerState" role="status" aria-live="polite">モニターへ接続しています。</p></div>
+        <div class="controller-canvas" id="controllerCanvasWrap" tabindex="-1">
+          <canvas id="controllerCanvas" aria-label="数式の回答を書く手書き入力欄"></canvas>
+          <p id="controllerCanvasHint">ここから書き始める</p>
+          <span id="controllerPointer" class="controller-pointer" hidden aria-hidden="true"></span>
+        </div>
+        <div class="controller-controls">
+          <button type="button" class="dual-button dual-button-secondary" id="controllerUndo">1画戻す</button>
+          <button type="button" class="dual-button dual-button-secondary" id="controllerClear">全消去</button>
+          <button type="button" class="dual-button dual-button-quiet" id="controllerSkip">わからない</button>
+          <button type="button" class="dual-button dual-button-primary controller-submit" id="controllerSubmit">回答を提出</button>
+        </div>
+        <div class="controller-result-actions" id="controllerResultActions" hidden>
+          <button type="button" class="dual-button dual-button-secondary" id="controllerRetry">認識違い・書き直す</button>
+          <button type="button" class="dual-button dual-button-primary" id="controllerAdvance">次の問題へ</button>
+        </div>
+      </section>
+    </main>
+    <script type="module" src="/src/entries/controller.ts"></script>
+  </body>
+</html>

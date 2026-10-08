@@ -1,10 +1,13 @@
-import type { GameState, GameStats, Question, RoundOutcome } from "./types";
+import type { GameEndReason, GameState, GameStats, Question } from "./types";
 
 export class GameSession {
   private index = 0;
   private currentState: GameState = "loading";
-  private outcomes: RoundOutcome[] = [];
-  private score = 0;
+  private answered = 0;
+  private correct = 0;
+  private feedbackTotal = 0;
+  private feedbackCount = 0;
+  private currentEndReason: GameEndReason | null = null;
   private lives: number;
   private streak = 0;
 
@@ -30,39 +33,43 @@ export class GameSession {
   }
 
   get stats(): GameStats {
-    const measured = this.outcomes.filter((outcome) => outcome.feedbackMs > 0);
-    const feedbackTotal = measured.reduce((sum, outcome) => sum + outcome.feedbackMs, 0);
     return {
-      score: this.score,
       lives: this.lives,
       streak: this.streak,
-      correct: this.outcomes.filter((outcome) => outcome.correct).length,
-      answered: this.outcomes.length,
-      averageFeedbackMs: measured.length === 0 ? 0 : feedbackTotal / measured.length,
+      correct: this.correct,
+      answered: this.answered,
+      averageFeedbackMs: this.feedbackCount === 0 ? 0 : this.feedbackTotal / this.feedbackCount,
     };
+  }
+
+  get endReason(): GameEndReason | null {
+    return this.currentEndReason;
   }
 
   setState(state: GameState): void {
     this.currentState = state;
   }
 
-  commit(correct: boolean, feedbackMs: number, skipped = false, bonus = 0): boolean {
-    this.outcomes.push({
-      questionId: this.question.id,
-      correct,
-      skipped,
-      feedbackMs,
-    });
+  commit(correct: boolean, feedbackMs: number): boolean {
+    if (this.currentEndReason !== null) return true;
+    this.answered += 1;
+    if (feedbackMs > 0) {
+      this.feedbackTotal += feedbackMs;
+      this.feedbackCount += 1;
+    }
     if (correct) {
-      this.score += 100 + Math.min(this.streak, 5) * 20 + Math.max(0, Math.round(bonus));
+      this.correct += 1;
       this.streak += 1;
     } else {
       this.lives = Math.max(0, this.lives - 1);
       this.streak = 0;
     }
 
-    const finished = this.lives === 0 || this.index >= this.questions.length - 1;
-    if (finished) {
+    // Completing the final question takes precedence if both conditions apply.
+    this.currentEndReason = this.index >= this.questions.length - 1
+      ? "all-questions-completed"
+      : this.lives === 0 ? "lives-exhausted" : null;
+    if (this.currentEndReason !== null) {
       this.currentState = "finished";
       return true;
     }
@@ -73,8 +80,11 @@ export class GameSession {
 
   restart(): Question {
     this.index = 0;
-    this.outcomes = [];
-    this.score = 0;
+    this.answered = 0;
+    this.correct = 0;
+    this.feedbackTotal = 0;
+    this.feedbackCount = 0;
+    this.currentEndReason = null;
     this.lives = this.initialLives;
     this.streak = 0;
     this.currentState = "writing";
