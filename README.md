@@ -50,6 +50,7 @@ git cloneにはビルド済み画面・モデル・Python仮想環境を含め�
 | 項目 | 必要な環境・検証範囲 |
 | --- | --- |
 | OS | Windows 11 x64で検証済み。Linuxの手順は運用マニュアルに記載するが未実機検証 |
+| PowerShell | Windows標準のWindows PowerShell 5.1、またはPowerShell 7。起動スクリプトは文字コードの誤読を避けるためASCIIで記述 |
 | Python | 64bit Python 3.10系で検証済み。スクリプトは3.10–3.12を受け付けるが、3.11/3.12は未実機検証 |
 | Git | リポジトリの取得・更新に必要 |
 | Node.js | 22.12以上。検証バージョンは22.17.1。画面のビルドに必要 |
@@ -250,7 +251,7 @@ CPU専用torch 2.14.0+cpu、Ryzen 5 5600H（6コア12スレッド）、RAM 16GB�
 低性能CPU・RAM 8GB・液タブ実機・長時間稼働は未検証です。
 
 詳細：[CPU検証結果](reports/cpu_performance_validation_2026-10-08.md)、[展示前の大規模テスト](reports/exhibition_release_validation_2026-10-08.md)。
-2026-10-08時点の回帰テストはPython 177件・TypeScript 110件が通過しています。GPUでの実認識、clean cloneでの導入・ビルドも検証済みです。
+2026-10-08時点の回帰テストはPython 179件・TypeScript 110件が通過しています。GPUでの実認識、clean cloneでの導入・ビルドも検証済みです。
 
 <a id="development"></a>
 

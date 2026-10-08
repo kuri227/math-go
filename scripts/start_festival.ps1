@@ -28,13 +28,13 @@ $Server = Start-Process -FilePath $Python `
     -RedirectStandardOutput $StdoutLog -RedirectStandardError $StderrLog
 
 try {
-    Write-Host "TexTellerを読み込んでいます。CPUや低速PCでは時間がかかる場合があります。"
+    Write-Host "Loading TexTeller. CPU or slower PCs may take longer."
     $Ready = $false
     $ReadyDeadline = [DateTime]::UtcNow.AddMinutes(3)
     while ([DateTime]::UtcNow -lt $ReadyDeadline) {
         if ($Server.HasExited) {
             $Detail = if (Test-Path $StderrLog) { Get-Content $StderrLog -Tail 30 | Out-String } else { "" }
-            throw "サーバーが起動中に終了しました。`n$Detail"
+            throw "The server exited during startup.`n$Detail"
         }
         try {
             $Health = Invoke-RestMethod "$LocalUrl/api/v1/health/ready?model=texteller" -TimeoutSec 2
@@ -46,13 +46,13 @@ try {
         Start-Sleep -Seconds 1
     }
     if (-not $Ready) {
-        throw "TexTellerが3分以内に準備完了になりませんでした。.runtime/server.stderr.log と results/logs/texteller.log を確認してください。"
+        throw "TexTeller was not ready within 3 minutes. Check .runtime/server.stderr.log and results/logs/texteller.log."
     }
 
     $GameUrl = if ($SingleScreen) { $LocalUrl } else { "$LocalUrl/display" }
     $StartupWatch.Stop()
-    Write-Host "準備完了まで: $([Math]::Round($StartupWatch.Elapsed.TotalSeconds, 2)) 秒"
-    Write-Host "数学でGO: $GameUrl"
+    Write-Host "Ready in $([Math]::Round($StartupWatch.Elapsed.TotalSeconds, 2)) seconds."
+    Write-Host "Math GO: $GameUrl"
     if ($Lan) {
         $Addresses = Get-NetIPAddress -AddressFamily IPv4 -ErrorAction SilentlyContinue |
             Where-Object { $_.IPAddress -notmatch '^(127\.|169\.254\.)' } |
@@ -60,12 +60,12 @@ try {
         foreach ($Address in $Addresses) {
             Write-Host "LAN access: http://${Address}:$Port"
         }
-        Write-Warning "LAN利用時はWindows FirewallでTCP $Port の受信許可が必要な場合があります。"
+        Write-Warning "LAN access may require a Windows Firewall inbound rule for TCP $Port."
     }
     if (-not $NoBrowser) {
         Start-Process $GameUrl
     }
-    Write-Host "停止するにはこの画面でCtrl+Cを押してください。"
+    Write-Host "Press Ctrl+C in this window to stop the server."
     Wait-Process -Id $Server.Id
 } finally {
     if (-not $Server.HasExited) {
