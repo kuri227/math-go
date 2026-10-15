@@ -1,5 +1,9 @@
 # 数学でGO HMER PoC アーキテクチャ
 
+2026-10-15のゲーム側現行仕様は [2モード設計](two-mode-exhibition.md)。旧Phaser・GameCoordinator・残機制の記述は過去の構成として参照する。
+現行は `exhibition/Session.ts` が単一の進行正本、`exhibition/App.ts` が3画面共通の表示と操作、DOM/KaTeXが問題表示、独立Canvasが手書きを担当する。
+認識プレビューと採点を分離し、学習候補は `POST /api/v1/test-samples` へ同意・人手転記付きで保存する。
+
 ## 処理の流れ
 
 ブラウザはPointer Eventsでマウス、ペン、タッチを同じ経路で受け取る。ゲーム画面ではPhaserが問題進行を、独立したHTML Canvasが手書きを担当する。認識時には描画のbounding boxへ余白を加え、白背景・黒線のcrop済みPNGを生成する。通常ゲームはPNGを `POST /api/v1/recognitions` へ送りTexTellerだけで認識する。比較画面は `POST /recognize/compare` へ一度だけ送り、API内の同一一時ファイルを両モデルへ順番に渡す。評価データ保存では同じPNG、stroke JSON、人手確認済みGround Truth、匿名メタデータを `POST /samples` へ送る。
