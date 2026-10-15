@@ -26,7 +26,7 @@ describe("DualScreenChannel", () => {
     display.subscribe((message) => received.push(message));
     display.start();
     const message: DualScreenMessage = {
-      type: "advance-requested",
+      type: "heartbeat",
       sessionId: "session",
       connectionId: "controller-instance",
       protocolVersion: 1,
@@ -37,7 +37,7 @@ describe("DualScreenChannel", () => {
     controllerTransport.post(message);
     controllerTransport.post(message);
     controllerTransport.post({ ...message, sequence: 3 });
-    expect(received.filter((item) => item.type === "advance-requested")).toHaveLength(1);
+    expect(received.filter((item) => item.type === "heartbeat")).toHaveLength(1);
     display.close();
     controllerTransport.close();
   });

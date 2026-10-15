@@ -12,6 +12,7 @@ export interface CroppedImage {
   blob: Blob;
   width: number;
   height: number;
+  crop: { x: number; y: number; width: number; height: number };
 }
 
 const LINE_WIDTH = 5;
@@ -22,6 +23,10 @@ export class HandwritingPad {
   private strokes: Stroke[] = [];
   private activeStroke: Stroke | null = null;
   private resizeObserver: ResizeObserver;
+  private disabled = false;
+  private pointerId: number | null = null;
+  private logicalWidth = 0;
+  private logicalHeight = 0;
 
   constructor(
     private readonly canvas: HTMLCanvasElement,
@@ -53,17 +58,28 @@ export class HandwritingPad {
   }
 
   setDisabled(disabled: boolean): void {
+    this.disabled = disabled;
+    if (disabled && this.activeStroke) {
+      this.strokes.push(this.activeStroke);
+      this.activeStroke = null;
+      this.pointerId = null;
+      this.redraw();
+    }
     this.canvas.toggleAttribute("data-disabled", disabled);
     this.canvas.style.pointerEvents = disabled ? "none" : "auto";
   }
 
   async toCroppedPng(): Promise<CroppedImage> {
     if (!this.hasInk) throw new Error("回答を入力してから提出してください");
-    const points = this.strokes.flat();
-    const minX = Math.max(0, Math.floor(Math.min(...points.map((point) => point.x)) - CROP_PADDING));
-    const minY = Math.max(0, Math.floor(Math.min(...points.map((point) => point.y)) - CROP_PADDING));
-    const maxX = Math.min(this.cssWidth, Math.ceil(Math.max(...points.map((point) => point.x)) + CROP_PADDING));
-    const maxY = Math.min(this.cssHeight, Math.ceil(Math.max(...points.map((point) => point.y)) + CROP_PADDING));
+    let left = Infinity, top = Infinity, right = -Infinity, bottom = -Infinity;
+    for (const stroke of this.strokes) for (const point of stroke) {
+      left = Math.min(left, point.x); top = Math.min(top, point.y);
+      right = Math.max(right, point.x); bottom = Math.max(bottom, point.y);
+    }
+    const minX = Math.max(0, Math.floor(left - CROP_PADDING));
+    const minY = Math.max(0, Math.floor(top - CROP_PADDING));
+    const maxX = Math.min(this.cssWidth, Math.ceil(right + CROP_PADDING));
+    const maxY = Math.min(this.cssHeight, Math.ceil(bottom + CROP_PADDING));
     const width = Math.max(1, maxX - minX);
     const height = Math.max(1, maxY - minY);
 
@@ -82,7 +98,18 @@ export class HandwritingPad {
         else reject(new Error("PNGの生成に失敗しました"));
       }, "image/png");
     });
-    return { blob, width, height };
+    return { blob, width, height, crop: { x: minX, y: minY, width, height } };
+  }
+
+  exportStrokes(crop: CroppedImage["crop"]): object {
+    return {
+      schema_version: 1,
+      canvas: { width: this.cssWidth, height: this.cssHeight },
+      crop, line_width: LINE_WIDTH,
+      coordinates: "canvas_css_pixels; subtract crop.x/y for saved PNG coordinates",
+      pointer_types: [...new Set(this.strokes.flat().map(p => p.pointerType))],
+      strokes: this.strokes.map(points => ({ pointerType: points[0]?.pointerType ?? "unknown", points: points.map(p => ({ ...p })) })),
+    };
   }
 
   private get cssWidth(): number {
@@ -95,7 +122,8 @@ export class HandwritingPad {
 
   private bindEvents(): void {
     this.canvas.addEventListener("pointerdown", (event) => {
-      if (event.button !== 0) return;
+      if (this.disabled || event.button !== 0 || this.activeStroke) return;
+      this.pointerId = event.pointerId;
       this.canvas.setPointerCapture(event.pointerId);
       this.activeStroke = [this.pointFromEvent(event)];
       this.hint.hidden = true;
@@ -103,23 +131,25 @@ export class HandwritingPad {
     });
     this.canvas.addEventListener("pointermove", (event) => {
       this.movePointerPreview(event);
-      if (!this.activeStroke) return;
+      if (!this.activeStroke || event.pointerId !== this.pointerId) return;
       const point = this.pointFromEvent(event);
       const previous = this.activeStroke.at(-1)!;
       this.activeStroke.push(point);
       this.drawSegment(previous, point);
     });
     const finish = (event: PointerEvent) => {
-      if (!this.activeStroke) return;
+      if (!this.activeStroke || event.pointerId !== this.pointerId) return;
       if (this.activeStroke.length === 1) {
         this.activeStroke.push(this.pointFromEvent(event));
       }
       this.strokes.push(this.activeStroke);
       this.activeStroke = null;
+      this.pointerId = null;
       this.updateHint();
     };
     this.canvas.addEventListener("pointerup", finish);
     this.canvas.addEventListener("pointercancel", finish);
+    this.canvas.addEventListener("lostpointercapture", finish);
     this.canvas.addEventListener("pointerenter", (event) => {
       this.pointerPreview.hidden = false;
       this.movePointerPreview(event);
@@ -148,6 +178,18 @@ export class HandwritingPad {
   private resize(): void {
     const width = Math.max(1, this.cssWidth);
     const height = Math.max(1, this.cssHeight);
+    if (this.logicalWidth > 1 && this.logicalHeight > 1 && width > 1 && height > 1) {
+      for (const stroke of [...this.strokes, ...(this.activeStroke ? [this.activeStroke] : [])]) {
+        for (const point of stroke) {
+          point.x *= width / this.logicalWidth;
+          point.y *= height / this.logicalHeight;
+        }
+      }
+    }
+    if (width > 1 && height > 1) {
+      this.logicalWidth = width;
+      this.logicalHeight = height;
+    }
     const ratio = Math.min(window.devicePixelRatio || 1, 2);
     const nextWidth = Math.round(width * ratio);
     const nextHeight = Math.round(height * ratio);

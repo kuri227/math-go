@@ -1,13 +1,3 @@
-export type GameState =
-  | "loading"
-  | "writing"
-  | "recognizing"
-  | "result"
-  | "finished"
-  | "error";
-
-export type GameEndReason = "all-questions-completed" | "lives-exhausted";
-
 export interface Question {
   id: string;
   instruction: string;
@@ -16,6 +6,11 @@ export interface Question {
   category: string;
   difficulty: number;
   difficulty_label: string;
+  prompt?: string | null;
+  sublevel?: number;
+  rank?: number;
+  review_status?: "pending" | "approved" | "needs_revision";
+  exhibition_enabled?: boolean;
 }
 
 export interface RecognitionTiming {
@@ -38,15 +33,6 @@ export interface RecognitionResponse {
   peak_vram_mb: number | null;
 }
 
-export interface PerformanceSample {
-  encodeMs: number;
-  requestMs: number;
-  judgementMs: number;
-  feedbackMs: number;
-  response: RecognitionResponse;
-  judgement: JudgementResponse;
-}
-
 export interface JudgementResponse {
   question_id: string;
   correct: boolean;
@@ -63,19 +49,3 @@ export interface SolutionResponse {
   expected_latex: string;
   explanation: string;
 }
-
-export interface RoundOutcome {
-  questionId: string;
-  correct: boolean;
-  skipped: boolean;
-  feedbackMs: number;
-}
-
-export interface GameStats {
-  lives: number;
-  streak: number;
-  correct: number;
-  answered: number;
-  averageFeedbackMs: number;
-}
-

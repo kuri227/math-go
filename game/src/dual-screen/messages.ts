@@ -1,5 +1,5 @@
-import type { CoordinatorSnapshot } from "../application/GameCoordinator";
 import type { RecognitionResponse } from "../domain/types";
+import type { Snapshot } from "../exhibition/Session";
 
 export const DUAL_SCREEN_PROTOCOL_VERSION = 1 as const;
 export type DualScreenRole = "display" | "controller";
@@ -14,25 +14,12 @@ interface MessageBase {
 }
 
 export type DualScreenPayload =
+  | { type: "exhibition-state"; snapshot: Snapshot | null }
+  | { type: "exhibition-action"; action: "recognize" | "confirm" | "rewrite" | "next" | "retry-test" | "stop"; runId: string; questionId: string; requestId?: string; response?: RecognitionResponse; error?: string }
   | { type: "hello"; role: DualScreenRole }
   | { type: "heartbeat" }
   | { type: "connection-rejected"; targetConnectionId: string; reason: "role-already-connected" }
-  | { type: "round-ready"; round: number; total: number; inputEnabled: boolean }
-  | { type: "submission-started"; requestId: string }
-  | {
-      type: "recognition-completed";
-      requestId: string;
-      response: RecognitionResponse;
-      encodeMs: number;
-      requestMs: number;
-      feedbackStartedAt: number;
-    }
-  | { type: "recognition-failed"; requestId: string; message: string }
-  | { type: "skip-requested" }
-  | { type: "retry-requested" }
-  | { type: "advance-requested" }
-  | { type: "game-state"; snapshot: CoordinatorSnapshot }
-  | { type: "session-ended"; reason: "finished" | "title" };
+  ;
 
 export type DualScreenMessage = MessageBase & DualScreenPayload;
 
