@@ -1,0 +1,907 @@
+{
+  "questions": [
+    {
+      "question": "$f_k(x)=k x^k$ を $(0,1)$ 上で考えます。$\\lim_{k\\to\\infty}\\int_0^1 2f_k(x)\\,dx$ を求めなさい。",
+      "answer": [
+        "2"
+      ],
+      "description": "積分は $2k/(k+1)$ なので極限は $2$。各点で $f_k\\to0$ でも積分の極限は0ではありません。",
+      "difficulty": 6,
+      "sublevel": 1,
+      "rank": 1
+    },
+    {
+      "question": "$f_k(x)=k x^k$ を $(0,1)$ 上で考えます。$\\lim_{k\\to\\infty}\\int_0^1 3f_k(x)\\,dx$ を求めなさい。",
+      "answer": [
+        "3"
+      ],
+      "description": "積分は $3k/(k+1)$ なので極限は $3$。各点で $f_k\\to0$ でも積分の極限は0ではありません。",
+      "difficulty": 6,
+      "sublevel": 1,
+      "rank": 1
+    },
+    {
+      "question": "$f_k(x)=k x^k$ を $(0,1)$ 上で考えます。$\\lim_{k\\to\\infty}\\int_0^1 4f_k(x)\\,dx$ を求めなさい。",
+      "answer": [
+        "4"
+      ],
+      "description": "積分は $4k/(k+1)$ なので極限は $4$。各点で $f_k\\to0$ でも積分の極限は0ではありません。",
+      "difficulty": 6,
+      "sublevel": 1,
+      "rank": 1
+    },
+    {
+      "question": "$f_k(x)=x^k$ の $L^{2}(0,1)$ ノルムの $2$ 乗を $k=2$ のとき求めなさい。",
+      "answer": [
+        "\\frac{1}{5}"
+      ],
+      "description": "$\\|f_k\\|_{2}^{2}=\\int_0^1x^{2k}\\,dx=1/(2k+1)$。$k=2$ で $1/5$。",
+      "difficulty": 6,
+      "sublevel": 1,
+      "rank": 2
+    },
+    {
+      "question": "$f_k(x)=x^k$ の $L^{3}(0,1)$ ノルムの $3$ 乗を $k=3$ のとき求めなさい。",
+      "answer": [
+        "\\frac{1}{10}"
+      ],
+      "description": "$\\|f_k\\|_{3}^{3}=\\int_0^1x^{3k}\\,dx=1/(3k+1)$。$k=3$ で $1/10$。",
+      "difficulty": 6,
+      "sublevel": 1,
+      "rank": 2
+    },
+    {
+      "question": "$f_k(x)=x^k$ の $L^{4}(0,1)$ ノルムの $4$ 乗を $k=4$ のとき求めなさい。",
+      "answer": [
+        "\\frac{1}{17}"
+      ],
+      "description": "$\\|f_k\\|_{4}^{4}=\\int_0^1x^{4k}\\,dx=1/(4k+1)$。$k=4$ で $1/17$。",
+      "difficulty": 6,
+      "sublevel": 1,
+      "rank": 2
+    },
+    {
+      "question": "作用素 $T:L^2(0,1)\\to L^2(0,1)$ を $(Tf)(x)=x^{2}f(x)$ と定義します。作用素ノルムを求めなさい。",
+      "answer": [
+        "1"
+      ],
+      "description": "乗算作用素のノルムは乗数の本質的上限。$x^{2}$ の $(0,1)$ 上での本質的上限は1です。",
+      "difficulty": 6,
+      "sublevel": 1,
+      "rank": 3
+    },
+    {
+      "question": "作用素 $T:L^2(0,1)\\to L^2(0,1)$ を $(Tf)(x)=x^{3}f(x)$ と定義します。作用素ノルムを求めなさい。",
+      "answer": [
+        "1"
+      ],
+      "description": "乗算作用素のノルムは乗数の本質的上限。$x^{3}$ の $(0,1)$ 上での本質的上限は1です。",
+      "difficulty": 6,
+      "sublevel": 1,
+      "rank": 3
+    },
+    {
+      "question": "作用素 $T:L^2(0,1)\\to L^2(0,1)$ を $(Tf)(x)=x^{4}f(x)$ と定義します。作用素ノルムを求めなさい。",
+      "answer": [
+        "1"
+      ],
+      "description": "乗算作用素のノルムは乗数の本質的上限。$x^{4}$ の $(0,1)$ 上での本質的上限は1です。",
+      "difficulty": 6,
+      "sublevel": 1,
+      "rank": 3
+    },
+    {
+      "question": "$\\ell^2$ 上の対角作用素 $Te_k=k^{-2}e_k$ の作用素ノルムを求めなさい。$e_k$ は標準正規直交基底です。",
+      "answer": [
+        "1"
+      ],
+      "description": "ノルムは対角成分の絶対値の上限 $\\sup_{k\\ge1}k^{-2}=1$。",
+      "difficulty": 6,
+      "sublevel": 1,
+      "rank": 4
+    },
+    {
+      "question": "$\\ell^2$ 上の対角作用素 $Te_k=k^{-3}e_k$ の作用素ノルムを求めなさい。$e_k$ は標準正規直交基底です。",
+      "answer": [
+        "1"
+      ],
+      "description": "ノルムは対角成分の絶対値の上限 $\\sup_{k\\ge1}k^{-3}=1$。",
+      "difficulty": 6,
+      "sublevel": 1,
+      "rank": 4
+    },
+    {
+      "question": "$\\ell^2$ 上の対角作用素 $Te_k=k^{-4}e_k$ の作用素ノルムを求めなさい。$e_k$ は標準正規直交基底です。",
+      "answer": [
+        "1"
+      ],
+      "description": "ノルムは対角成分の絶対値の上限 $\\sup_{k\\ge1}k^{-4}=1$。",
+      "difficulty": 6,
+      "sublevel": 1,
+      "rank": 4
+    },
+    {
+      "question": "ディラックのデルタの分布微分について、$\\langle\\delta_0\\prime,e^{2x}\\chi(x)\\rangle$ を求めなさい。$\\chi$ は滑らかなコンパクト台関数で0の近傍では1です。",
+      "answer": [
+        "-2"
+      ],
+      "description": "分布微分の定義より $\\langle\\delta_0\\prime,\\varphi\\rangle=-\\varphi\\prime(0)$。ここでは $\\varphi\\prime(0)=2$ なので $-2$。",
+      "difficulty": 6,
+      "sublevel": 1,
+      "rank": 5
+    },
+    {
+      "question": "ディラックのデルタの分布微分について、$\\langle\\delta_0\\prime,e^{3x}\\chi(x)\\rangle$ を求めなさい。$\\chi$ は滑らかなコンパクト台関数で0の近傍では1です。",
+      "answer": [
+        "-3"
+      ],
+      "description": "分布微分の定義より $\\langle\\delta_0\\prime,\\varphi\\rangle=-\\varphi\\prime(0)$。ここでは $\\varphi\\prime(0)=3$ なので $-3$。",
+      "difficulty": 6,
+      "sublevel": 1,
+      "rank": 5
+    },
+    {
+      "question": "ディラックのデルタの分布微分について、$\\langle\\delta_0\\prime,e^{4x}\\chi(x)\\rangle$ を求めなさい。$\\chi$ は滑らかなコンパクト台関数で0の近傍では1です。",
+      "answer": [
+        "-4"
+      ],
+      "description": "分布微分の定義より $\\langle\\delta_0\\prime,\\varphi\\rangle=-\\varphi\\prime(0)$。ここでは $\\varphi\\prime(0)=4$ なので $-4$。",
+      "difficulty": 6,
+      "sublevel": 1,
+      "rank": 5
+    },
+    {
+      "question": "級数 $\\sum_{k=0}^\\infty 2^k z^k$ の収束半径を求めなさい。",
+      "answer": [
+        "\\frac{1}{2}"
+      ],
+      "description": "コーシー・アダマールの公式より $R^{-1}=\\limsup |2^k|^{1/k}=2$。",
+      "difficulty": 6,
+      "sublevel": 1,
+      "rank": 6
+    },
+    {
+      "question": "級数 $\\sum_{k=0}^\\infty 3^k z^k$ の収束半径を求めなさい。",
+      "answer": [
+        "\\frac{1}{3}"
+      ],
+      "description": "コーシー・アダマールの公式より $R^{-1}=\\limsup |3^k|^{1/k}=3$。",
+      "difficulty": 6,
+      "sublevel": 1,
+      "rank": 6
+    },
+    {
+      "question": "級数 $\\sum_{k=0}^\\infty 4^k z^k$ の収束半径を求めなさい。",
+      "answer": [
+        "\\frac{1}{4}"
+      ],
+      "description": "コーシー・アダマールの公式より $R^{-1}=\\limsup |4^k|^{1/k}=4$。",
+      "difficulty": 6,
+      "sublevel": 1,
+      "rank": 6
+    },
+    {
+      "question": "$f(z)=e^z/(z-2)^2$ の $z=2$ における留数を求めなさい。",
+      "answer": [
+        "e^{2}"
+      ],
+      "description": "2位の極での留数は分子の1階微分を極で評価したもの。$(e^z)\\prime|_{z=2}=e^{2}$。",
+      "difficulty": 6,
+      "sublevel": 1,
+      "rank": 7
+    },
+    {
+      "question": "$f(z)=e^z/(z-3)^2$ の $z=3$ における留数を求めなさい。",
+      "answer": [
+        "e^{3}"
+      ],
+      "description": "2位の極での留数は分子の1階微分を極で評価したもの。$(e^z)\\prime|_{z=3}=e^{3}$。",
+      "difficulty": 6,
+      "sublevel": 1,
+      "rank": 7
+    },
+    {
+      "question": "$f(z)=e^z/(z-4)^2$ の $z=4$ における留数を求めなさい。",
+      "answer": [
+        "e^{4}"
+      ],
+      "description": "2位の極での留数は分子の1階微分を極で評価したもの。$(e^z)\\prime|_{z=4}=e^{4}$。",
+      "difficulty": 6,
+      "sublevel": 1,
+      "rank": 7
+    },
+    {
+      "question": "$\\int_0^\\infty x^{2}e^{-x}\\,dx$ を求めなさい。",
+      "answer": [
+        "2"
+      ],
+      "description": "ガンマ関数の定義より $\\Gamma(3)=2!=2$。",
+      "difficulty": 6,
+      "sublevel": 1,
+      "rank": 8
+    },
+    {
+      "question": "$\\int_0^\\infty x^{3}e^{-x}\\,dx$ を求めなさい。",
+      "answer": [
+        "6"
+      ],
+      "description": "ガンマ関数の定義より $\\Gamma(4)=3!=6$。",
+      "difficulty": 6,
+      "sublevel": 1,
+      "rank": 8
+    },
+    {
+      "question": "$\\int_0^\\infty x^{4}e^{-x}\\,dx$ を求めなさい。",
+      "answer": [
+        "24"
+      ],
+      "description": "ガンマ関数の定義より $\\Gamma(5)=4!=24$。",
+      "difficulty": 6,
+      "sublevel": 1,
+      "rank": 8
+    },
+    {
+      "question": "確率変数列が $X_k\\to0$（確率収束）を満たします。$Y_k=2+\\sin X_k$ の確率極限を求めなさい。",
+      "answer": [
+        "2"
+      ],
+      "description": "連続写像定理より $\\sin X_k\\to\\sin0=0$（確率収束）。従って $Y_k\\to2$。",
+      "difficulty": 6,
+      "sublevel": 1,
+      "rank": 9
+    },
+    {
+      "question": "確率変数列が $X_k\\to0$（確率収束）を満たします。$Y_k=3+\\sin X_k$ の確率極限を求めなさい。",
+      "answer": [
+        "3"
+      ],
+      "description": "連続写像定理より $\\sin X_k\\to\\sin0=0$（確率収束）。従って $Y_k\\to3$。",
+      "difficulty": 6,
+      "sublevel": 1,
+      "rank": 9
+    },
+    {
+      "question": "確率変数列が $X_k\\to0$（確率収束）を満たします。$Y_k=4+\\sin X_k$ の確率極限を求めなさい。",
+      "answer": [
+        "4"
+      ],
+      "description": "連続写像定理より $\\sin X_k\\to\\sin0=0$（確率収束）。従って $Y_k\\to4$。",
+      "difficulty": 6,
+      "sublevel": 1,
+      "rank": 9
+    },
+    {
+      "question": "有界自己共役作用素 $T$ のスペクトルが $[-2,3]$ です。$\\|T^2\\|$ を求めなさい。",
+      "answer": [
+        "9"
+      ],
+      "description": "スペクトル写像定理と自己共役性より $\\|T^2\\|=\\max_{\\lambda\\in\\sigma(T)}|\\lambda|^2=(3)^2=9$。",
+      "difficulty": 6,
+      "sublevel": 1,
+      "rank": 10
+    },
+    {
+      "question": "有界自己共役作用素 $T$ のスペクトルが $[-3,4]$ です。$\\|T^2\\|$ を求めなさい。",
+      "answer": [
+        "16"
+      ],
+      "description": "スペクトル写像定理と自己共役性より $\\|T^2\\|=\\max_{\\lambda\\in\\sigma(T)}|\\lambda|^2=(4)^2=16$。",
+      "difficulty": 6,
+      "sublevel": 1,
+      "rank": 10
+    },
+    {
+      "question": "有界自己共役作用素 $T$ のスペクトルが $[-4,5]$ です。$\\|T^2\\|$ を求めなさい。",
+      "answer": [
+        "25"
+      ],
+      "description": "スペクトル写像定理と自己共役性より $\\|T^2\\|=\\max_{\\lambda\\in\\sigma(T)}|\\lambda|^2=(5)^2=25$。",
+      "difficulty": 6,
+      "sublevel": 1,
+      "rank": 10
+    },
+    {
+      "question": "加法群 $\\mathbb Z/24\\mathbb Z$ の元 $\\overline{2}$ の位数を求めなさい。",
+      "answer": [
+        "12"
+      ],
+      "description": "位数は $24/\\gcd(24,2)=12$。",
+      "difficulty": 6,
+      "sublevel": 2,
+      "rank": 1
+    },
+    {
+      "question": "加法群 $\\mathbb Z/36\\mathbb Z$ の元 $\\overline{3}$ の位数を求めなさい。",
+      "answer": [
+        "12"
+      ],
+      "description": "位数は $36/\\gcd(36,3)=12$。",
+      "difficulty": 6,
+      "sublevel": 2,
+      "rank": 1
+    },
+    {
+      "question": "加法群 $\\mathbb Z/48\\mathbb Z$ の元 $\\overline{4}$ の位数を求めなさい。",
+      "answer": [
+        "12"
+      ],
+      "description": "位数は $48/\\gcd(48,4)=12$。",
+      "difficulty": 6,
+      "sublevel": 2,
+      "rank": 1
+    },
+    {
+      "question": "巡回群 $C_{4}$ の部分群の個数を求めなさい。",
+      "answer": [
+        "3"
+      ],
+      "description": "巡回群の各約数に対して部分群がただ1つあります。$2^{2}$ の約数は $1,2,\\ldots,2^{2}$ の $3$ 個。",
+      "difficulty": 6,
+      "sublevel": 2,
+      "rank": 2
+    },
+    {
+      "question": "巡回群 $C_{8}$ の部分群の個数を求めなさい。",
+      "answer": [
+        "4"
+      ],
+      "description": "巡回群の各約数に対して部分群がただ1つあります。$2^{3}$ の約数は $1,2,\\ldots,2^{3}$ の $4$ 個。",
+      "difficulty": 6,
+      "sublevel": 2,
+      "rank": 2
+    },
+    {
+      "question": "巡回群 $C_{16}$ の部分群の個数を求めなさい。",
+      "answer": [
+        "5"
+      ],
+      "description": "巡回群の各約数に対して部分群がただ1つあります。$2^{4}$ の約数は $1,2,\\ldots,2^{4}$ の $5$ 個。",
+      "difficulty": 6,
+      "sublevel": 2,
+      "rank": 2
+    },
+    {
+      "question": "有限体 $\\mathbb F_{4}$ の乗法群の位数を求めなさい。",
+      "answer": [
+        "3"
+      ],
+      "description": "乗法群は非零元全体なので、体の元数から0を除いて $3$。",
+      "difficulty": 6,
+      "sublevel": 2,
+      "rank": 3
+    },
+    {
+      "question": "有限体 $\\mathbb F_{8}$ の乗法群の位数を求めなさい。",
+      "answer": [
+        "7"
+      ],
+      "description": "乗法群は非零元全体なので、体の元数から0を除いて $7$。",
+      "difficulty": 6,
+      "sublevel": 2,
+      "rank": 3
+    },
+    {
+      "question": "有限体 $\\mathbb F_{16}$ の乗法群の位数を求めなさい。",
+      "answer": [
+        "15"
+      ],
+      "description": "乗法群は非零元全体なので、体の元数から0を除いて $15$。",
+      "difficulty": 6,
+      "sublevel": 2,
+      "rank": 3
+    },
+    {
+      "question": "$\\mathbb F_2$ 上のモニック既約多項式で次数 $2$ のものの個数を求めなさい。",
+      "answer": [
+        "1"
+      ],
+      "description": "個数は $\\frac1{2}\\sum_{d\\mid2}\\mu(d)2^{2/d}$。メビウス関数を用いて計算します。",
+      "difficulty": 6,
+      "sublevel": 2,
+      "rank": 4
+    },
+    {
+      "question": "$\\mathbb F_2$ 上のモニック既約多項式で次数 $3$ のものの個数を求めなさい。",
+      "answer": [
+        "2"
+      ],
+      "description": "個数は $\\frac1{3}\\sum_{d\\mid3}\\mu(d)2^{3/d}$。メビウス関数を用いて計算します。",
+      "difficulty": 6,
+      "sublevel": 2,
+      "rank": 4
+    },
+    {
+      "question": "$\\mathbb F_2$ 上のモニック既約多項式で次数 $4$ のものの個数を求めなさい。",
+      "answer": [
+        "3"
+      ],
+      "description": "個数は $\\frac1{4}\\sum_{d\\mid4}\\mu(d)2^{4/d}$。メビウス関数を用いて計算します。",
+      "difficulty": 6,
+      "sublevel": 2,
+      "rank": 4
+    },
+    {
+      "question": "$\\mathbb Q$ 上の多項式 $x^{2}-2$ の根 $\\alpha=2^{1/2}$ に対し、$[\\mathbb Q(\\alpha):\\mathbb Q]$ を求めなさい。",
+      "answer": [
+        "2"
+      ],
+      "description": "$x^{2}-2$ は素数2に関するアイゼンシュタインの判定法で既約です。最小多項式の次数は $2$。",
+      "difficulty": 6,
+      "sublevel": 2,
+      "rank": 5
+    },
+    {
+      "question": "$\\mathbb Q$ 上の多項式 $x^{3}-2$ の根 $\\alpha=2^{1/3}$ に対し、$[\\mathbb Q(\\alpha):\\mathbb Q]$ を求めなさい。",
+      "answer": [
+        "3"
+      ],
+      "description": "$x^{3}-2$ は素数2に関するアイゼンシュタインの判定法で既約です。最小多項式の次数は $3$。",
+      "difficulty": 6,
+      "sublevel": 2,
+      "rank": 5
+    },
+    {
+      "question": "$\\mathbb Q$ 上の多項式 $x^{4}-2$ の根 $\\alpha=2^{1/4}$ に対し、$[\\mathbb Q(\\alpha):\\mathbb Q]$ を求めなさい。",
+      "answer": [
+        "4"
+      ],
+      "description": "$x^{4}-2$ は素数2に関するアイゼンシュタインの判定法で既約です。最小多項式の次数は $4$。",
+      "difficulty": 6,
+      "sublevel": 2,
+      "rank": 5
+    },
+    {
+      "question": "有限体拡大 $\\mathbb F_{4}/\\mathbb F_2$ のガロア群の位数を求めなさい。",
+      "answer": [
+        "2"
+      ],
+      "description": "フロベニウス $x\\mapsto x^2$ が生成し、その位数は拡大次数 $2$。",
+      "difficulty": 6,
+      "sublevel": 2,
+      "rank": 6
+    },
+    {
+      "question": "有限体拡大 $\\mathbb F_{8}/\\mathbb F_2$ のガロア群の位数を求めなさい。",
+      "answer": [
+        "3"
+      ],
+      "description": "フロベニウス $x\\mapsto x^2$ が生成し、その位数は拡大次数 $3$。",
+      "difficulty": 6,
+      "sublevel": 2,
+      "rank": 6
+    },
+    {
+      "question": "有限体拡大 $\\mathbb F_{16}/\\mathbb F_2$ のガロア群の位数を求めなさい。",
+      "answer": [
+        "4"
+      ],
+      "description": "フロベニウス $x\\mapsto x^2$ が生成し、その位数は拡大次数 $4$。",
+      "difficulty": 6,
+      "sublevel": 2,
+      "rank": 6
+    },
+    {
+      "question": "$\\mathbb R[x]/(x^{2})$ の $\\mathbb R$ ベクトル空間としての次元を求めなさい。",
+      "answer": [
+        "2"
+      ],
+      "description": "剰余類 $1,x,\\ldots,x^{1}$ が基底をなすので、次元は $2$。",
+      "difficulty": 6,
+      "sublevel": 2,
+      "rank": 7
+    },
+    {
+      "question": "$\\mathbb R[x]/(x^{3})$ の $\\mathbb R$ ベクトル空間としての次元を求めなさい。",
+      "answer": [
+        "3"
+      ],
+      "description": "剰余類 $1,x,\\ldots,x^{2}$ が基底をなすので、次元は $3$。",
+      "difficulty": 6,
+      "sublevel": 2,
+      "rank": 7
+    },
+    {
+      "question": "$\\mathbb R[x]/(x^{4})$ の $\\mathbb R$ ベクトル空間としての次元を求めなさい。",
+      "answer": [
+        "4"
+      ],
+      "description": "剰余類 $1,x,\\ldots,x^{3}$ が基底をなすので、次元は $4$。",
+      "difficulty": 6,
+      "sublevel": 2,
+      "rank": 7
+    },
+    {
+      "question": "有限アーベル群 $C_{2}\\times C_{3}$ の複素既約表現の同型類の個数を求めなさい。",
+      "answer": [
+        "6"
+      ],
+      "description": "有限アーベル群の複素既約表現はすべて1次元で、個数は群の位数 $2(3)=6$。",
+      "difficulty": 6,
+      "sublevel": 2,
+      "rank": 8
+    },
+    {
+      "question": "有限アーベル群 $C_{3}\\times C_{4}$ の複素既約表現の同型類の個数を求めなさい。",
+      "answer": [
+        "12"
+      ],
+      "description": "有限アーベル群の複素既約表現はすべて1次元で、個数は群の位数 $3(4)=12$。",
+      "difficulty": 6,
+      "sublevel": 2,
+      "rank": 8
+    },
+    {
+      "question": "有限アーベル群 $C_{4}\\times C_{5}$ の複素既約表現の同型類の個数を求めなさい。",
+      "answer": [
+        "20"
+      ],
+      "description": "有限アーベル群の複素既約表現はすべて1次元で、個数は群の位数 $4(5)=20$。",
+      "difficulty": 6,
+      "sublevel": 2,
+      "rank": 8
+    },
+    {
+      "question": "可換環 $R=\\mathbb C[x_1,\\ldots,x_{2}]$ のクルル次元を求めなさい。",
+      "answer": [
+        "2"
+      ],
+      "description": "体上の $m$ 変数多項式環のクルル次元は $m$。ここでは $2$。",
+      "difficulty": 6,
+      "sublevel": 2,
+      "rank": 9
+    },
+    {
+      "question": "可換環 $R=\\mathbb C[x_1,\\ldots,x_{3}]$ のクルル次元を求めなさい。",
+      "answer": [
+        "3"
+      ],
+      "description": "体上の $m$ 変数多項式環のクルル次元は $m$。ここでは $3$。",
+      "difficulty": 6,
+      "sublevel": 2,
+      "rank": 9
+    },
+    {
+      "question": "可換環 $R=\\mathbb C[x_1,\\ldots,x_{4}]$ のクルル次元を求めなさい。",
+      "answer": [
+        "4"
+      ],
+      "description": "体上の $m$ 変数多項式環のクルル次元は $m$。ここでは $4$。",
+      "difficulty": 6,
+      "sublevel": 2,
+      "rank": 9
+    },
+    {
+      "question": "$\\mathbb C$ 上の対称群 $S_{4}$ の既約表現の同型類は何個ありますか。",
+      "answer": [
+        "5"
+      ],
+      "description": "$S_m$ の共役類と既約表現は $m$ の整数分割で数えられます。$p(4)=5$。",
+      "difficulty": 6,
+      "sublevel": 2,
+      "rank": 10
+    },
+    {
+      "question": "$\\mathbb C$ 上の対称群 $S_{5}$ の既約表現の同型類は何個ありますか。",
+      "answer": [
+        "7"
+      ],
+      "description": "$S_m$ の共役類と既約表現は $m$ の整数分割で数えられます。$p(5)=7$。",
+      "difficulty": 6,
+      "sublevel": 2,
+      "rank": 10
+    },
+    {
+      "question": "$\\mathbb C$ 上の対称群 $S_{6}$ の既約表現の同型類は何個ありますか。",
+      "answer": [
+        "11"
+      ],
+      "description": "$S_m$ の共役類と既約表現は $m$ の整数分割で数えられます。$p(6)=11$。",
+      "difficulty": 6,
+      "sublevel": 2,
+      "rank": 10
+    },
+    {
+      "question": "種数 $2$ の連結な閉向き付け可能曲面 $\\Sigma_{2}$ のオイラー標数を求めなさい。",
+      "answer": [
+        "-2"
+      ],
+      "description": "$\\chi(\\Sigma_g)=2-2g$ より $-2$。",
+      "difficulty": 6,
+      "sublevel": 3,
+      "rank": 1
+    },
+    {
+      "question": "種数 $3$ の連結な閉向き付け可能曲面 $\\Sigma_{3}$ のオイラー標数を求めなさい。",
+      "answer": [
+        "-4"
+      ],
+      "description": "$\\chi(\\Sigma_g)=2-2g$ より $-4$。",
+      "difficulty": 6,
+      "sublevel": 3,
+      "rank": 1
+    },
+    {
+      "question": "種数 $4$ の連結な閉向き付け可能曲面 $\\Sigma_{4}$ のオイラー標数を求めなさい。",
+      "answer": [
+        "-6"
+      ],
+      "description": "$\\chi(\\Sigma_g)=2-2g$ より $-6$。",
+      "difficulty": 6,
+      "sublevel": 3,
+      "rank": 1
+    },
+    {
+      "question": "$2$ 次元トーラス $T^{2}=(S^1)^{2}$ の第1ベッチ数を求めなさい。",
+      "answer": [
+        "2"
+      ],
+      "description": "$H_1(T^{2};\\mathbb Q)\\cong\\mathbb Q^{2}$。独立な円方向が $2$ 個あります。",
+      "difficulty": 6,
+      "sublevel": 3,
+      "rank": 2
+    },
+    {
+      "question": "$3$ 次元トーラス $T^{3}=(S^1)^{3}$ の第1ベッチ数を求めなさい。",
+      "answer": [
+        "3"
+      ],
+      "description": "$H_1(T^{3};\\mathbb Q)\\cong\\mathbb Q^{3}$。独立な円方向が $3$ 個あります。",
+      "difficulty": 6,
+      "sublevel": 3,
+      "rank": 2
+    },
+    {
+      "question": "$4$ 次元トーラス $T^{4}=(S^1)^{4}$ の第1ベッチ数を求めなさい。",
+      "answer": [
+        "4"
+      ],
+      "description": "$H_1(T^{4};\\mathbb Q)\\cong\\mathbb Q^{4}$。独立な円方向が $4$ 個あります。",
+      "difficulty": 6,
+      "sublevel": 3,
+      "rank": 2
+    },
+    {
+      "question": "複素射影空間 $\\mathbb{CP}^{2}$ のオイラー標数を求めなさい。",
+      "answer": [
+        "3"
+      ],
+      "description": "実次元 $0,2,\\ldots,4$ に各1個のセルを持ち、すべて偶数次元なので和は $3$。",
+      "difficulty": 6,
+      "sublevel": 3,
+      "rank": 3
+    },
+    {
+      "question": "複素射影空間 $\\mathbb{CP}^{3}$ のオイラー標数を求めなさい。",
+      "answer": [
+        "4"
+      ],
+      "description": "実次元 $0,2,\\ldots,6$ に各1個のセルを持ち、すべて偶数次元なので和は $4$。",
+      "difficulty": 6,
+      "sublevel": 3,
+      "rank": 3
+    },
+    {
+      "question": "複素射影空間 $\\mathbb{CP}^{4}$ のオイラー標数を求めなさい。",
+      "answer": [
+        "5"
+      ],
+      "description": "実次元 $0,2,\\ldots,8$ に各1個のセルを持ち、すべて偶数次元なので和は $5$。",
+      "difficulty": 6,
+      "sublevel": 3,
+      "rank": 3
+    },
+    {
+      "question": "半径 $2$ の標準的な2次元球面のガウス曲率を求めなさい。",
+      "answer": [
+        "\\frac{1}{4}"
+      ],
+      "description": "半径 $r$ の球面のガウス曲率は $1/r^2$。$r=2$ で $1/4$。",
+      "difficulty": 6,
+      "sublevel": 3,
+      "rank": 4
+    },
+    {
+      "question": "半径 $3$ の標準的な2次元球面のガウス曲率を求めなさい。",
+      "answer": [
+        "\\frac{1}{9}"
+      ],
+      "description": "半径 $r$ の球面のガウス曲率は $1/r^2$。$r=3$ で $1/9$。",
+      "difficulty": 6,
+      "sublevel": 3,
+      "rank": 4
+    },
+    {
+      "question": "半径 $4$ の標準的な2次元球面のガウス曲率を求めなさい。",
+      "answer": [
+        "\\frac{1}{16}"
+      ],
+      "description": "半径 $r$ の球面のガウス曲率は $1/r^2$。$r=4$ で $1/16$。",
+      "difficulty": 6,
+      "sublevel": 3,
+      "rank": 4
+    },
+    {
+      "question": "種数 $2$ の閉向き付け可能曲面に任意のリーマン計量を入れます。$\\int K\\,dA$ を求めなさい。",
+      "answer": [
+        "- 4 \\pi",
+        "-4\\pi"
+      ],
+      "description": "ガウス・ボンネの定理より $\\int K\\,dA=2\\pi\\chi=2\\pi(2-4)=- 4 \\pi$。",
+      "difficulty": 6,
+      "sublevel": 3,
+      "rank": 5
+    },
+    {
+      "question": "種数 $3$ の閉向き付け可能曲面に任意のリーマン計量を入れます。$\\int K\\,dA$ を求めなさい。",
+      "answer": [
+        "- 8 \\pi",
+        "-8\\pi"
+      ],
+      "description": "ガウス・ボンネの定理より $\\int K\\,dA=2\\pi\\chi=2\\pi(2-6)=- 8 \\pi$。",
+      "difficulty": 6,
+      "sublevel": 3,
+      "rank": 5
+    },
+    {
+      "question": "種数 $4$ の閉向き付け可能曲面に任意のリーマン計量を入れます。$\\int K\\,dA$ を求めなさい。",
+      "answer": [
+        "- 12 \\pi",
+        "-12\\pi"
+      ],
+      "description": "ガウス・ボンネの定理より $\\int K\\,dA=2\\pi\\chi=2\\pi(2-8)=- 12 \\pi$。",
+      "difficulty": 6,
+      "sublevel": 3,
+      "rank": 5
+    },
+    {
+      "question": "区間 $(0,\\pi)$ のディリクレ境界条件に対する $-d^2/dx^2$ の第 $2$ 固有値を求めなさい。固有値は小さい順に数えます。",
+      "answer": [
+        "4"
+      ],
+      "description": "固有関数は $\\sin(kx)$、固有値は $k^2$（$k=1,2,\\ldots$）。第 $2$ 固有値は $4$。",
+      "difficulty": 6,
+      "sublevel": 3,
+      "rank": 6
+    },
+    {
+      "question": "区間 $(0,\\pi)$ のディリクレ境界条件に対する $-d^2/dx^2$ の第 $3$ 固有値を求めなさい。固有値は小さい順に数えます。",
+      "answer": [
+        "9"
+      ],
+      "description": "固有関数は $\\sin(kx)$、固有値は $k^2$（$k=1,2,\\ldots$）。第 $3$ 固有値は $9$。",
+      "difficulty": 6,
+      "sublevel": 3,
+      "rank": 6
+    },
+    {
+      "question": "区間 $(0,\\pi)$ のディリクレ境界条件に対する $-d^2/dx^2$ の第 $4$ 固有値を求めなさい。固有値は小さい順に数えます。",
+      "answer": [
+        "16"
+      ],
+      "description": "固有関数は $\\sin(kx)$、固有値は $k^2$（$k=1,2,\\ldots$）。第 $4$ 固有値は $16$。",
+      "difficulty": 6,
+      "sublevel": 3,
+      "rank": 6
+    },
+    {
+      "question": "$u_t=u_{xx}$、$0<x<\\pi$、$u(t,0)=u(t,\\pi)=0$、$u(0,x)=\\sin(2x)$ とします。$u(1,\\pi/(4))$ を求めなさい。",
+      "answer": [
+        "e^{-4}"
+      ],
+      "description": "固有関数展開より $u(t,x)=e^{-4t}\\sin(2x)$。指定点の正弦は1なので $e^{-4}$。",
+      "difficulty": 6,
+      "sublevel": 3,
+      "rank": 7
+    },
+    {
+      "question": "$u_t=u_{xx}$、$0<x<\\pi$、$u(t,0)=u(t,\\pi)=0$、$u(0,x)=\\sin(3x)$ とします。$u(1,\\pi/(6))$ を求めなさい。",
+      "answer": [
+        "e^{-9}"
+      ],
+      "description": "固有関数展開より $u(t,x)=e^{-9t}\\sin(3x)$。指定点の正弦は1なので $e^{-9}$。",
+      "difficulty": 6,
+      "sublevel": 3,
+      "rank": 7
+    },
+    {
+      "question": "$u_t=u_{xx}$、$0<x<\\pi$、$u(t,0)=u(t,\\pi)=0$、$u(0,x)=\\sin(4x)$ とします。$u(1,\\pi/(8))$ を求めなさい。",
+      "answer": [
+        "e^{-16}"
+      ],
+      "description": "固有関数展開より $u(t,x)=e^{-16t}\\sin(4x)$。指定点の正弦は1なので $e^{-16}$。",
+      "difficulty": 6,
+      "sublevel": 3,
+      "rank": 7
+    },
+    {
+      "question": "$\\mathbb R^{4}$ において $r=|x|>0$ とします。$\\Delta(r^2)$ を求めなさい。",
+      "answer": [
+        "8"
+      ],
+      "description": "$r^2=\\sum_{j=1}^{4}x_j^2$。各2階偏微分が2なので $\\Delta(r^2)=8$。",
+      "difficulty": 6,
+      "sublevel": 3,
+      "rank": 8
+    },
+    {
+      "question": "$\\mathbb R^{5}$ において $r=|x|>0$ とします。$\\Delta(r^2)$ を求めなさい。",
+      "answer": [
+        "10"
+      ],
+      "description": "$r^2=\\sum_{j=1}^{5}x_j^2$。各2階偏微分が2なので $\\Delta(r^2)=10$。",
+      "difficulty": 6,
+      "sublevel": 3,
+      "rank": 8
+    },
+    {
+      "question": "$\\mathbb R^{6}$ において $r=|x|>0$ とします。$\\Delta(r^2)$ を求めなさい。",
+      "answer": [
+        "12"
+      ],
+      "description": "$r^2=\\sum_{j=1}^{6}x_j^2$。各2階偏微分が2なので $\\Delta(r^2)=12$。",
+      "difficulty": 6,
+      "sublevel": 3,
+      "rank": 8
+    },
+    {
+      "question": "微分形式 $\\omega=x^{2}dy$ に対し、$d\\omega=2x^{\\square}dx\\wedge dy$ です。空欄の指数を求めなさい。",
+      "answer": [
+        "1"
+      ],
+      "description": "$d(x^{2}dy)=d(x^{2})\\wedge dy=2x^{1}dx\\wedge dy$。",
+      "difficulty": 6,
+      "sublevel": 3,
+      "rank": 9
+    },
+    {
+      "question": "微分形式 $\\omega=x^{3}dy$ に対し、$d\\omega=3x^{\\square}dx\\wedge dy$ です。空欄の指数を求めなさい。",
+      "answer": [
+        "2"
+      ],
+      "description": "$d(x^{3}dy)=d(x^{3})\\wedge dy=3x^{2}dx\\wedge dy$。",
+      "difficulty": 6,
+      "sublevel": 3,
+      "rank": 9
+    },
+    {
+      "question": "微分形式 $\\omega=x^{4}dy$ に対し、$d\\omega=4x^{\\square}dx\\wedge dy$ です。空欄の指数を求めなさい。",
+      "answer": [
+        "3"
+      ],
+      "description": "$d(x^{4}dy)=d(x^{4})\\wedge dy=4x^{3}dx\\wedge dy$。",
+      "difficulty": 6,
+      "sublevel": 3,
+      "rank": 9
+    },
+    {
+      "question": "種数 $2$ のコンパクトリーマン面 $X$ の正則1形式全体 $H^0(X,K_X)$ の複素次元を求めなさい。",
+      "answer": [
+        "2"
+      ],
+      "description": "コンパクトリーマン面の種数は正則1形式空間の次元に等しいため、$\\dim_\\mathbb C H^0(X,K_X)=2$。",
+      "difficulty": 6,
+      "sublevel": 3,
+      "rank": 10
+    },
+    {
+      "question": "種数 $3$ のコンパクトリーマン面 $X$ の正則1形式全体 $H^0(X,K_X)$ の複素次元を求めなさい。",
+      "answer": [
+        "3"
+      ],
+      "description": "コンパクトリーマン面の種数は正則1形式空間の次元に等しいため、$\\dim_\\mathbb C H^0(X,K_X)=3$。",
+      "difficulty": 6,
+      "sublevel": 3,
+      "rank": 10
+    },
+    {
+      "question": "種数 $4$ のコンパクトリーマン面 $X$ の正則1形式全体 $H^0(X,K_X)$ の複素次元を求めなさい。",
+      "answer": [
+        "4"
+      ],
+      "description": "コンパクトリーマン面の種数は正則1形式空間の次元に等しいため、$\\dim_\\mathbb C H^0(X,K_X)=4$。",
+      "difficulty": 6,
+      "sublevel": 3,
+      "rank": 10
+    }
+  ]
+}

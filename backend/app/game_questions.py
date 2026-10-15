@@ -1,11 +1,13 @@
 from __future__ import annotations
 
 import json
+import re
 import threading
 from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
+from functools import lru_cache
 
 from backend.app.config import REPO_ROOT
 from backend.app.latex import normalize_latex
@@ -16,9 +18,9 @@ DIFFICULTY_LABELS: dict[int, str] = {
     2: "小学校高学年",
     3: "中学校",
     4: "高校",
-    5: "高専",
-    6: "大学",
-    7: "大学院",
+    5: "大学・理工系",
+    6: "大学院",
+    7: "超上級・専門数学",
 }
 DEFAULT_QUESTION_PATH = REPO_ROOT / "config" / "game_questions.json"
 REQUIRED_TEXT_FIELDS = ("question", "question_latex", "instruction", "description", "category")
@@ -36,6 +38,11 @@ class GameQuestion:
     description: str
     answer_latex: str
     accepted_latex: tuple[str, ...]
+    prompt: str | None = None
+    sublevel: int = 1
+    rank: int = 1
+    review_status: str = "pending"
+    exhibition_enabled: bool = False
 
     @property
     def difficulty_label(self) -> str:
@@ -50,6 +57,11 @@ class GameQuestion:
             "category": self.category,
             "difficulty": self.difficulty,
             "difficulty_label": self.difficulty_label,
+            "prompt": self.prompt,
+            "sublevel": self.sublevel,
+            "rank": self.rank,
+            "review_status": self.review_status,
+            "exhibition_enabled": self.exhibition_enabled,
         }
 
 
@@ -87,13 +99,27 @@ def _parse_question(raw: object, index: int, seen_ids: set[str]) -> GameQuestion
     if not question_id or question_id in seen_ids:
         raise ValueError(f"Question #{index} has a missing or duplicate id: {question_id!r}")
     seen_ids.add(question_id)
+    if not re.fullmatch(r"[a-z0-9][a-z0-9-]*", question_id):
+        raise ValueError(f"Question #{index} invalid id: {question_id!r}")
 
     difficulty = raw.get("difficulty")
-    if not isinstance(difficulty, int) or difficulty not in DIFFICULTY_LABELS:
+    if type(difficulty) is not int or difficulty not in DIFFICULTY_LABELS:
         raise ValueError(f"Question {question_id!r} difficulty must be an integer from 1 to 7")
 
     text = {field: _require_text(raw, field, question_id) for field in REQUIRED_TEXT_FIELDS}
     answers = _parse_answers(raw, question_id)
+    for field, maximum in (("sublevel", 3), ("rank", 10)):
+        value = raw.get(field, 1)
+        if type(value) is not int or not 1 <= value <= maximum:
+            raise ValueError(f"Question {question_id!r} invalid {field}")
+    if raw.get("review_status", "pending") not in ("pending", "approved", "needs_revision"):
+        raise ValueError(f"Question {question_id!r} invalid review_status")
+    if type(raw.get("exhibition_enabled", False)) is not bool:
+        raise ValueError(f"Question {question_id!r} invalid exhibition_enabled")
+    if raw.get("exhibition_enabled") and raw.get("review_status") != "approved":
+        raise ValueError("Exhibition questions must be approved")
+    if "prompt" in raw and (not isinstance(raw["prompt"], str) or not raw["prompt"].strip()):
+        raise ValueError(f"Question {question_id!r} invalid prompt")
     return GameQuestion(
         id=question_id,
         instruction=text["instruction"],
@@ -104,6 +130,11 @@ def _parse_question(raw: object, index: int, seen_ids: set[str]) -> GameQuestion
         description=text["description"],
         answer_latex=answers[0],
         accepted_latex=answers,
+        prompt=raw.get("prompt"),
+        sublevel=raw.get("sublevel", 1),
+        rank=raw.get("rank", 1),
+        review_status=raw.get("review_status", "pending"),
+        exhibition_enabled=raw.get("exhibition_enabled", False),
     )
 
 
@@ -120,6 +151,14 @@ def load_questions(path: Path = DEFAULT_QUESTION_PATH) -> tuple[GameQuestion, ..
 
 def get_questions(path: Path = DEFAULT_QUESTION_PATH) -> tuple[GameQuestion, ...]:
     """Return the current validated bank so newly registered questions appear immediately."""
+    resolved = path.resolve()
+    stat = resolved.stat()
+    return _cached_questions(resolved, stat.st_mtime_ns, stat.st_ctime_ns, stat.st_size)
+
+
+@lru_cache(maxsize=8)
+def _cached_questions(path: Path, _modified: int, _changed: int, _size: int) -> tuple[GameQuestion, ...]:
+    # Immutable questions; cache invalidates on each atomic bank/review update.
     return load_questions(path)
 
 
@@ -152,6 +191,29 @@ def _get_question(question_id: str) -> GameQuestion:
     if question is None:
         raise KeyError(question_id)
     return question
+
+
+def update_question_review(question_id: str, status: str, enabled: bool, path: Path = DEFAULT_QUESTION_PATH) -> GameQuestion:
+    """Explicit operator review; changing a status never silently enables a question."""
+    with QUESTION_WRITE_LOCK:
+        raw_questions = _read_question_list(path)
+        index = next((i for i, q in enumerate(raw_questions) if isinstance(q, dict) and q.get("id") == question_id), None)
+        if index is None:
+            raise KeyError(question_id)
+        raw_questions[index] = {**raw_questions[index], "review_status": status, "exhibition_enabled": enabled}
+        # Validate before touching the authoritative file.
+        seen: set[str] = set()
+        parsed = [_parse_question(q, i + 1, seen) for i, q in enumerate(raw_questions)]
+        temporary = path.with_suffix(".json.tmp")
+        try:
+            temporary.write_text(json.dumps({"questions": raw_questions}, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+            try:
+                temporary.replace(path)
+            except PermissionError:
+                path.write_text(temporary.read_text(encoding="utf-8"), encoding="utf-8")
+        finally:
+            temporary.unlink(missing_ok=True)
+        return parsed[index]
 
 
 def get_solution(question_id: str) -> dict[str, str]:

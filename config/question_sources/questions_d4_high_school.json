@@ -1,0 +1,912 @@
+{
+  "questions": [
+    {
+      "question": "方程式 $x^2-4x+3=0$ の大きい方の解を求めなさい。",
+      "answer": [
+        "3"
+      ],
+      "description": "$(x-2)^2=1$ より $x=2\\pm1$。大きい方は $3$。",
+      "difficulty": 4,
+      "sublevel": 1,
+      "rank": 1
+    },
+    {
+      "question": "方程式 $x^2-6x+8=0$ の大きい方の解を求めなさい。",
+      "answer": [
+        "4"
+      ],
+      "description": "$(x-3)^2=1$ より $x=3\\pm1$。大きい方は $4$。",
+      "difficulty": 4,
+      "sublevel": 1,
+      "rank": 1
+    },
+    {
+      "question": "方程式 $x^2-8x+15=0$ の大きい方の解を求めなさい。",
+      "answer": [
+        "5"
+      ],
+      "description": "$(x-4)^2=1$ より $x=4\\pm1$。大きい方は $5$。",
+      "difficulty": 4,
+      "sublevel": 1,
+      "rank": 1
+    },
+    {
+      "question": "$y=x^2-4x+7$ の最小値を求めなさい。",
+      "answer": [
+        "3"
+      ],
+      "description": "$y=(x-2)^2+3$ と平方完成でき、$x=2$ で最小値 $3$。",
+      "difficulty": 4,
+      "sublevel": 1,
+      "rank": 2
+    },
+    {
+      "question": "$y=x^2-6x+12$ の最小値を求めなさい。",
+      "answer": [
+        "3"
+      ],
+      "description": "$y=(x-3)^2+3$ と平方完成でき、$x=3$ で最小値 $3$。",
+      "difficulty": 4,
+      "sublevel": 1,
+      "rank": 2
+    },
+    {
+      "question": "$y=x^2-8x+19$ の最小値を求めなさい。",
+      "answer": [
+        "3"
+      ],
+      "description": "$y=(x-4)^2+3$ と平方完成でき、$x=4$ で最小値 $3$。",
+      "difficulty": 4,
+      "sublevel": 1,
+      "rank": 2
+    },
+    {
+      "question": "方程式 $\\sqrt{x+2}=x$ の実数解を求めなさい。",
+      "answer": [
+        "2"
+      ],
+      "description": "左辺は非負なので $x\\ge0$。二乗して $x^2-x-2=0$。負の解を除くと $x=\\frac{1+\\sqrt{9}}{2}$。",
+      "difficulty": 4,
+      "sublevel": 1,
+      "rank": 3
+    },
+    {
+      "question": "方程式 $\\sqrt{x+3}=x$ の実数解を求めなさい。",
+      "answer": [
+        "\\frac{1}{2} + \\frac{\\sqrt{13}}{2}",
+        "\\frac{1}{2}+\\frac{\\sqrt{13}}{2}"
+      ],
+      "description": "左辺は非負なので $x\\ge0$。二乗して $x^2-x-3=0$。負の解を除くと $x=\\frac{1+\\sqrt{13}}{2}$。",
+      "difficulty": 4,
+      "sublevel": 1,
+      "rank": 3
+    },
+    {
+      "question": "方程式 $\\sqrt{x+4}=x$ の実数解を求めなさい。",
+      "answer": [
+        "\\frac{1}{2} + \\frac{\\sqrt{17}}{2}",
+        "\\frac{1}{2}+\\frac{\\sqrt{17}}{2}"
+      ],
+      "description": "左辺は非負なので $x\\ge0$。二乗して $x^2-x-4=0$。負の解を除くと $x=\\frac{1+\\sqrt{17}}{2}$。",
+      "difficulty": 4,
+      "sublevel": 1,
+      "rank": 3
+    },
+    {
+      "question": "三角形の2辺の長さが $2$ と $3$、その間の角が $60^\\circ$ です。残りの辺の長さの2乗を求めなさい。",
+      "answer": [
+        "7"
+      ],
+      "description": "余弦定理より $2^2+3^2-2\\cdot2\\cdot3\\cos60^\\circ=7$。",
+      "difficulty": 4,
+      "sublevel": 1,
+      "rank": 4
+    },
+    {
+      "question": "三角形の2辺の長さが $3$ と $4$、その間の角が $60^\\circ$ です。残りの辺の長さの2乗を求めなさい。",
+      "answer": [
+        "13"
+      ],
+      "description": "余弦定理より $3^2+4^2-2\\cdot3\\cdot4\\cos60^\\circ=13$。",
+      "difficulty": 4,
+      "sublevel": 1,
+      "rank": 4
+    },
+    {
+      "question": "三角形の2辺の長さが $4$ と $5$、その間の角が $60^\\circ$ です。残りの辺の長さの2乗を求めなさい。",
+      "answer": [
+        "21"
+      ],
+      "description": "余弦定理より $4^2+5^2-2\\cdot4\\cdot5\\cos60^\\circ=21$。",
+      "difficulty": 4,
+      "sublevel": 1,
+      "rank": 4
+    },
+    {
+      "question": "異なる $5$ 人から2人を選ぶ方法は何通りありますか。",
+      "answer": [
+        "10"
+      ],
+      "description": "順序を区別しないので $\\binom{5}{2}=\\frac{5\\cdot4}{2}=10$。",
+      "difficulty": 4,
+      "sublevel": 1,
+      "rank": 5
+    },
+    {
+      "question": "異なる $6$ 人から2人を選ぶ方法は何通りありますか。",
+      "answer": [
+        "15"
+      ],
+      "description": "順序を区別しないので $\\binom{6}{2}=\\frac{6\\cdot5}{2}=15$。",
+      "difficulty": 4,
+      "sublevel": 1,
+      "rank": 5
+    },
+    {
+      "question": "異なる $7$ 人から2人を選ぶ方法は何通りありますか。",
+      "answer": [
+        "21"
+      ],
+      "description": "順序を区別しないので $\\binom{7}{2}=\\frac{7\\cdot6}{2}=21$。",
+      "difficulty": 4,
+      "sublevel": 1,
+      "rank": 5
+    },
+    {
+      "question": "公平な硬貨を $4$ 回投げます。表がちょうど2回出る確率を求めなさい。",
+      "answer": [
+        "\\frac{3}{8}"
+      ],
+      "description": "表の位置の選び方は $\\binom{4}{2}$ 通り。全事象は $2^{4}$ 通りなので、確率は $\\binom{4}{2}/2^{4}$。",
+      "difficulty": 4,
+      "sublevel": 1,
+      "rank": 6
+    },
+    {
+      "question": "公平な硬貨を $5$ 回投げます。表がちょうど2回出る確率を求めなさい。",
+      "answer": [
+        "\\frac{5}{16}"
+      ],
+      "description": "表の位置の選び方は $\\binom{5}{2}$ 通り。全事象は $2^{5}$ 通りなので、確率は $\\binom{5}{2}/2^{5}$。",
+      "difficulty": 4,
+      "sublevel": 1,
+      "rank": 6
+    },
+    {
+      "question": "公平な硬貨を $6$ 回投げます。表がちょうど2回出る確率を求めなさい。",
+      "answer": [
+        "\\frac{15}{64}"
+      ],
+      "description": "表の位置の選び方は $\\binom{6}{2}$ 通り。全事象は $2^{6}$ 通りなので、確率は $\\binom{6}{2}/2^{6}$。",
+      "difficulty": 4,
+      "sublevel": 1,
+      "rank": 6
+    },
+    {
+      "question": "データ $0,2,4$ の分散を求めなさい。分散の分母にはデータ数を用います。",
+      "answer": [
+        "\\frac{8}{3}"
+      ],
+      "description": "平均は $2$。偏差は $-2,0,2$ なので、分散は $(4+0+4)/3=8/3$。",
+      "difficulty": 4,
+      "sublevel": 1,
+      "rank": 7
+    },
+    {
+      "question": "データ $1,3,5$ の分散を求めなさい。分散の分母にはデータ数を用います。",
+      "answer": [
+        "\\frac{8}{3}"
+      ],
+      "description": "平均は $3$。偏差は $-2,0,2$ なので、分散は $(4+0+4)/3=8/3$。",
+      "difficulty": 4,
+      "sublevel": 1,
+      "rank": 7
+    },
+    {
+      "question": "データ $2,4,6$ の分散を求めなさい。分散の分母にはデータ数を用います。",
+      "answer": [
+        "\\frac{8}{3}"
+      ],
+      "description": "平均は $4$。偏差は $-2,0,2$ なので、分散は $(4+0+4)/3=8/3$。",
+      "difficulty": 4,
+      "sublevel": 1,
+      "rank": 7
+    },
+    {
+      "question": "$24$ と $36$ の最大公約数を求めなさい。",
+      "answer": [
+        "12"
+      ],
+      "description": "$\\gcd(24,36)=2\\gcd(12,18)=12$。",
+      "difficulty": 4,
+      "sublevel": 1,
+      "rank": 8
+    },
+    {
+      "question": "$36$ と $54$ の最大公約数を求めなさい。",
+      "answer": [
+        "18"
+      ],
+      "description": "$\\gcd(36,54)=3\\gcd(12,18)=18$。",
+      "difficulty": 4,
+      "sublevel": 1,
+      "rank": 8
+    },
+    {
+      "question": "$48$ と $72$ の最大公約数を求めなさい。",
+      "answer": [
+        "24"
+      ],
+      "description": "$\\gcd(48,72)=4\\gcd(12,18)=24$。",
+      "difficulty": 4,
+      "sublevel": 1,
+      "rank": 8
+    },
+    {
+      "question": "整数 $x$ が $x\\equiv2\\pmod5$、$x\\equiv1\\pmod3$ を満たします。最小の正の $x$ を求めなさい。",
+      "answer": [
+        "7"
+      ],
+      "description": "$x=2+5k$ と置き、$k=0,1,2$ の候補のうち3で割ると1余るものを選びます。周期は15です。",
+      "difficulty": 4,
+      "sublevel": 1,
+      "rank": 9
+    },
+    {
+      "question": "整数 $x$ が $x\\equiv3\\pmod5$、$x\\equiv1\\pmod3$ を満たします。最小の正の $x$ を求めなさい。",
+      "answer": [
+        "13"
+      ],
+      "description": "$x=3+5k$ と置き、$k=0,1,2$ の候補のうち3で割ると1余るものを選びます。周期は15です。",
+      "difficulty": 4,
+      "sublevel": 1,
+      "rank": 9
+    },
+    {
+      "question": "整数 $x$ が $x\\equiv4\\pmod5$、$x\\equiv1\\pmod3$ を満たします。最小の正の $x$ を求めなさい。",
+      "answer": [
+        "4"
+      ],
+      "description": "$x=4+5k$ と置き、$k=0,1,2$ の候補のうち3で割ると1余るものを選びます。周期は15です。",
+      "difficulty": 4,
+      "sublevel": 1,
+      "rank": 9
+    },
+    {
+      "question": "正の実数 $x$ に対して、$x+\\frac{4}{x}$ の最小値を求めなさい。",
+      "answer": [
+        "4"
+      ],
+      "description": "相加相乗平均より $x+4/x\\ge2\\sqrt{4}=4$。等号は $x=2$ で成立します。",
+      "difficulty": 4,
+      "sublevel": 1,
+      "rank": 10
+    },
+    {
+      "question": "正の実数 $x$ に対して、$x+\\frac{9}{x}$ の最小値を求めなさい。",
+      "answer": [
+        "6"
+      ],
+      "description": "相加相乗平均より $x+9/x\\ge2\\sqrt{9}=6$。等号は $x=3$ で成立します。",
+      "difficulty": 4,
+      "sublevel": 1,
+      "rank": 10
+    },
+    {
+      "question": "正の実数 $x$ に対して、$x+\\frac{16}{x}$ の最小値を求めなさい。",
+      "answer": [
+        "8"
+      ],
+      "description": "相加相乗平均より $x+16/x\\ge2\\sqrt{16}=8$。等号は $x=4$ で成立します。",
+      "difficulty": 4,
+      "sublevel": 1,
+      "rank": 10
+    },
+    {
+      "question": "$\\log_2 4$ の値を求めなさい。",
+      "answer": [
+        "2"
+      ],
+      "description": "$2^{2}=4$ なので、対数の定義より $2$。",
+      "difficulty": 4,
+      "sublevel": 2,
+      "rank": 1
+    },
+    {
+      "question": "$\\log_2 8$ の値を求めなさい。",
+      "answer": [
+        "3"
+      ],
+      "description": "$2^{3}=8$ なので、対数の定義より $3$。",
+      "difficulty": 4,
+      "sublevel": 2,
+      "rank": 1
+    },
+    {
+      "question": "$\\log_2 16$ の値を求めなさい。",
+      "answer": [
+        "4"
+      ],
+      "description": "$2^{4}=16$ なので、対数の定義より $4$。",
+      "difficulty": 4,
+      "sublevel": 2,
+      "rank": 1
+    },
+    {
+      "question": "$0\\le x<2\\pi$ で $\\sin x=\\frac12$ を満たす解の和に $2$ を掛けた値を求めなさい。",
+      "answer": [
+        "2\\pi"
+      ],
+      "description": "解は $\\pi/6,5\\pi/6$。和は $\\pi$ なので $2\\pi$。",
+      "difficulty": 4,
+      "sublevel": 2,
+      "rank": 2
+    },
+    {
+      "question": "$0\\le x<2\\pi$ で $\\sin x=\\frac12$ を満たす解の和に $3$ を掛けた値を求めなさい。",
+      "answer": [
+        "3\\pi"
+      ],
+      "description": "解は $\\pi/6,5\\pi/6$。和は $\\pi$ なので $3\\pi$。",
+      "difficulty": 4,
+      "sublevel": 2,
+      "rank": 2
+    },
+    {
+      "question": "$0\\le x<2\\pi$ で $\\sin x=\\frac12$ を満たす解の和に $4$ を掛けた値を求めなさい。",
+      "answer": [
+        "4\\pi"
+      ],
+      "description": "解は $\\pi/6,5\\pi/6$。和は $\\pi$ なので $4\\pi$。",
+      "difficulty": 4,
+      "sublevel": 2,
+      "rank": 2
+    },
+    {
+      "question": "初項 $2$、公差3の等差数列の第10項を求めなさい。",
+      "answer": [
+        "29"
+      ],
+      "description": "$a_{10}=a_1+9d=2+27=29$。",
+      "difficulty": 4,
+      "sublevel": 2,
+      "rank": 3
+    },
+    {
+      "question": "初項 $3$、公差3の等差数列の第10項を求めなさい。",
+      "answer": [
+        "30"
+      ],
+      "description": "$a_{10}=a_1+9d=3+27=30$。",
+      "difficulty": 4,
+      "sublevel": 2,
+      "rank": 3
+    },
+    {
+      "question": "初項 $4$、公差3の等差数列の第10項を求めなさい。",
+      "answer": [
+        "31"
+      ],
+      "description": "$a_{10}=a_1+9d=4+27=31$。",
+      "difficulty": 4,
+      "sublevel": 2,
+      "rank": 3
+    },
+    {
+      "question": "初項1、公比2の等比数列の初項から第 $5$ 項までの和を求めなさい。",
+      "answer": [
+        "31"
+      ],
+      "description": "$S=\\frac{2^{5}-1}{2-1}=31$。",
+      "difficulty": 4,
+      "sublevel": 2,
+      "rank": 4
+    },
+    {
+      "question": "初項1、公比2の等比数列の初項から第 $6$ 項までの和を求めなさい。",
+      "answer": [
+        "63"
+      ],
+      "description": "$S=\\frac{2^{6}-1}{2-1}=63$。",
+      "difficulty": 4,
+      "sublevel": 2,
+      "rank": 4
+    },
+    {
+      "question": "初項1、公比2の等比数列の初項から第 $7$ 項までの和を求めなさい。",
+      "answer": [
+        "127"
+      ],
+      "description": "$S=\\frac{2^{7}-1}{2-1}=127$。",
+      "difficulty": 4,
+      "sublevel": 2,
+      "rank": 4
+    },
+    {
+      "question": "$\\boldsymbol a=(2,1)$、$\\boldsymbol b=(2,-2)$ の内積を求めなさい。",
+      "answer": [
+        "2"
+      ],
+      "description": "内積は $2\\cdot2+1\\cdot(-2)=2$。",
+      "difficulty": 4,
+      "sublevel": 2,
+      "rank": 5
+    },
+    {
+      "question": "$\\boldsymbol a=(3,1)$、$\\boldsymbol b=(2,-3)$ の内積を求めなさい。",
+      "answer": [
+        "3"
+      ],
+      "description": "内積は $3\\cdot2+1\\cdot(-3)=3$。",
+      "difficulty": 4,
+      "sublevel": 2,
+      "rank": 5
+    },
+    {
+      "question": "$\\boldsymbol a=(4,1)$、$\\boldsymbol b=(2,-4)$ の内積を求めなさい。",
+      "answer": [
+        "4"
+      ],
+      "description": "内積は $4\\cdot2+1\\cdot(-4)=4$。",
+      "difficulty": 4,
+      "sublevel": 2,
+      "rank": 5
+    },
+    {
+      "question": "$z=2+i$ のとき、$z\\overline z$ を求めなさい。$i$ は虚数単位です。",
+      "answer": [
+        "5"
+      ],
+      "description": "共役複素数は $2-i$。積は $2^2-i^2=5$。",
+      "difficulty": 4,
+      "sublevel": 2,
+      "rank": 6
+    },
+    {
+      "question": "$z=3+i$ のとき、$z\\overline z$ を求めなさい。$i$ は虚数単位です。",
+      "answer": [
+        "10"
+      ],
+      "description": "共役複素数は $3-i$。積は $3^2-i^2=10$。",
+      "difficulty": 4,
+      "sublevel": 2,
+      "rank": 6
+    },
+    {
+      "question": "$z=4+i$ のとき、$z\\overline z$ を求めなさい。$i$ は虚数単位です。",
+      "answer": [
+        "17"
+      ],
+      "description": "共役複素数は $4-i$。積は $4^2-i^2=17$。",
+      "difficulty": 4,
+      "sublevel": 2,
+      "rank": 6
+    },
+    {
+      "question": "$f(x)=x^3-2x$ のとき、$f\\prime(2)$ を求めなさい。",
+      "answer": [
+        "10"
+      ],
+      "description": "$f\\prime(x)=3x^2-2$。$x=2$ を代入して $10$。",
+      "difficulty": 4,
+      "sublevel": 2,
+      "rank": 7
+    },
+    {
+      "question": "$f(x)=x^3-3x$ のとき、$f\\prime(2)$ を求めなさい。",
+      "answer": [
+        "9"
+      ],
+      "description": "$f\\prime(x)=3x^2-3$。$x=2$ を代入して $9$。",
+      "difficulty": 4,
+      "sublevel": 2,
+      "rank": 7
+    },
+    {
+      "question": "$f(x)=x^3-4x$ のとき、$f\\prime(2)$ を求めなさい。",
+      "answer": [
+        "8"
+      ],
+      "description": "$f\\prime(x)=3x^2-4$。$x=2$ を代入して $8$。",
+      "difficulty": 4,
+      "sublevel": 2,
+      "rank": 7
+    },
+    {
+      "question": "$\\int_0^2 2x\\,dx$ を求めなさい。",
+      "answer": [
+        "4"
+      ],
+      "description": "原始関数は $x^2$。$[x^2]_0^2=4$。",
+      "difficulty": 4,
+      "sublevel": 2,
+      "rank": 8
+    },
+    {
+      "question": "$\\int_0^3 2x\\,dx$ を求めなさい。",
+      "answer": [
+        "9"
+      ],
+      "description": "原始関数は $x^2$。$[x^2]_0^3=9$。",
+      "difficulty": 4,
+      "sublevel": 2,
+      "rank": 8
+    },
+    {
+      "question": "$\\int_0^4 2x\\,dx$ を求めなさい。",
+      "answer": [
+        "16"
+      ],
+      "description": "原始関数は $x^2$。$[x^2]_0^4=16$。",
+      "difficulty": 4,
+      "sublevel": 2,
+      "rank": 8
+    },
+    {
+      "question": "曲線 $y=x^2$ と直線 $y=2x$ に囲まれた部分の面積を求めなさい。",
+      "answer": [
+        "\\frac{4}{3}"
+      ],
+      "description": "交点の $x$ 座標は $0,2$。面積は $\\int_0^2(2x-x^2)\\,dx=2^3/6$。",
+      "difficulty": 4,
+      "sublevel": 2,
+      "rank": 9
+    },
+    {
+      "question": "曲線 $y=x^2$ と直線 $y=3x$ に囲まれた部分の面積を求めなさい。",
+      "answer": [
+        "\\frac{9}{2}"
+      ],
+      "description": "交点の $x$ 座標は $0,3$。面積は $\\int_0^3(3x-x^2)\\,dx=3^3/6$。",
+      "difficulty": 4,
+      "sublevel": 2,
+      "rank": 9
+    },
+    {
+      "question": "曲線 $y=x^2$ と直線 $y=4x$ に囲まれた部分の面積を求めなさい。",
+      "answer": [
+        "\\frac{32}{3}"
+      ],
+      "description": "交点の $x$ 座標は $0,4$。面積は $\\int_0^4(4x-x^2)\\,dx=4^3/6$。",
+      "difficulty": 4,
+      "sublevel": 2,
+      "rank": 9
+    },
+    {
+      "question": "二項分布 $X\\sim B(8,1/4)$ の分散を求めなさい。",
+      "answer": [
+        "\\frac{3}{2}"
+      ],
+      "description": "二項分布の分散は $Np(1-p)$。$8\\cdot\\frac14\\cdot\\frac34=\\frac{6}4$。",
+      "difficulty": 4,
+      "sublevel": 2,
+      "rank": 10
+    },
+    {
+      "question": "二項分布 $X\\sim B(12,1/4)$ の分散を求めなさい。",
+      "answer": [
+        "\\frac{9}{4}"
+      ],
+      "description": "二項分布の分散は $Np(1-p)$。$12\\cdot\\frac14\\cdot\\frac34=\\frac{9}4$。",
+      "difficulty": 4,
+      "sublevel": 2,
+      "rank": 10
+    },
+    {
+      "question": "二項分布 $X\\sim B(16,1/4)$ の分散を求めなさい。",
+      "answer": [
+        "3"
+      ],
+      "description": "二項分布の分散は $Np(1-p)$。$16\\cdot\\frac14\\cdot\\frac34=\\frac{12}4$。",
+      "difficulty": 4,
+      "sublevel": 2,
+      "rank": 10
+    },
+    {
+      "question": "$\\lim_{x\\to0}\\frac{\\sin(2x)}x$ を求めなさい。",
+      "answer": [
+        "2"
+      ],
+      "description": "$\\sin(2x)/x=2\\sin(2x)/(2x)$。基本極限より $2$。",
+      "difficulty": 4,
+      "sublevel": 3,
+      "rank": 1
+    },
+    {
+      "question": "$\\lim_{x\\to0}\\frac{\\sin(3x)}x$ を求めなさい。",
+      "answer": [
+        "3"
+      ],
+      "description": "$\\sin(3x)/x=3\\sin(3x)/(3x)$。基本極限より $3$。",
+      "difficulty": 4,
+      "sublevel": 3,
+      "rank": 1
+    },
+    {
+      "question": "$\\lim_{x\\to0}\\frac{\\sin(4x)}x$ を求めなさい。",
+      "answer": [
+        "4"
+      ],
+      "description": "$\\sin(4x)/x=4\\sin(4x)/(4x)$。基本極限より $4$。",
+      "difficulty": 4,
+      "sublevel": 3,
+      "rank": 1
+    },
+    {
+      "question": "$f(x)=\\log x$ のとき、$f\\prime(2)$ を求めなさい。$\\log$ は自然対数です。",
+      "answer": [
+        "\\frac{1}{2}"
+      ],
+      "description": "$f\\prime(x)=1/x$ より $f\\prime(2)=1/2$。",
+      "difficulty": 4,
+      "sublevel": 3,
+      "rank": 2
+    },
+    {
+      "question": "$f(x)=\\log x$ のとき、$f\\prime(3)$ を求めなさい。$\\log$ は自然対数です。",
+      "answer": [
+        "\\frac{1}{3}"
+      ],
+      "description": "$f\\prime(x)=1/x$ より $f\\prime(3)=1/3$。",
+      "difficulty": 4,
+      "sublevel": 3,
+      "rank": 2
+    },
+    {
+      "question": "$f(x)=\\log x$ のとき、$f\\prime(4)$ を求めなさい。$\\log$ は自然対数です。",
+      "answer": [
+        "\\frac{1}{4}"
+      ],
+      "description": "$f\\prime(x)=1/x$ より $f\\prime(4)=1/4$。",
+      "difficulty": 4,
+      "sublevel": 3,
+      "rank": 2
+    },
+    {
+      "question": "$f(x)=x e^{2x}$ のとき、$f\\prime(0)$ を求めなさい。",
+      "answer": [
+        "1"
+      ],
+      "description": "積の微分より $f\\prime(x)=e^{2x}(1+2x)$。$x=0$ で1。",
+      "difficulty": 4,
+      "sublevel": 3,
+      "rank": 3
+    },
+    {
+      "question": "$f(x)=x e^{3x}$ のとき、$f\\prime(0)$ を求めなさい。",
+      "answer": [
+        "1"
+      ],
+      "description": "積の微分より $f\\prime(x)=e^{3x}(1+3x)$。$x=0$ で1。",
+      "difficulty": 4,
+      "sublevel": 3,
+      "rank": 3
+    },
+    {
+      "question": "$f(x)=x e^{4x}$ のとき、$f\\prime(0)$ を求めなさい。",
+      "answer": [
+        "1"
+      ],
+      "description": "積の微分より $f\\prime(x)=e^{4x}(1+4x)$。$x=0$ で1。",
+      "difficulty": 4,
+      "sublevel": 3,
+      "rank": 3
+    },
+    {
+      "question": "$\\int_0^1 x^{2}\\,dx$ を求めなさい。",
+      "answer": [
+        "\\frac{1}{3}"
+      ],
+      "description": "$[x^{3}/(3)]_0^1=1/3$。",
+      "difficulty": 4,
+      "sublevel": 3,
+      "rank": 4
+    },
+    {
+      "question": "$\\int_0^1 x^{3}\\,dx$ を求めなさい。",
+      "answer": [
+        "\\frac{1}{4}"
+      ],
+      "description": "$[x^{4}/(4)]_0^1=1/4$。",
+      "difficulty": 4,
+      "sublevel": 3,
+      "rank": 4
+    },
+    {
+      "question": "$\\int_0^1 x^{4}\\,dx$ を求めなさい。",
+      "answer": [
+        "\\frac{1}{5}"
+      ],
+      "description": "$[x^{5}/(5)]_0^1=1/5$。",
+      "difficulty": 4,
+      "sublevel": 3,
+      "rank": 4
+    },
+    {
+      "question": "$\\int_0^1 2x e^{x^2}\\,dx$ を求めなさい。",
+      "answer": [
+        "-1 + e",
+        "-1+e"
+      ],
+      "description": "$u=x^2$ と置くと $du=2x\\,dx$。積分は $\\frac{2}2\\int_0^1e^u\\,du=\\frac{2}2(e-1)$。",
+      "difficulty": 4,
+      "sublevel": 3,
+      "rank": 5
+    },
+    {
+      "question": "$\\int_0^1 3x e^{x^2}\\,dx$ を求めなさい。",
+      "answer": [
+        "- \\frac{3}{2} + \\frac{3 e}{2}",
+        "-\\frac{3}{2}+\\frac{3e}{2}"
+      ],
+      "description": "$u=x^2$ と置くと $du=2x\\,dx$。積分は $\\frac{3}2\\int_0^1e^u\\,du=\\frac{3}2(e-1)$。",
+      "difficulty": 4,
+      "sublevel": 3,
+      "rank": 5
+    },
+    {
+      "question": "$\\int_0^1 4x e^{x^2}\\,dx$ を求めなさい。",
+      "answer": [
+        "-2 + 2 e",
+        "-2+2e"
+      ],
+      "description": "$u=x^2$ と置くと $du=2x\\,dx$。積分は $\\frac{4}2\\int_0^1e^u\\,du=\\frac{4}2(e-1)$。",
+      "difficulty": 4,
+      "sublevel": 3,
+      "rank": 5
+    },
+    {
+      "question": "$\\int_1^e 2\\log x\\,dx$ を求めなさい。",
+      "answer": [
+        "2"
+      ],
+      "description": "部分積分で $\\int\\log x\\,dx=x\\log x-x$。$[x\\log x-x]_1^e=1$ なので $2$。",
+      "difficulty": 4,
+      "sublevel": 3,
+      "rank": 6
+    },
+    {
+      "question": "$\\int_1^e 3\\log x\\,dx$ を求めなさい。",
+      "answer": [
+        "3"
+      ],
+      "description": "部分積分で $\\int\\log x\\,dx=x\\log x-x$。$[x\\log x-x]_1^e=1$ なので $3$。",
+      "difficulty": 4,
+      "sublevel": 3,
+      "rank": 6
+    },
+    {
+      "question": "$\\int_1^e 4\\log x\\,dx$ を求めなさい。",
+      "answer": [
+        "4"
+      ],
+      "description": "部分積分で $\\int\\log x\\,dx=x\\log x-x$。$[x\\log x-x]_1^e=1$ なので $4$。",
+      "difficulty": 4,
+      "sublevel": 3,
+      "rank": 6
+    },
+    {
+      "question": "$y=\\sqrt x$、$x=0$、$x=2$、$y=0$ で囲まれる領域を $x$ 軸のまわりに1回転させます。体積を求めなさい。",
+      "answer": [
+        "2 \\pi",
+        "2\\pi"
+      ],
+      "description": "円板法より $V=\\pi\\int_0^2(\\sqrt x)^2\\,dx=\\frac{4}2\\pi$。",
+      "difficulty": 4,
+      "sublevel": 3,
+      "rank": 7
+    },
+    {
+      "question": "$y=\\sqrt x$、$x=0$、$x=3$、$y=0$ で囲まれる領域を $x$ 軸のまわりに1回転させます。体積を求めなさい。",
+      "answer": [
+        "\\frac{9 \\pi}{2}",
+        "\\frac{9\\pi}{2}"
+      ],
+      "description": "円板法より $V=\\pi\\int_0^3(\\sqrt x)^2\\,dx=\\frac{9}2\\pi$。",
+      "difficulty": 4,
+      "sublevel": 3,
+      "rank": 7
+    },
+    {
+      "question": "$y=\\sqrt x$、$x=0$、$x=4$、$y=0$ で囲まれる領域を $x$ 軸のまわりに1回転させます。体積を求めなさい。",
+      "answer": [
+        "8 \\pi",
+        "8\\pi"
+      ],
+      "description": "円板法より $V=\\pi\\int_0^4(\\sqrt x)^2\\,dx=\\frac{16}2\\pi$。",
+      "difficulty": 4,
+      "sublevel": 3,
+      "rank": 7
+    },
+    {
+      "question": "$\\sum_{k=1}^\\infty\\left(\\frac1{2}\\right)^k$ を求めなさい。",
+      "answer": [
+        "1"
+      ],
+      "description": "公比 $1/2$ の絶対値は1未満。和は $(1/2)/(1-1/2)=1/1$。",
+      "difficulty": 4,
+      "sublevel": 3,
+      "rank": 8
+    },
+    {
+      "question": "$\\sum_{k=1}^\\infty\\left(\\frac1{3}\\right)^k$ を求めなさい。",
+      "answer": [
+        "\\frac{1}{2}"
+      ],
+      "description": "公比 $1/3$ の絶対値は1未満。和は $(1/3)/(1-1/3)=1/2$。",
+      "difficulty": 4,
+      "sublevel": 3,
+      "rank": 8
+    },
+    {
+      "question": "$\\sum_{k=1}^\\infty\\left(\\frac1{4}\\right)^k$ を求めなさい。",
+      "answer": [
+        "\\frac{1}{3}"
+      ],
+      "description": "公比 $1/4$ の絶対値は1未満。和は $(1/4)/(1-1/4)=1/3$。",
+      "difficulty": 4,
+      "sublevel": 3,
+      "rank": 8
+    },
+    {
+      "question": "漸化式 $a_1=1$、$a_{k+1}=2a_k+1$ で定まる数列の第 $5$ 項を求めなさい。",
+      "answer": [
+        "31"
+      ],
+      "description": "$a_{k+1}+1=2(a_k+1)$ なので $a_k+1=2^k$。$a_{5}=2^{5}-1=31$。",
+      "difficulty": 4,
+      "sublevel": 3,
+      "rank": 9
+    },
+    {
+      "question": "漸化式 $a_1=1$、$a_{k+1}=2a_k+1$ で定まる数列の第 $6$ 項を求めなさい。",
+      "answer": [
+        "63"
+      ],
+      "description": "$a_{k+1}+1=2(a_k+1)$ なので $a_k+1=2^k$。$a_{6}=2^{6}-1=63$。",
+      "difficulty": 4,
+      "sublevel": 3,
+      "rank": 9
+    },
+    {
+      "question": "漸化式 $a_1=1$、$a_{k+1}=2a_k+1$ で定まる数列の第 $7$ 項を求めなさい。",
+      "answer": [
+        "127"
+      ],
+      "description": "$a_{k+1}+1=2(a_k+1)$ なので $a_k+1=2^k$。$a_{7}=2^{7}-1=127$。",
+      "difficulty": 4,
+      "sublevel": 3,
+      "rank": 9
+    },
+    {
+      "question": "$f(x)=x^{2}e^{-x}$ の $x>0$ における最大値を求めなさい。",
+      "answer": [
+        "\\frac{4}{e^{2}}"
+      ],
+      "description": "$f\\prime(x)=x^{1}e^{-x}(2-x)$。$x=2$ で増加から減少に変わるので最大値は $2^{2}e^{-2}$。",
+      "difficulty": 4,
+      "sublevel": 3,
+      "rank": 10
+    },
+    {
+      "question": "$f(x)=x^{3}e^{-x}$ の $x>0$ における最大値を求めなさい。",
+      "answer": [
+        "\\frac{27}{e^{3}}"
+      ],
+      "description": "$f\\prime(x)=x^{2}e^{-x}(3-x)$。$x=3$ で増加から減少に変わるので最大値は $3^{3}e^{-3}$。",
+      "difficulty": 4,
+      "sublevel": 3,
+      "rank": 10
+    },
+    {
+      "question": "$f(x)=x^{4}e^{-x}$ の $x>0$ における最大値を求めなさい。",
+      "answer": [
+        "\\frac{256}{e^{4}}"
+      ],
+      "description": "$f\\prime(x)=x^{3}e^{-x}(4-x)$。$x=4$ で増加から減少に変わるので最大値は $4^{4}e^{-4}$。",
+      "difficulty": 4,
+      "sublevel": 3,
+      "rank": 10
+    }
+  ]
+}

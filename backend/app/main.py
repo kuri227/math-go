@@ -7,6 +7,7 @@ import mimetypes
 import tempfile
 import time
 import uuid
+import math
 from contextlib import asynccontextmanager
 from pathlib import Path
 
@@ -18,7 +19,7 @@ from PIL import Image, UnidentifiedImageError
 
 from backend.app.config import REPO_ROOT, load_paths
 from backend.app.custom_samples import save_custom_sample
-from backend.app.game_questions import add_question, get_questions, get_solution, judge_answer
+from backend.app.game_questions import add_question, get_questions, get_solution, judge_answer, update_question_review
 from backend.app.latex import normalize_latex
 from backend.app.recognizers.registry import RecognizerRegistry
 from backend.app.recognizers.worker import WorkerError
@@ -36,6 +37,7 @@ from backend.app.schemas import (
     RecognitionTiming,
     SavedSampleResponse,
     SolutionResponse,
+    QuestionReviewRequest,
 )
 
 LOGGER = logging.getLogger("math_go_hmer")
@@ -132,6 +134,16 @@ def api_game_questions() -> list[dict[str, object]]:
     return [question.public_dict() for question in get_questions()]
 
 
+@app.patch("/api/v1/admin/questions/{question_id}/review", response_model=GameQuestionResponse)
+def api_review_question(question_id: str, request: QuestionReviewRequest) -> dict[str, object]:
+    try:
+        return update_question_review(question_id, request.review_status, request.exhibition_enabled).public_dict()
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="Unknown question_id") from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
 @app.post("/api/v1/admin/questions", response_model=GameQuestionCreateResponse, status_code=201)
 def api_add_game_question(request: GameQuestionCreateRequest) -> dict[str, object]:
     """Append one validated question from the local authoring screen."""
@@ -143,7 +155,7 @@ def api_add_game_question(request: GameQuestionCreateRequest) -> dict[str, objec
     return {
         "id": question.id,
         "total": len(get_questions()),
-        "message": "問題を登録しました。次のゲーム開始時から出題されます。",
+        "message": "問題を登録しました。テストプレイで確認してから、本番候補へ追加してください。",
     }
 
 
@@ -400,6 +412,80 @@ async def save_sample(
             stroke_path=saved["stroke_path"],
             manifest_path=saved["manifest_path"],
         )
+    except (ValueError, json.JSONDecodeError) as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    finally:
+        temp_path.unlink(missing_ok=True)
+
+
+@app.post("/api/v1/test-samples", response_model=SavedSampleResponse, status_code=201)
+async def api_save_test_sample(
+    image: UploadFile = File(...),
+    strokes_json: str = Form(...),
+    question_id: str = Form(...),
+    ground_truth_latex: str = Form(...),
+    recognized_latex: str = Form(...),
+    recognition_request_id: str = Form(...),
+    consent: bool = Form(False),
+    label_confirmed: bool = Form(False),
+    writer_id: str = Form("anonymous"),
+) -> SavedSampleResponse:
+    """Save opt-in handwriting with a human transcription, never the solution as label."""
+    if not consent or not label_confirmed:
+        raise HTTPException(status_code=400, detail="保存への同意と、書いた内容の確認が必要です。")
+    if not ground_truth_latex.strip() or len(ground_truth_latex) > 4000 or len(recognized_latex) > 4000:
+        raise HTTPException(status_code=400, detail="書いた内容を4000文字以内のLaTeXで入力してください。")
+    if len(strokes_json) > 2_000_000:
+        raise HTTPException(status_code=413, detail="Stroke data exceeds 2 MB")
+    try:
+        uuid.UUID(recognition_request_id)
+        strokes = json.loads(strokes_json)
+        if not isinstance(strokes, dict) or not isinstance(strokes.get("strokes"), list) or not strokes["strokes"]:
+            raise ValueError("Non-empty strokes required")
+        if len(strokes["strokes"]) > 10000:
+            raise ValueError("Too many strokes")
+        pointer_types = strokes.get("pointer_types", [])
+        if not isinstance(pointer_types, list) or any(p not in ("mouse", "pen", "touch", "unknown") for p in pointer_types):
+            raise ValueError("Invalid pointer types")
+        for stroke in strokes["strokes"]:
+            if not isinstance(stroke, dict) or not isinstance(stroke.get("points"), list) or not stroke["points"]:
+                raise ValueError("Invalid stroke points")
+            if stroke.get("pointerType", "unknown") not in ("mouse", "pen", "touch", "unknown"):
+                raise ValueError("Invalid pointer type")
+            for point in stroke["points"]:
+                if not isinstance(point, dict) or any(type(point.get(axis)) not in (int, float) or not math.isfinite(point[axis]) for axis in ("x", "y")):
+                    raise ValueError("Invalid point coordinates")
+        question = next((q for q in get_questions() if q.id == question_id), None)
+        if question is None:
+            raise KeyError(question_id)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="Unknown question_id") from exc
+    except (ValueError, TypeError) as exc:
+        raise HTTPException(status_code=400, detail="Invalid request ID or stroke JSON") from exc
+    try:
+        temp_path, _, _ = await _validated_temp_image(image)
+    except (UnidentifiedImageError, OSError) as exc:
+        raise HTTPException(status_code=400, detail="Invalid or corrupt image") from exc
+    try:
+        saved = await run_in_threadpool(
+            save_custom_sample,
+            paths=paths, image_path=temp_path, strokes_json=strokes_json,
+            ground_truth_latex=ground_truth_latex, category=question.category,
+            difficulty=str(question.difficulty), writer_id=writer_id,
+            sample_key=recognition_request_id,
+            annotations={
+                "schema_version": 1, "purpose": "test_play_training_candidate",
+                "question_id": question_id, "question_prompt": question.prompt or question.display,
+                "reference_answer_latex": question.answer_latex,
+                "recognized_latex": recognized_latex,
+                "recognition_request_id": recognition_request_id,
+                "human_verified": True, "consent": True,
+                "label_source": "human_transcription_of_handwriting",
+                "training_status": "candidate_requires_dataset_review",
+                "model": "texteller",
+            },
+        )
+        return SavedSampleResponse(**{key: saved[key] for key in ("sample_id", "image_path", "stroke_path", "manifest_path")})
     except (ValueError, json.JSONDecodeError) as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     finally:

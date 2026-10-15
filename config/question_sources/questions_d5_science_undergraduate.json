@@ -1,0 +1,912 @@
+{
+  "questions": [
+    {
+      "question": "$A=\\begin{pmatrix}2&1\\\\2&3\\end{pmatrix}$ の行列式を求めなさい。",
+      "answer": [
+        "4"
+      ],
+      "description": "$\\det A=2(3)-2=4$。",
+      "difficulty": 5,
+      "sublevel": 1,
+      "rank": 1
+    },
+    {
+      "question": "$A=\\begin{pmatrix}3&1\\\\2&4\\end{pmatrix}$ の行列式を求めなさい。",
+      "answer": [
+        "10"
+      ],
+      "description": "$\\det A=3(4)-2=10$。",
+      "difficulty": 5,
+      "sublevel": 1,
+      "rank": 1
+    },
+    {
+      "question": "$A=\\begin{pmatrix}4&1\\\\2&5\\end{pmatrix}$ の行列式を求めなさい。",
+      "answer": [
+        "18"
+      ],
+      "description": "$\\det A=4(5)-2=18$。",
+      "difficulty": 5,
+      "sublevel": 1,
+      "rank": 1
+    },
+    {
+      "question": "$A=\\begin{pmatrix}2&1\\\\0&4\\end{pmatrix}$ の大きい方の固有値を求めなさい。",
+      "answer": [
+        "4"
+      ],
+      "description": "三角行列の固有値は対角成分 $2,4$ なので、大きい方は $4$。",
+      "difficulty": 5,
+      "sublevel": 1,
+      "rank": 2
+    },
+    {
+      "question": "$A=\\begin{pmatrix}3&1\\\\0&5\\end{pmatrix}$ の大きい方の固有値を求めなさい。",
+      "answer": [
+        "5"
+      ],
+      "description": "三角行列の固有値は対角成分 $3,5$ なので、大きい方は $5$。",
+      "difficulty": 5,
+      "sublevel": 1,
+      "rank": 2
+    },
+    {
+      "question": "$A=\\begin{pmatrix}4&1\\\\0&6\\end{pmatrix}$ の大きい方の固有値を求めなさい。",
+      "answer": [
+        "6"
+      ],
+      "description": "三角行列の固有値は対角成分 $4,6$ なので、大きい方は $6$。",
+      "difficulty": 5,
+      "sublevel": 1,
+      "rank": 2
+    },
+    {
+      "question": "線形写像 $T:\\mathbb R^{4}\\to\\mathbb R^3$ の階数が2です。核の次元を求めなさい。",
+      "answer": [
+        "2"
+      ],
+      "description": "階数・退化次数定理より $\\dim\\ker T=(4)-2=2$。",
+      "difficulty": 5,
+      "sublevel": 1,
+      "rank": 3
+    },
+    {
+      "question": "線形写像 $T:\\mathbb R^{5}\\to\\mathbb R^3$ の階数が2です。核の次元を求めなさい。",
+      "answer": [
+        "3"
+      ],
+      "description": "階数・退化次数定理より $\\dim\\ker T=(5)-2=3$。",
+      "difficulty": 5,
+      "sublevel": 1,
+      "rank": 3
+    },
+    {
+      "question": "線形写像 $T:\\mathbb R^{6}\\to\\mathbb R^3$ の階数が2です。核の次元を求めなさい。",
+      "answer": [
+        "4"
+      ],
+      "description": "階数・退化次数定理より $\\dim\\ker T=(6)-2=4$。",
+      "difficulty": 5,
+      "sublevel": 1,
+      "rank": 3
+    },
+    {
+      "question": "$f(x,y)=x^2y+2y^3$ の $f_x(2,1)$ を求めなさい。",
+      "answer": [
+        "4"
+      ],
+      "description": "$f_x=2xy$ なので $f_x(2,1)=4$。",
+      "difficulty": 5,
+      "sublevel": 1,
+      "rank": 4
+    },
+    {
+      "question": "$f(x,y)=x^2y+3y^3$ の $f_x(2,1)$ を求めなさい。",
+      "answer": [
+        "4"
+      ],
+      "description": "$f_x=2xy$ なので $f_x(2,1)=4$。",
+      "difficulty": 5,
+      "sublevel": 1,
+      "rank": 4
+    },
+    {
+      "question": "$f(x,y)=x^2y+4y^3$ の $f_x(2,1)$ を求めなさい。",
+      "answer": [
+        "4"
+      ],
+      "description": "$f_x=2xy$ なので $f_x(2,1)=4$。",
+      "difficulty": 5,
+      "sublevel": 1,
+      "rank": 4
+    },
+    {
+      "question": "$f(x,y)=x^2+2xy+y^2$ のヘッセ行列の行列式を求めなさい。",
+      "answer": [
+        "0"
+      ],
+      "description": "ヘッセ行列は $\\begin{pmatrix}2&2\\\\2&2\\end{pmatrix}$。行列式は $4-2^2=0$。",
+      "difficulty": 5,
+      "sublevel": 1,
+      "rank": 5
+    },
+    {
+      "question": "$f(x,y)=x^2+3xy+y^2$ のヘッセ行列の行列式を求めなさい。",
+      "answer": [
+        "-5"
+      ],
+      "description": "ヘッセ行列は $\\begin{pmatrix}2&3\\\\3&2\\end{pmatrix}$。行列式は $4-3^2=-5$。",
+      "difficulty": 5,
+      "sublevel": 1,
+      "rank": 5
+    },
+    {
+      "question": "$f(x,y)=x^2+4xy+y^2$ のヘッセ行列の行列式を求めなさい。",
+      "answer": [
+        "-12"
+      ],
+      "description": "ヘッセ行列は $\\begin{pmatrix}2&4\\\\4&2\\end{pmatrix}$。行列式は $4-4^2=-12$。",
+      "difficulty": 5,
+      "sublevel": 1,
+      "rank": 5
+    },
+    {
+      "question": "$\\int_0^1\\int_0^2 xy\\,dy\\,dx$ を求めなさい。",
+      "answer": [
+        "1"
+      ],
+      "description": "積分領域は長方形。$\\int_0^1x\\,dx\\cdot\\int_0^2y\\,dy=\\frac12\\cdot\\frac{4}2=1$。",
+      "difficulty": 5,
+      "sublevel": 1,
+      "rank": 6
+    },
+    {
+      "question": "$\\int_0^1\\int_0^3 xy\\,dy\\,dx$ を求めなさい。",
+      "answer": [
+        "\\frac{9}{4}"
+      ],
+      "description": "積分領域は長方形。$\\int_0^1x\\,dx\\cdot\\int_0^3y\\,dy=\\frac12\\cdot\\frac{9}2=\\frac{9}{4}$。",
+      "difficulty": 5,
+      "sublevel": 1,
+      "rank": 6
+    },
+    {
+      "question": "$\\int_0^1\\int_0^4 xy\\,dy\\,dx$ を求めなさい。",
+      "answer": [
+        "4"
+      ],
+      "description": "積分領域は長方形。$\\int_0^1x\\,dx\\cdot\\int_0^4y\\,dy=\\frac12\\cdot\\frac{16}2=4$。",
+      "difficulty": 5,
+      "sublevel": 1,
+      "rank": 6
+    },
+    {
+      "question": "領域 $D=\\{(x,y):x^2+y^2\\le4\\}$ の面積を二重積分で求めなさい。",
+      "answer": [
+        "4 \\pi",
+        "4\\pi"
+      ],
+      "description": "極座標のヤコビアンは $r$。$\\int_0^{2\\pi}\\int_0^2r\\,dr\\,d\\theta=4\\pi$。",
+      "difficulty": 5,
+      "sublevel": 1,
+      "rank": 7
+    },
+    {
+      "question": "領域 $D=\\{(x,y):x^2+y^2\\le9\\}$ の面積を二重積分で求めなさい。",
+      "answer": [
+        "9 \\pi",
+        "9\\pi"
+      ],
+      "description": "極座標のヤコビアンは $r$。$\\int_0^{2\\pi}\\int_0^3r\\,dr\\,d\\theta=9\\pi$。",
+      "difficulty": 5,
+      "sublevel": 1,
+      "rank": 7
+    },
+    {
+      "question": "領域 $D=\\{(x,y):x^2+y^2\\le16\\}$ の面積を二重積分で求めなさい。",
+      "answer": [
+        "16 \\pi",
+        "16\\pi"
+      ],
+      "description": "極座標のヤコビアンは $r$。$\\int_0^{2\\pi}\\int_0^4r\\,dr\\,d\\theta=16\\pi$。",
+      "difficulty": 5,
+      "sublevel": 1,
+      "rank": 7
+    },
+    {
+      "question": "$\\int_0^\\infty e^{-2x}\\,dx$ を求めなさい。",
+      "answer": [
+        "\\frac{1}{2}"
+      ],
+      "description": "原始関数は $-e^{-2x}/2$。無限遠で指数関数は0となるので $1/2$。",
+      "difficulty": 5,
+      "sublevel": 1,
+      "rank": 8
+    },
+    {
+      "question": "$\\int_0^\\infty e^{-3x}\\,dx$ を求めなさい。",
+      "answer": [
+        "\\frac{1}{3}"
+      ],
+      "description": "原始関数は $-e^{-3x}/3$。無限遠で指数関数は0となるので $1/3$。",
+      "difficulty": 5,
+      "sublevel": 1,
+      "rank": 8
+    },
+    {
+      "question": "$\\int_0^\\infty e^{-4x}\\,dx$ を求めなさい。",
+      "answer": [
+        "\\frac{1}{4}"
+      ],
+      "description": "原始関数は $-e^{-4x}/4$。無限遠で指数関数は0となるので $1/4$。",
+      "difficulty": 5,
+      "sublevel": 1,
+      "rank": 8
+    },
+    {
+      "question": "$f(x)=\\log(1+x)$ の $x=0$ におけるテイラー展開で、$x^{2}$ の係数を求めなさい。",
+      "answer": [
+        "- \\frac{1}{2}",
+        "-\\frac{1}{2}"
+      ],
+      "description": "$\\log(1+x)=\\sum_{k=1}^\\infty(-1)^{k+1}x^k/k$（$|x|<1$）。求める係数は $(-1)^{3}/2$。",
+      "difficulty": 5,
+      "sublevel": 1,
+      "rank": 9
+    },
+    {
+      "question": "$f(x)=\\log(1+x)$ の $x=0$ におけるテイラー展開で、$x^{3}$ の係数を求めなさい。",
+      "answer": [
+        "\\frac{1}{3}"
+      ],
+      "description": "$\\log(1+x)=\\sum_{k=1}^\\infty(-1)^{k+1}x^k/k$（$|x|<1$）。求める係数は $(-1)^{4}/3$。",
+      "difficulty": 5,
+      "sublevel": 1,
+      "rank": 9
+    },
+    {
+      "question": "$f(x)=\\log(1+x)$ の $x=0$ におけるテイラー展開で、$x^{4}$ の係数を求めなさい。",
+      "answer": [
+        "- \\frac{1}{4}",
+        "-\\frac{1}{4}"
+      ],
+      "description": "$\\log(1+x)=\\sum_{k=1}^\\infty(-1)^{k+1}x^k/k$（$|x|<1$）。求める係数は $(-1)^{5}/4$。",
+      "difficulty": 5,
+      "sublevel": 1,
+      "rank": 9
+    },
+    {
+      "question": "$\\sum_{k=1}^\\infty\\frac1{k(k+2)}$ を求めなさい。",
+      "answer": [
+        "\\frac{3}{4}"
+      ],
+      "description": "$1/[k(k+2)]=\\frac1{2}(1/k-1/(k+2))$。部分和をとって極限を求めると $\\frac1{2}\\sum_{k=1}^21/k$。",
+      "difficulty": 5,
+      "sublevel": 1,
+      "rank": 10
+    },
+    {
+      "question": "$\\sum_{k=1}^\\infty\\frac1{k(k+3)}$ を求めなさい。",
+      "answer": [
+        "\\frac{11}{18}"
+      ],
+      "description": "$1/[k(k+3)]=\\frac1{3}(1/k-1/(k+3))$。部分和をとって極限を求めると $\\frac1{3}\\sum_{k=1}^31/k$。",
+      "difficulty": 5,
+      "sublevel": 1,
+      "rank": 10
+    },
+    {
+      "question": "$\\sum_{k=1}^\\infty\\frac1{k(k+4)}$ を求めなさい。",
+      "answer": [
+        "\\frac{25}{48}"
+      ],
+      "description": "$1/[k(k+4)]=\\frac1{4}(1/k-1/(k+4))$。部分和をとって極限を求めると $\\frac1{4}\\sum_{k=1}^41/k$。",
+      "difficulty": 5,
+      "sublevel": 1,
+      "rank": 10
+    },
+    {
+      "question": "$y\\prime=2y$、$y(0)=1$ の解について、$y(1)$ を求めなさい。",
+      "answer": [
+        "e^{2}"
+      ],
+      "description": "一般解は $y=Ce^{2t}$。初期条件より $C=1$ なので $y(1)=e^{2}$。",
+      "difficulty": 5,
+      "sublevel": 2,
+      "rank": 1
+    },
+    {
+      "question": "$y\\prime=3y$、$y(0)=1$ の解について、$y(1)$ を求めなさい。",
+      "answer": [
+        "e^{3}"
+      ],
+      "description": "一般解は $y=Ce^{3t}$。初期条件より $C=1$ なので $y(1)=e^{3}$。",
+      "difficulty": 5,
+      "sublevel": 2,
+      "rank": 1
+    },
+    {
+      "question": "$y\\prime=4y$、$y(0)=1$ の解について、$y(1)$ を求めなさい。",
+      "answer": [
+        "e^{4}"
+      ],
+      "description": "一般解は $y=Ce^{4t}$。初期条件より $C=1$ なので $y(1)=e^{4}$。",
+      "difficulty": 5,
+      "sublevel": 2,
+      "rank": 1
+    },
+    {
+      "question": "$y\\prime+y=2$、$y(0)=0$ の解について、$y(\\log2)$ を求めなさい。",
+      "answer": [
+        "1"
+      ],
+      "description": "解は $y(t)=2(1-e^{-t})$。$t=\\log2$ で $e^{-t}=1/2$ なので $2/2$。",
+      "difficulty": 5,
+      "sublevel": 2,
+      "rank": 2
+    },
+    {
+      "question": "$y\\prime+y=3$、$y(0)=0$ の解について、$y(\\log2)$ を求めなさい。",
+      "answer": [
+        "\\frac{3}{2}"
+      ],
+      "description": "解は $y(t)=3(1-e^{-t})$。$t=\\log2$ で $e^{-t}=1/2$ なので $3/2$。",
+      "difficulty": 5,
+      "sublevel": 2,
+      "rank": 2
+    },
+    {
+      "question": "$y\\prime+y=4$、$y(0)=0$ の解について、$y(\\log2)$ を求めなさい。",
+      "answer": [
+        "2"
+      ],
+      "description": "解は $y(t)=4(1-e^{-t})$。$t=\\log2$ で $e^{-t}=1/2$ なので $4/2$。",
+      "difficulty": 5,
+      "sublevel": 2,
+      "rank": 2
+    },
+    {
+      "question": "$y\\prime\\prime+4y=0$、$y(0)=0$、$y\\prime(0)=2$ の解について、$y(\\pi/(4))$ を求めなさい。",
+      "answer": [
+        "1"
+      ],
+      "description": "初期条件を満たす解は $y(t)=\\sin(2t)$。指定時刻で $\\sin(\\pi/2)=1$。",
+      "difficulty": 5,
+      "sublevel": 2,
+      "rank": 3
+    },
+    {
+      "question": "$y\\prime\\prime+9y=0$、$y(0)=0$、$y\\prime(0)=3$ の解について、$y(\\pi/(6))$ を求めなさい。",
+      "answer": [
+        "1"
+      ],
+      "description": "初期条件を満たす解は $y(t)=\\sin(3t)$。指定時刻で $\\sin(\\pi/2)=1$。",
+      "difficulty": 5,
+      "sublevel": 2,
+      "rank": 3
+    },
+    {
+      "question": "$y\\prime\\prime+16y=0$、$y(0)=0$、$y\\prime(0)=4$ の解について、$y(\\pi/(8))$ を求めなさい。",
+      "answer": [
+        "1"
+      ],
+      "description": "初期条件を満たす解は $y(t)=\\sin(4t)$。指定時刻で $\\sin(\\pi/2)=1$。",
+      "difficulty": 5,
+      "sublevel": 2,
+      "rank": 3
+    },
+    {
+      "question": "連続型確率変数 $X$ の密度が $0<x<1$ で $f(x)=2x^{1}$、それ以外で0です。$E[X]$ を求めなさい。",
+      "answer": [
+        "\\frac{2}{3}"
+      ],
+      "description": "$E[X]=\\int_0^1x\\cdot2x^{1}\\,dx=2/(3)$。",
+      "difficulty": 5,
+      "sublevel": 2,
+      "rank": 4
+    },
+    {
+      "question": "連続型確率変数 $X$ の密度が $0<x<1$ で $f(x)=3x^{2}$、それ以外で0です。$E[X]$ を求めなさい。",
+      "answer": [
+        "\\frac{3}{4}"
+      ],
+      "description": "$E[X]=\\int_0^1x\\cdot3x^{2}\\,dx=3/(4)$。",
+      "difficulty": 5,
+      "sublevel": 2,
+      "rank": 4
+    },
+    {
+      "question": "連続型確率変数 $X$ の密度が $0<x<1$ で $f(x)=4x^{3}$、それ以外で0です。$E[X]$ を求めなさい。",
+      "answer": [
+        "\\frac{4}{5}"
+      ],
+      "description": "$E[X]=\\int_0^1x\\cdot4x^{3}\\,dx=4/(5)$。",
+      "difficulty": 5,
+      "sublevel": 2,
+      "rank": 4
+    },
+    {
+      "question": "$X$ が率 $2$ の指数分布に従うとき、$\\operatorname{Var}(X)$ を求めなさい。",
+      "answer": [
+        "\\frac{1}{4}"
+      ],
+      "description": "率 $\\lambda$ の指数分布の分散は $1/\\lambda^2$。$\\lambda=2$ なので $1/4$。",
+      "difficulty": 5,
+      "sublevel": 2,
+      "rank": 5
+    },
+    {
+      "question": "$X$ が率 $3$ の指数分布に従うとき、$\\operatorname{Var}(X)$ を求めなさい。",
+      "answer": [
+        "\\frac{1}{9}"
+      ],
+      "description": "率 $\\lambda$ の指数分布の分散は $1/\\lambda^2$。$\\lambda=3$ なので $1/9$。",
+      "difficulty": 5,
+      "sublevel": 2,
+      "rank": 5
+    },
+    {
+      "question": "$X$ が率 $4$ の指数分布に従うとき、$\\operatorname{Var}(X)$ を求めなさい。",
+      "answer": [
+        "\\frac{1}{16}"
+      ],
+      "description": "率 $\\lambda$ の指数分布の分散は $1/\\lambda^2$。$\\lambda=4$ なので $1/16$。",
+      "difficulty": 5,
+      "sublevel": 2,
+      "rank": 5
+    },
+    {
+      "question": "$X$ が平均 $2$ のポアソン分布に従います。$E[X(X-1)]$ を求めなさい。",
+      "answer": [
+        "4"
+      ],
+      "description": "$E[X(X-1)]=\\operatorname{Var}X+(EX)^2-EX$。ポアソン分布では平均と分散がともに $2$ なので $4$。",
+      "difficulty": 5,
+      "sublevel": 2,
+      "rank": 6
+    },
+    {
+      "question": "$X$ が平均 $3$ のポアソン分布に従います。$E[X(X-1)]$ を求めなさい。",
+      "answer": [
+        "9"
+      ],
+      "description": "$E[X(X-1)]=\\operatorname{Var}X+(EX)^2-EX$。ポアソン分布では平均と分散がともに $3$ なので $9$。",
+      "difficulty": 5,
+      "sublevel": 2,
+      "rank": 6
+    },
+    {
+      "question": "$X$ が平均 $4$ のポアソン分布に従います。$E[X(X-1)]$ を求めなさい。",
+      "answer": [
+        "16"
+      ],
+      "description": "$E[X(X-1)]=\\operatorname{Var}X+(EX)^2-EX$。ポアソン分布では平均と分散がともに $4$ なので $16$。",
+      "difficulty": 5,
+      "sublevel": 2,
+      "rank": 6
+    },
+    {
+      "question": "独立な確率変数 $X,Y$ の分散がそれぞれ1、2です。$\\operatorname{Var}(2X+Y)$ を求めなさい。",
+      "answer": [
+        "6"
+      ],
+      "description": "独立なので共分散は0。分散は $2^2\\operatorname{Var}X+\\operatorname{Var}Y=6$。",
+      "difficulty": 5,
+      "sublevel": 2,
+      "rank": 7
+    },
+    {
+      "question": "独立な確率変数 $X,Y$ の分散がそれぞれ1、2です。$\\operatorname{Var}(3X+Y)$ を求めなさい。",
+      "answer": [
+        "11"
+      ],
+      "description": "独立なので共分散は0。分散は $3^2\\operatorname{Var}X+\\operatorname{Var}Y=11$。",
+      "difficulty": 5,
+      "sublevel": 2,
+      "rank": 7
+    },
+    {
+      "question": "独立な確率変数 $X,Y$ の分散がそれぞれ1、2です。$\\operatorname{Var}(4X+Y)$ を求めなさい。",
+      "answer": [
+        "18"
+      ],
+      "description": "独立なので共分散は0。分散は $4^2\\operatorname{Var}X+\\operatorname{Var}Y=18$。",
+      "difficulty": 5,
+      "sublevel": 2,
+      "rank": 7
+    },
+    {
+      "question": "$\\boldsymbol F=(x^{2},y^{2},z^{2})$ の発散を点 $(1,1,1)$ で求めなさい。",
+      "answer": [
+        "6"
+      ],
+      "description": "$\\nabla\\cdot\\boldsymbol F=2(x^{1}+y^{1}+z^{1})$。指定点で $6$。",
+      "difficulty": 5,
+      "sublevel": 2,
+      "rank": 8
+    },
+    {
+      "question": "$\\boldsymbol F=(x^{3},y^{3},z^{3})$ の発散を点 $(1,1,1)$ で求めなさい。",
+      "answer": [
+        "9"
+      ],
+      "description": "$\\nabla\\cdot\\boldsymbol F=3(x^{2}+y^{2}+z^{2})$。指定点で $9$。",
+      "difficulty": 5,
+      "sublevel": 2,
+      "rank": 8
+    },
+    {
+      "question": "$\\boldsymbol F=(x^{4},y^{4},z^{4})$ の発散を点 $(1,1,1)$ で求めなさい。",
+      "answer": [
+        "12"
+      ],
+      "description": "$\\nabla\\cdot\\boldsymbol F=4(x^{3}+y^{3}+z^{3})$。指定点で $12$。",
+      "difficulty": 5,
+      "sublevel": 2,
+      "rank": 8
+    },
+    {
+      "question": "$\\boldsymbol F=(-2y,2x,0)$ の回転の $z$ 成分を求めなさい。",
+      "answer": [
+        "4"
+      ],
+      "description": "$z$ 成分は $\\partial_xF_y-\\partial_yF_x=2-(-2)=4$。",
+      "difficulty": 5,
+      "sublevel": 2,
+      "rank": 9
+    },
+    {
+      "question": "$\\boldsymbol F=(-3y,3x,0)$ の回転の $z$ 成分を求めなさい。",
+      "answer": [
+        "6"
+      ],
+      "description": "$z$ 成分は $\\partial_xF_y-\\partial_yF_x=3-(-3)=6$。",
+      "difficulty": 5,
+      "sublevel": 2,
+      "rank": 9
+    },
+    {
+      "question": "$\\boldsymbol F=(-4y,4x,0)$ の回転の $z$ 成分を求めなさい。",
+      "answer": [
+        "8"
+      ],
+      "description": "$z$ 成分は $\\partial_xF_y-\\partial_yF_x=4-(-4)=8$。",
+      "difficulty": 5,
+      "sublevel": 2,
+      "rank": 9
+    },
+    {
+      "question": "$\\boldsymbol F=(x,y,z)$ の、半径 $2$ の球面を外向きに通る流束を求めなさい。",
+      "answer": [
+        "32 \\pi",
+        "32\\pi"
+      ],
+      "description": "発散は3。発散定理より流束は $3\\cdot\\frac43\\pi 2^3=32\\pi$。",
+      "difficulty": 5,
+      "sublevel": 2,
+      "rank": 10
+    },
+    {
+      "question": "$\\boldsymbol F=(x,y,z)$ の、半径 $3$ の球面を外向きに通る流束を求めなさい。",
+      "answer": [
+        "108 \\pi",
+        "108\\pi"
+      ],
+      "description": "発散は3。発散定理より流束は $3\\cdot\\frac43\\pi 3^3=108\\pi$。",
+      "difficulty": 5,
+      "sublevel": 2,
+      "rank": 10
+    },
+    {
+      "question": "$\\boldsymbol F=(x,y,z)$ の、半径 $4$ の球面を外向きに通る流束を求めなさい。",
+      "answer": [
+        "256 \\pi",
+        "256\\pi"
+      ],
+      "description": "発散は3。発散定理より流束は $3\\cdot\\frac43\\pi 4^3=256\\pi$。",
+      "difficulty": 5,
+      "sublevel": 2,
+      "rank": 10
+    },
+    {
+      "question": "$f(z)=1/(z-2)$ の $z=2$ における留数を求めなさい。",
+      "answer": [
+        "1"
+      ],
+      "description": "ローラン展開の $(z-2)^{-1}$ の係数が留数であり、1です。",
+      "difficulty": 5,
+      "sublevel": 3,
+      "rank": 1
+    },
+    {
+      "question": "$f(z)=1/(z-3)$ の $z=3$ における留数を求めなさい。",
+      "answer": [
+        "1"
+      ],
+      "description": "ローラン展開の $(z-3)^{-1}$ の係数が留数であり、1です。",
+      "difficulty": 5,
+      "sublevel": 3,
+      "rank": 1
+    },
+    {
+      "question": "$f(z)=1/(z-4)$ の $z=4$ における留数を求めなさい。",
+      "answer": [
+        "1"
+      ],
+      "description": "ローラン展開の $(z-4)^{-1}$ の係数が留数であり、1です。",
+      "difficulty": 5,
+      "sublevel": 3,
+      "rank": 1
+    },
+    {
+      "question": "$|z|=3$ を反時計回りに1周する経路 $C$ に対し、$\\frac1{2\\pi i}\\oint_C\\frac{z^2}{z-2}\\,dz$ を求めなさい。",
+      "answer": [
+        "4"
+      ],
+      "description": "コーシーの積分公式より、正則関数 $z^2$ の $z=2$ での値 $4$ が得られます。",
+      "difficulty": 5,
+      "sublevel": 3,
+      "rank": 2
+    },
+    {
+      "question": "$|z|=4$ を反時計回りに1周する経路 $C$ に対し、$\\frac1{2\\pi i}\\oint_C\\frac{z^2}{z-3}\\,dz$ を求めなさい。",
+      "answer": [
+        "9"
+      ],
+      "description": "コーシーの積分公式より、正則関数 $z^2$ の $z=3$ での値 $9$ が得られます。",
+      "difficulty": 5,
+      "sublevel": 3,
+      "rank": 2
+    },
+    {
+      "question": "$|z|=5$ を反時計回りに1周する経路 $C$ に対し、$\\frac1{2\\pi i}\\oint_C\\frac{z^2}{z-4}\\,dz$ を求めなさい。",
+      "answer": [
+        "16"
+      ],
+      "description": "コーシーの積分公式より、正則関数 $z^2$ の $z=4$ での値 $16$ が得られます。",
+      "difficulty": 5,
+      "sublevel": 3,
+      "rank": 2
+    },
+    {
+      "question": "$\\frac1{2\\pi}\\int_{-\\pi}^\\pi\\cos^2(2x)\\,dx$ を求めなさい。",
+      "answer": [
+        "\\frac{1}{2}"
+      ],
+      "description": "$\\cos^2(2x)=(1+\\cos(4x))/2$。振動項の積分は0なので $1/2$。",
+      "difficulty": 5,
+      "sublevel": 3,
+      "rank": 3
+    },
+    {
+      "question": "$\\frac1{2\\pi}\\int_{-\\pi}^\\pi\\cos^2(3x)\\,dx$ を求めなさい。",
+      "answer": [
+        "\\frac{1}{2}"
+      ],
+      "description": "$\\cos^2(3x)=(1+\\cos(6x))/2$。振動項の積分は0なので $1/2$。",
+      "difficulty": 5,
+      "sublevel": 3,
+      "rank": 3
+    },
+    {
+      "question": "$\\frac1{2\\pi}\\int_{-\\pi}^\\pi\\cos^2(4x)\\,dx$ を求めなさい。",
+      "answer": [
+        "\\frac{1}{2}"
+      ],
+      "description": "$\\cos^2(4x)=(1+\\cos(8x))/2$。振動項の積分は0なので $1/2$。",
+      "difficulty": 5,
+      "sublevel": 3,
+      "rank": 3
+    },
+    {
+      "question": "ラプラス変換 $\\mathcal L[t^{2}](s)$ を $s=1$ で評価しなさい。",
+      "answer": [
+        "2"
+      ],
+      "description": "$\\mathcal L[t^{2}](s)=2!/s^{3}$。$s=1$ で $2$。",
+      "difficulty": 5,
+      "sublevel": 3,
+      "rank": 4
+    },
+    {
+      "question": "ラプラス変換 $\\mathcal L[t^{3}](s)$ を $s=1$ で評価しなさい。",
+      "answer": [
+        "6"
+      ],
+      "description": "$\\mathcal L[t^{3}](s)=3!/s^{4}$。$s=1$ で $6$。",
+      "difficulty": 5,
+      "sublevel": 3,
+      "rank": 4
+    },
+    {
+      "question": "ラプラス変換 $\\mathcal L[t^{4}](s)$ を $s=1$ で評価しなさい。",
+      "answer": [
+        "24"
+      ],
+      "description": "$\\mathcal L[t^{4}](s)=4!/s^{5}$。$s=1$ で $24$。",
+      "difficulty": 5,
+      "sublevel": 3,
+      "rank": 4
+    },
+    {
+      "question": "完全グラフ $K_{5}$ の辺の本数を求めなさい。",
+      "answer": [
+        "10"
+      ],
+      "description": "頂点の組ごとに1本の辺があるので、$\\binom{5}2=10$。",
+      "difficulty": 5,
+      "sublevel": 3,
+      "rank": 5
+    },
+    {
+      "question": "完全グラフ $K_{6}$ の辺の本数を求めなさい。",
+      "answer": [
+        "15"
+      ],
+      "description": "頂点の組ごとに1本の辺があるので、$\\binom{6}2=15$。",
+      "difficulty": 5,
+      "sublevel": 3,
+      "rank": 5
+    },
+    {
+      "question": "完全グラフ $K_{7}$ の辺の本数を求めなさい。",
+      "answer": [
+        "21"
+      ],
+      "description": "頂点の組ごとに1本の辺があるので、$\\binom{7}2=21$。",
+      "difficulty": 5,
+      "sublevel": 3,
+      "rank": 5
+    },
+    {
+      "question": "$5$ 個の頂点を持つ木の辺の本数を求めなさい。",
+      "answer": [
+        "4"
+      ],
+      "description": "有限の木では辺数は頂点数より1少ないので $5-1=4$。",
+      "difficulty": 5,
+      "sublevel": 3,
+      "rank": 6
+    },
+    {
+      "question": "$6$ 個の頂点を持つ木の辺の本数を求めなさい。",
+      "answer": [
+        "5"
+      ],
+      "description": "有限の木では辺数は頂点数より1少ないので $6-1=5$。",
+      "difficulty": 5,
+      "sublevel": 3,
+      "rank": 6
+    },
+    {
+      "question": "$7$ 個の頂点を持つ木の辺の本数を求めなさい。",
+      "answer": [
+        "6"
+      ],
+      "description": "有限の木では辺数は頂点数より1少ないので $7-1=6$。",
+      "difficulty": 5,
+      "sublevel": 3,
+      "rank": 6
+    },
+    {
+      "question": "集合 $\\{1,\\ldots,4\\}$ から集合 $\\{0,1\\}$ への全射は何個ありますか。",
+      "answer": [
+        "14"
+      ],
+      "description": "写像全体は $2^{4}$ 個。全射でない定数写像2個を引くと $14$。",
+      "difficulty": 5,
+      "sublevel": 3,
+      "rank": 7
+    },
+    {
+      "question": "集合 $\\{1,\\ldots,5\\}$ から集合 $\\{0,1\\}$ への全射は何個ありますか。",
+      "answer": [
+        "30"
+      ],
+      "description": "写像全体は $2^{5}$ 個。全射でない定数写像2個を引くと $30$。",
+      "difficulty": 5,
+      "sublevel": 3,
+      "rank": 7
+    },
+    {
+      "question": "集合 $\\{1,\\ldots,6\\}$ から集合 $\\{0,1\\}$ への全射は何個ありますか。",
+      "answer": [
+        "62"
+      ],
+      "description": "写像全体は $2^{6}$ 個。全射でない定数写像2個を引くと $62$。",
+      "difficulty": 5,
+      "sublevel": 3,
+      "rank": 7
+    },
+    {
+      "question": "漸化式 $a_0=0$、$a_1=1$、$a_{k+2}=a_{k+1}+a_k$ の $a_{7}$ を求めなさい。",
+      "answer": [
+        "13"
+      ],
+      "description": "フィボナッチ数列です。$0,1,1,2,3,5,8,13,21,34,\\ldots$ より $a_{7}=13$。",
+      "difficulty": 5,
+      "sublevel": 3,
+      "rank": 8
+    },
+    {
+      "question": "漸化式 $a_0=0$、$a_1=1$、$a_{k+2}=a_{k+1}+a_k$ の $a_{8}$ を求めなさい。",
+      "answer": [
+        "21"
+      ],
+      "description": "フィボナッチ数列です。$0,1,1,2,3,5,8,13,21,34,\\ldots$ より $a_{8}=21$。",
+      "difficulty": 5,
+      "sublevel": 3,
+      "rank": 8
+    },
+    {
+      "question": "漸化式 $a_0=0$、$a_1=1$、$a_{k+2}=a_{k+1}+a_k$ の $a_{9}$ を求めなさい。",
+      "answer": [
+        "34"
+      ],
+      "description": "フィボナッチ数列です。$0,1,1,2,3,5,8,13,21,34,\\ldots$ より $a_{9}=34$。",
+      "difficulty": 5,
+      "sublevel": 3,
+      "rank": 8
+    },
+    {
+      "question": "対称行列 $A=\\begin{pmatrix}3&1\\\\1&3\\end{pmatrix}$ に対し、$x^TAx$ の $x^Tx=1$ のもとでの最小値を求めなさい。",
+      "answer": [
+        "2"
+      ],
+      "description": "固有値は $2,4$。レイリー商の最小値は最小固有値 $2$ です。",
+      "difficulty": 5,
+      "sublevel": 3,
+      "rank": 9
+    },
+    {
+      "question": "対称行列 $A=\\begin{pmatrix}4&1\\\\1&4\\end{pmatrix}$ に対し、$x^TAx$ の $x^Tx=1$ のもとでの最小値を求めなさい。",
+      "answer": [
+        "3"
+      ],
+      "description": "固有値は $3,5$。レイリー商の最小値は最小固有値 $3$ です。",
+      "difficulty": 5,
+      "sublevel": 3,
+      "rank": 9
+    },
+    {
+      "question": "対称行列 $A=\\begin{pmatrix}5&1\\\\1&5\\end{pmatrix}$ に対し、$x^TAx$ の $x^Tx=1$ のもとでの最小値を求めなさい。",
+      "answer": [
+        "4"
+      ],
+      "description": "固有値は $4,6$。レイリー商の最小値は最小固有値 $4$ です。",
+      "difficulty": 5,
+      "sublevel": 3,
+      "rank": 9
+    },
+    {
+      "question": "フーリエ変換を $\\widehat f(\\xi)=\\int_\\mathbb R f(x)e^{-i\\xi x}\\,dx$ と定義します。$f(x)=e^{-4x^2}$ の $\\widehat f(0)$ を求めなさい。",
+      "answer": [
+        "\\frac{\\sqrt{\\pi}}{2}"
+      ],
+      "description": "$\\widehat f(0)=\\int_\\mathbb R e^{-4x^2}\\,dx$。$u=2x$ の置換とガウス積分より $\\sqrt\\pi/2$。",
+      "difficulty": 5,
+      "sublevel": 3,
+      "rank": 10
+    },
+    {
+      "question": "フーリエ変換を $\\widehat f(\\xi)=\\int_\\mathbb R f(x)e^{-i\\xi x}\\,dx$ と定義します。$f(x)=e^{-9x^2}$ の $\\widehat f(0)$ を求めなさい。",
+      "answer": [
+        "\\frac{\\sqrt{\\pi}}{3}"
+      ],
+      "description": "$\\widehat f(0)=\\int_\\mathbb R e^{-9x^2}\\,dx$。$u=3x$ の置換とガウス積分より $\\sqrt\\pi/3$。",
+      "difficulty": 5,
+      "sublevel": 3,
+      "rank": 10
+    },
+    {
+      "question": "フーリエ変換を $\\widehat f(\\xi)=\\int_\\mathbb R f(x)e^{-i\\xi x}\\,dx$ と定義します。$f(x)=e^{-16x^2}$ の $\\widehat f(0)$ を求めなさい。",
+      "answer": [
+        "\\frac{\\sqrt{\\pi}}{4}"
+      ],
+      "description": "$\\widehat f(0)=\\int_\\mathbb R e^{-16x^2}\\,dx$。$u=4x$ の置換とガウス積分より $\\sqrt\\pi/4$。",
+      "difficulty": 5,
+      "sublevel": 3,
+      "rank": 10
+    }
+  ]
+}

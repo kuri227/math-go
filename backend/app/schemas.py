@@ -73,6 +73,16 @@ class GameQuestionResponse(BaseModel):
     category: str
     difficulty: int
     difficulty_label: str
+    prompt: str | None = None
+    sublevel: int = 1
+    rank: int = 1
+    review_status: str = "pending"
+    exhibition_enabled: bool = False
+
+
+class QuestionReviewRequest(BaseModel):
+    review_status: str = Field(pattern=r"^(pending|approved|needs_revision)$")
+    exhibition_enabled: bool
 
 
 class GameQuestionCreateRequest(BaseModel):

@@ -1,0 +1,292 @@
+{
+  "questions": [
+    {
+      "question": "$1 + 2 = ?$",
+      "answer": ["3"],
+      "description": "$1 + 2 = 3$。1つと 2つで 3つ だよ。",
+      "difficulty": 1,
+      "sublevel": 1,
+      "rank": 1
+    },
+    {
+      "question": "$2 + 2 = ?$",
+      "answer": ["4"],
+      "description": "$2 + 2 = 4$。2つと 2つで 4つ だよ。",
+      "difficulty": 1,
+      "sublevel": 1,
+      "rank": 1
+    },
+    {
+      "question": "$4 + 1 = ?$",
+      "answer": ["5"],
+      "description": "$4 + 1 = 5$。4に 1を たすと 5 だよ。",
+      "difficulty": 1,
+      "sublevel": 1,
+      "rank": 1
+    },
+    {
+      "question": "$3 + 5 = ?$",
+      "answer": ["8"],
+      "description": "$3 + 5 = 8$。3から 5つ かぞえると 8 だよ。",
+      "difficulty": 1,
+      "sublevel": 1,
+      "rank": 2
+    },
+    {
+      "question": "$4 + 5 = ?$",
+      "answer": ["9"],
+      "description": "$4 + 5 = 9$。4から 5つ かぞえると 9 だよ。",
+      "difficulty": 1,
+      "sublevel": 1,
+      "rank": 2
+    },
+    {
+      "question": "$2 + 7 = ?$",
+      "answer": ["9"],
+      "description": "$2 + 7 = 9$。7から 2つ かぞえると 9 だよ。",
+      "difficulty": 1,
+      "sublevel": 1,
+      "rank": 2
+    },
+    {
+      "question": "$9 - 4 = ?$",
+      "answer": ["5"],
+      "description": "$9 - 4 = 5$。9から 4つ とると 5 のこるよ。",
+      "difficulty": 1,
+      "sublevel": 1,
+      "rank": 3
+    },
+    {
+      "question": "$6 - 2 = ?$",
+      "answer": ["4"],
+      "description": "$6 - 2 = 4$。6から 2つ とると 4 のこるよ。",
+      "difficulty": 1,
+      "sublevel": 1,
+      "rank": 3
+    },
+    {
+      "question": "$8 - 5 = ?$",
+      "answer": ["3"],
+      "description": "$8 - 5 = 3$。8から 5つ とると 3 のこるよ。",
+      "difficulty": 1,
+      "sublevel": 1,
+      "rank": 3
+    },
+    {
+      "question": "$8 + 7$ を けいさんしなさい。",
+      "answer": ["15"],
+      "description": "8に あと 2を たして 10。のこりの 5を たして 15 だよ。",
+      "difficulty": 1,
+      "sublevel": 1,
+      "rank": 4
+    },
+    {
+      "question": "$6 + 7$ を けいさんしなさい。",
+      "answer": ["13"],
+      "description": "6に あと 4を たして 10。のこりの 3を たして 13 だよ。",
+      "difficulty": 1,
+      "sublevel": 1,
+      "rank": 4
+    },
+    {
+      "question": "$9 + 5$ を けいさんしなさい。",
+      "answer": ["14"],
+      "description": "9に あと 1を たして 10。のこりの 4を たして 14 だよ。",
+      "difficulty": 1,
+      "sublevel": 1,
+      "rank": 4
+    },
+    {
+      "question": "$13 - 6$ を けいさんしなさい。",
+      "answer": ["7"],
+      "description": "13から 3を ひいて 10。のこりの 3を ひいて 7 だよ。",
+      "difficulty": 1,
+      "sublevel": 1,
+      "rank": 5
+    },
+    {
+      "question": "$14 - 9$ を けいさんしなさい。",
+      "answer": ["5"],
+      "description": "14から 4を ひいて 10。のこりの 5を ひいて 5 だよ。",
+      "difficulty": 1,
+      "sublevel": 1,
+      "rank": 5
+    },
+    {
+      "question": "$16 - 7$ を けいさんしなさい。",
+      "answer": ["9"],
+      "description": "16から 6を ひいて 10。のこりの 1を ひいて 9 だよ。",
+      "difficulty": 1,
+      "sublevel": 1,
+      "rank": 5
+    },
+    {
+      "question": "$32 + 25$ を けいさんしなさい。",
+      "answer": ["57"],
+      "description": "十のくらいは $3 + 2 = 5$、一のくらいは $2 + 5 = 7$。あわせて 57 だよ。",
+      "difficulty": 1,
+      "sublevel": 1,
+      "rank": 6
+    },
+    {
+      "question": "$41 + 36$ を けいさんしなさい。",
+      "answer": ["77"],
+      "description": "十のくらいは $4 + 3 = 7$、一のくらいは $1 + 6 = 7$。あわせて 77 だよ。",
+      "difficulty": 1,
+      "sublevel": 1,
+      "rank": 6
+    },
+    {
+      "question": "$14 + 45$ を けいさんしなさい。",
+      "answer": ["59"],
+      "description": "十のくらいは $1 + 4 = 5$、一のくらいは $4 + 5 = 9$。あわせて 59 だよ。",
+      "difficulty": 1,
+      "sublevel": 1,
+      "rank": 6
+    },
+    {
+      "question": "$37 + 48$ を けいさんしなさい。",
+      "answer": ["85"],
+      "description": "一のくらいは $7 + 8 = 15$ で、1 くりあがる。十のくらいは $3 + 4 + 1 = 8$。85 だよ。",
+      "difficulty": 1,
+      "sublevel": 1,
+      "rank": 7
+    },
+    {
+      "question": "$29 + 36$ を けいさんしなさい。",
+      "answer": ["65"],
+      "description": "一のくらいは $9 + 6 = 15$ で、1 くりあがる。十のくらいは $2 + 3 + 1 = 6$。65 だよ。",
+      "difficulty": 1,
+      "sublevel": 1,
+      "rank": 7
+    },
+    {
+      "question": "$55 + 19$ を けいさんしなさい。",
+      "answer": ["74"],
+      "description": "一のくらいは $5 + 9 = 14$ で、1 くりあがる。十のくらいは $5 + 1 + 1 = 7$。74 だよ。",
+      "difficulty": 1,
+      "sublevel": 1,
+      "rank": 7
+    },
+    {
+      "question": "$91 - 56$ を けいさんしなさい。",
+      "answer": ["35"],
+      "description": "一のくらいは 1から 6を ひけないので、十のくらいから 1 かりて $11 - 6 = 5$。十のくらいは $8 - 5 = 3$。35 だよ。",
+      "difficulty": 1,
+      "sublevel": 1,
+      "rank": 8
+    },
+    {
+      "question": "$73 - 28$ を けいさんしなさい。",
+      "answer": ["45"],
+      "description": "一のくらいは 3から 8を ひけないので、十のくらいから 1 かりて $13 - 8 = 5$。十のくらいは $6 - 2 = 4$。45 だよ。",
+      "difficulty": 1,
+      "sublevel": 1,
+      "rank": 8
+    },
+    {
+      "question": "$60 - 34$ を けいさんしなさい。",
+      "answer": ["26"],
+      "description": "一のくらいは 0から 4を ひけないので、十のくらいから 1 かりて $10 - 4 = 6$。十のくらいは $5 - 3 = 2$。26 だよ。",
+      "difficulty": 1,
+      "sublevel": 1,
+      "rank": 8
+    },
+    {
+      "question": "100えん もって 63えんの おかしを かった。おつりは なんえん? (すうじだけ)",
+      "answer": ["37"],
+      "description": "$100 - 63 = 37$。おつりは 37えん です。",
+      "difficulty": 1,
+      "sublevel": 1,
+      "rank": 8
+    },
+    {
+      "question": "100えん もって 45えんの ガムを かった。おつりは なんえん? (すうじだけ)",
+      "answer": ["55"],
+      "description": "$100 - 45 = 55$。おつりは 55えん です。",
+      "difficulty": 1,
+      "sublevel": 1,
+      "rank": 8
+    },
+    {
+      "question": "100えん もって 28えんの ラムネを かった。おつりは なんえん? (すうじだけ)",
+      "answer": ["72"],
+      "description": "$100 - 28 = 72$。おつりは 72えん です。",
+      "difficulty": 1,
+      "sublevel": 1,
+      "rank": 8
+    },
+    {
+      "question": "$7 \\times 8$ を けいさんしなさい。",
+      "answer": ["56"],
+      "description": "しちはごじゅうろく。$7 \\times 8 = 56$ だよ。",
+      "difficulty": 1,
+      "sublevel": 1,
+      "rank": 9
+    },
+    {
+      "question": "$6 \\times 9$ を けいさんしなさい。",
+      "answer": ["54"],
+      "description": "ろっくごじゅうし。$6 \\times 9 = 54$ だよ。",
+      "difficulty": 1,
+      "sublevel": 1,
+      "rank": 9
+    },
+    {
+      "question": "$9 \\times 4$ を けいさんしなさい。",
+      "answer": ["36"],
+      "description": "くしさんじゅうろく。$9 \\times 4 = 36$ だよ。",
+      "difficulty": 1,
+      "sublevel": 1,
+      "rank": 9
+    },
+    {
+      "question": "2じかんは なんぷん? (すうじだけ)",
+      "answer": ["120"],
+      "description": "1じかんは 60ぷん。2じかんは $60 \\times 2 = 120$ ぷん です。",
+      "difficulty": 1,
+      "sublevel": 1,
+      "rank": 9
+    },
+    {
+      "question": "1じかん30ぷんは なんぷん? (すうじだけ)",
+      "answer": ["90"],
+      "description": "1じかんは 60ぷん。$60 + 30 = 90$ ぷん です。",
+      "difficulty": 1,
+      "sublevel": 1,
+      "rank": 9
+    },
+    {
+      "question": "3じかんは なんぷん? (すうじだけ)",
+      "answer": ["180"],
+      "description": "1じかんは 60ぷん。3じかんは $60 \\times 3 = 180$ ぷん です。",
+      "difficulty": 1,
+      "sublevel": 1,
+      "rank": 9
+    },
+    {
+      "question": "$\\square + 19 = 42$ のとき、$\\square$ に はいる かずは?",
+      "answer": ["23"],
+      "description": "$42 - 19 = 23$。たしかめると $23 + 19 = 42$ だね。",
+      "difficulty": 1,
+      "sublevel": 1,
+      "rank": 10
+    },
+    {
+      "question": "$63 - \\square = 28$ のとき、$\\square$ に はいる かずは?",
+      "answer": ["35"],
+      "description": "$63 - 28 = 35$。たしかめると $63 - 35 = 28$ だね。",
+      "difficulty": 1,
+      "sublevel": 1,
+      "rank": 10
+    },
+    {
+      "question": "$\\square - 15 = 27$ のとき、$\\square$ に はいる かずは?",
+      "answer": ["42"],
+      "description": "$27 + 15 = 42$。たしかめると $42 - 15 = 27$ だね。",
+      "difficulty": 1,
+      "sublevel": 1,
+      "rank": 10
+    }
+  ]
+}

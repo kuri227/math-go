@@ -1,0 +1,907 @@
+{
+  "questions": [
+    {
+      "question": "リーマンゼータ関数の解析接続について $\\zeta(-3)$ を求めなさい。",
+      "answer": [
+        "\\frac{1}{120}"
+      ],
+      "description": "特殊値の公式 $\\zeta(1-2m)=-B_{2m}/(2m)$ より、$B_{4}=- \\frac{1}{30}$ を用いて $\\frac{1}{120}$。",
+      "difficulty": 7,
+      "sublevel": 1,
+      "rank": 1
+    },
+    {
+      "question": "リーマンゼータ関数の解析接続について $\\zeta(-5)$ を求めなさい。",
+      "answer": [
+        "- \\frac{1}{252}",
+        "-\\frac{1}{252}"
+      ],
+      "description": "特殊値の公式 $\\zeta(1-2m)=-B_{2m}/(2m)$ より、$B_{6}=\\frac{1}{42}$ を用いて $- \\frac{1}{252}$。",
+      "difficulty": 7,
+      "sublevel": 1,
+      "rank": 1
+    },
+    {
+      "question": "リーマンゼータ関数の解析接続について $\\zeta(-7)$ を求めなさい。",
+      "answer": [
+        "\\frac{1}{240}"
+      ],
+      "description": "特殊値の公式 $\\zeta(1-2m)=-B_{2m}/(2m)$ より、$B_{8}=- \\frac{1}{30}$ を用いて $\\frac{1}{240}$。",
+      "difficulty": 7,
+      "sublevel": 1,
+      "rank": 1
+    },
+    {
+      "question": "ベルヌーイ数を $t/(e^t-1)=\\sum_{k\\ge0}B_k t^k/k!$ で定義します。$B_{4}$ を求めなさい。",
+      "answer": [
+        "- \\frac{1}{30}",
+        "-\\frac{1}{30}"
+      ],
+      "description": "生成関数の係数を比較すると $B_{4}=- \\frac{1}{30}$。これはゼータ特殊値の公式にも現れます。",
+      "difficulty": 7,
+      "sublevel": 1,
+      "rank": 2
+    },
+    {
+      "question": "ベルヌーイ数を $t/(e^t-1)=\\sum_{k\\ge0}B_k t^k/k!$ で定義します。$B_{6}$ を求めなさい。",
+      "answer": [
+        "\\frac{1}{42}"
+      ],
+      "description": "生成関数の係数を比較すると $B_{6}=\\frac{1}{42}$。これはゼータ特殊値の公式にも現れます。",
+      "difficulty": 7,
+      "sublevel": 1,
+      "rank": 2
+    },
+    {
+      "question": "ベルヌーイ数を $t/(e^t-1)=\\sum_{k\\ge0}B_k t^k/k!$ で定義します。$B_{8}$ を求めなさい。",
+      "answer": [
+        "- \\frac{1}{30}",
+        "-\\frac{1}{30}"
+      ],
+      "description": "生成関数の係数を比較すると $B_{8}=- \\frac{1}{30}$。これはゼータ特殊値の公式にも現れます。",
+      "difficulty": 7,
+      "sublevel": 1,
+      "rank": 2
+    },
+    {
+      "question": "ヒルベルト空間 $\\ell^2(\\mathbb N)$ 上の作用素 $Te_k=2^{-k}e_k$ について、$\\operatorname{Tr}(T^{2})$ を求めなさい。",
+      "answer": [
+        "\\frac{1}{3}"
+      ],
+      "description": "正の対角作用素なのでトレースは対角成分の和。$\\sum_{k\\ge1}2^{-2k}=1/(2^{2}-1)$。",
+      "difficulty": 7,
+      "sublevel": 1,
+      "rank": 3
+    },
+    {
+      "question": "ヒルベルト空間 $\\ell^2(\\mathbb N)$ 上の作用素 $Te_k=2^{-k}e_k$ について、$\\operatorname{Tr}(T^{3})$ を求めなさい。",
+      "answer": [
+        "\\frac{1}{7}"
+      ],
+      "description": "正の対角作用素なのでトレースは対角成分の和。$\\sum_{k\\ge1}2^{-3k}=1/(2^{3}-1)$。",
+      "difficulty": 7,
+      "sublevel": 1,
+      "rank": 3
+    },
+    {
+      "question": "ヒルベルト空間 $\\ell^2(\\mathbb N)$ 上の作用素 $Te_k=2^{-k}e_k$ について、$\\operatorname{Tr}(T^{4})$ を求めなさい。",
+      "answer": [
+        "\\frac{1}{15}"
+      ],
+      "description": "正の対角作用素なのでトレースは対角成分の和。$\\sum_{k\\ge1}2^{-4k}=1/(2^{4}-1)$。",
+      "difficulty": 7,
+      "sublevel": 1,
+      "rank": 3
+    },
+    {
+      "question": "同じ対角作用素 $Te_k=2^{-k}e_k$ のシャッテン $2$ ノルムの $2$ 乗 $\\|T\\|_{S_2}^{2}$ を求めなさい。",
+      "answer": [
+        "\\frac{1}{3}"
+      ],
+      "description": "特異値は $2^{-k}$。シャッテンノルムの定義より $\\|T\\|_{S_2}^{2}=\\sum_{k\\ge1}(2^{-k})^{2}=1/(2^{2}-1)$。",
+      "difficulty": 7,
+      "sublevel": 1,
+      "rank": 4
+    },
+    {
+      "question": "同じ対角作用素 $Te_k=2^{-k}e_k$ のシャッテン $3$ ノルムの $3$ 乗 $\\|T\\|_{S_3}^{3}$ を求めなさい。",
+      "answer": [
+        "\\frac{1}{7}"
+      ],
+      "description": "特異値は $2^{-k}$。シャッテンノルムの定義より $\\|T\\|_{S_3}^{3}=\\sum_{k\\ge1}(2^{-k})^{3}=1/(2^{3}-1)$。",
+      "difficulty": 7,
+      "sublevel": 1,
+      "rank": 4
+    },
+    {
+      "question": "同じ対角作用素 $Te_k=2^{-k}e_k$ のシャッテン $4$ ノルムの $4$ 乗 $\\|T\\|_{S_4}^{4}$ を求めなさい。",
+      "answer": [
+        "\\frac{1}{15}"
+      ],
+      "description": "特異値は $2^{-k}$。シャッテンノルムの定義より $\\|T\\|_{S_4}^{4}=\\sum_{k\\ge1}(2^{-k})^{4}=1/(2^{4}-1)$。",
+      "difficulty": 7,
+      "sublevel": 1,
+      "rank": 4
+    },
+    {
+      "question": "単位円周 $S^1$ 上の非負ラプラシアン $-d^2/d\\theta^2$ において、固有値 $4$ の複素固有空間の次元を求めなさい。",
+      "answer": [
+        "2"
+      ],
+      "description": "固有関数 $e^{i2\\theta}$ と $e^{-i2\\theta}$ が基底となります。$2>0$ なので両者は独立で、次元は2。",
+      "difficulty": 7,
+      "sublevel": 1,
+      "rank": 5
+    },
+    {
+      "question": "単位円周 $S^1$ 上の非負ラプラシアン $-d^2/d\\theta^2$ において、固有値 $9$ の複素固有空間の次元を求めなさい。",
+      "answer": [
+        "2"
+      ],
+      "description": "固有関数 $e^{i3\\theta}$ と $e^{-i3\\theta}$ が基底となります。$3>0$ なので両者は独立で、次元は2。",
+      "difficulty": 7,
+      "sublevel": 1,
+      "rank": 5
+    },
+    {
+      "question": "単位円周 $S^1$ 上の非負ラプラシアン $-d^2/d\\theta^2$ において、固有値 $16$ の複素固有空間の次元を求めなさい。",
+      "answer": [
+        "2"
+      ],
+      "description": "固有関数 $e^{i4\\theta}$ と $e^{-i4\\theta}$ が基底となります。$4>0$ なので両者は独立で、次元は2。",
+      "difficulty": 7,
+      "sublevel": 1,
+      "rank": 5
+    },
+    {
+      "question": "閉 $2$ 次元リーマン多様体 $M$ の体積が $3$ です。非負ラプラシアンについて、$\\lim_{t\\downarrow0}(4\\pi t)^{2/2}\\operatorname{Tr}(e^{-t\\Delta})$ を求めなさい。",
+      "answer": [
+        "3"
+      ],
+      "description": "熱トレースの主要項は $(4\\pi t)^{-2/2}\\operatorname{Vol}(M)$。指定極限は体積 $3$。",
+      "difficulty": 7,
+      "sublevel": 1,
+      "rank": 6
+    },
+    {
+      "question": "閉 $3$ 次元リーマン多様体 $M$ の体積が $4$ です。非負ラプラシアンについて、$\\lim_{t\\downarrow0}(4\\pi t)^{3/2}\\operatorname{Tr}(e^{-t\\Delta})$ を求めなさい。",
+      "answer": [
+        "4"
+      ],
+      "description": "熱トレースの主要項は $(4\\pi t)^{-3/2}\\operatorname{Vol}(M)$。指定極限は体積 $4$。",
+      "difficulty": 7,
+      "sublevel": 1,
+      "rank": 6
+    },
+    {
+      "question": "閉 $4$ 次元リーマン多様体 $M$ の体積が $5$ です。非負ラプラシアンについて、$\\lim_{t\\downarrow0}(4\\pi t)^{4/2}\\operatorname{Tr}(e^{-t\\Delta})$ を求めなさい。",
+      "answer": [
+        "5"
+      ],
+      "description": "熱トレースの主要項は $(4\\pi t)^{-4/2}\\operatorname{Vol}(M)$。指定極限は体積 $5$。",
+      "difficulty": 7,
+      "sublevel": 1,
+      "rank": 6
+    },
+    {
+      "question": "$\\ell^2(\\mathbb N_0)$ 上の片側シフト $Se_k=e_{k+1}$ について、フレドホルム指数 $\\operatorname{ind}(S^{2})$ を求めなさい。指数は核の次元から余核の次元を引いた値です。",
+      "answer": [
+        "-2"
+      ],
+      "description": "$S^{2}$ の核は0、像の直交補空間は $e_0,\\ldots,e_{1}$ の張る $2$ 次元空間。指数は $0-2=-2$。",
+      "difficulty": 7,
+      "sublevel": 1,
+      "rank": 7
+    },
+    {
+      "question": "$\\ell^2(\\mathbb N_0)$ 上の片側シフト $Se_k=e_{k+1}$ について、フレドホルム指数 $\\operatorname{ind}(S^{3})$ を求めなさい。指数は核の次元から余核の次元を引いた値です。",
+      "answer": [
+        "-3"
+      ],
+      "description": "$S^{3}$ の核は0、像の直交補空間は $e_0,\\ldots,e_{2}$ の張る $3$ 次元空間。指数は $0-3=-3$。",
+      "difficulty": 7,
+      "sublevel": 1,
+      "rank": 7
+    },
+    {
+      "question": "$\\ell^2(\\mathbb N_0)$ 上の片側シフト $Se_k=e_{k+1}$ について、フレドホルム指数 $\\operatorname{ind}(S^{4})$ を求めなさい。指数は核の次元から余核の次元を引いた値です。",
+      "answer": [
+        "-4"
+      ],
+      "description": "$S^{4}$ の核は0、像の直交補空間は $e_0,\\ldots,e_{3}$ の張る $4$ 次元空間。指数は $0-4=-4$。",
+      "difficulty": 7,
+      "sublevel": 1,
+      "rank": 7
+    },
+    {
+      "question": "調和振動子 $H=-d^2/dx^2+x^2$ の $L^2(\\mathbb R)$ における固有値を小さい順に0番から数えます。$2$ 番目の固有値を求めなさい。",
+      "answer": [
+        "5"
+      ],
+      "description": "この規格化でスペクトルは $2k+1$（$k=0,1,\\ldots$）。$k=2$ では $5$。",
+      "difficulty": 7,
+      "sublevel": 1,
+      "rank": 8
+    },
+    {
+      "question": "調和振動子 $H=-d^2/dx^2+x^2$ の $L^2(\\mathbb R)$ における固有値を小さい順に0番から数えます。$3$ 番目の固有値を求めなさい。",
+      "answer": [
+        "7"
+      ],
+      "description": "この規格化でスペクトルは $2k+1$（$k=0,1,\\ldots$）。$k=3$ では $7$。",
+      "difficulty": 7,
+      "sublevel": 1,
+      "rank": 8
+    },
+    {
+      "question": "調和振動子 $H=-d^2/dx^2+x^2$ の $L^2(\\mathbb R)$ における固有値を小さい順に0番から数えます。$4$ 番目の固有値を求めなさい。",
+      "answer": [
+        "9"
+      ],
+      "description": "この規格化でスペクトルは $2k+1$（$k=0,1,\\ldots$）。$k=4$ では $9$。",
+      "difficulty": 7,
+      "sublevel": 1,
+      "rank": 8
+    },
+    {
+      "question": "標準正規変数 $Z\\sim N(0,1)$ の偶数次モーメント $E[Z^{4}]$ を求めなさい。",
+      "answer": [
+        "3"
+      ],
+      "description": "ガウス積分の部分積分、またはウィックの公式より $E[Z^{4}]=(3)!!=3$。",
+      "difficulty": 7,
+      "sublevel": 1,
+      "rank": 9
+    },
+    {
+      "question": "標準正規変数 $Z\\sim N(0,1)$ の偶数次モーメント $E[Z^{6}]$ を求めなさい。",
+      "answer": [
+        "15"
+      ],
+      "description": "ガウス積分の部分積分、またはウィックの公式より $E[Z^{6}]=(5)!!=15$。",
+      "difficulty": 7,
+      "sublevel": 1,
+      "rank": 9
+    },
+    {
+      "question": "標準正規変数 $Z\\sim N(0,1)$ の偶数次モーメント $E[Z^{8}]$ を求めなさい。",
+      "answer": [
+        "105"
+      ],
+      "description": "ガウス積分の部分積分、またはウィックの公式より $E[Z^{8}]=(7)!!=105$。",
+      "difficulty": 7,
+      "sublevel": 1,
+      "rank": 9
+    },
+    {
+      "question": "単位球 $B\\subset\\mathbb R^{4}$ 上の臨界ソボレフ指数 $p^*=2d/(d-2)$（$d=4$）を求めなさい。",
+      "answer": [
+        "4"
+      ],
+      "description": "$d=4>2$ を代入すると $p^*=2(4)/2=4$。$H_0^1(B)$ の臨界埋め込みで現れる指数です。",
+      "difficulty": 7,
+      "sublevel": 1,
+      "rank": 10
+    },
+    {
+      "question": "単位球 $B\\subset\\mathbb R^{5}$ 上の臨界ソボレフ指数 $p^*=2d/(d-2)$（$d=5$）を求めなさい。",
+      "answer": [
+        "\\frac{10}{3}"
+      ],
+      "description": "$d=5>2$ を代入すると $p^*=2(5)/3=\\frac{10}{3}$。$H_0^1(B)$ の臨界埋め込みで現れる指数です。",
+      "difficulty": 7,
+      "sublevel": 1,
+      "rank": 10
+    },
+    {
+      "question": "単位球 $B\\subset\\mathbb R^{6}$ 上の臨界ソボレフ指数 $p^*=2d/(d-2)$（$d=6$）を求めなさい。",
+      "answer": [
+        "3"
+      ],
+      "description": "$d=6>2$ を代入すると $p^*=2(6)/4=3$。$H_0^1(B)$ の臨界埋め込みで現れる指数です。",
+      "difficulty": 7,
+      "sublevel": 1,
+      "rank": 10
+    },
+    {
+      "question": "代数閉体 $k$ 上の局所環 $R=k[x_1,\\ldots,x_{2}]_{(x_1,\\ldots,x_2)}$ の大域次元を求めなさい。",
+      "answer": [
+        "2"
+      ],
+      "description": "$R$ は次元 $2$ の正則局所環。正則局所環の大域次元はそのクルル次元に等しく、$2$。",
+      "difficulty": 7,
+      "sublevel": 2,
+      "rank": 1
+    },
+    {
+      "question": "代数閉体 $k$ 上の局所環 $R=k[x_1,\\ldots,x_{3}]_{(x_1,\\ldots,x_3)}$ の大域次元を求めなさい。",
+      "answer": [
+        "3"
+      ],
+      "description": "$R$ は次元 $3$ の正則局所環。正則局所環の大域次元はそのクルル次元に等しく、$3$。",
+      "difficulty": 7,
+      "sublevel": 2,
+      "rank": 1
+    },
+    {
+      "question": "代数閉体 $k$ 上の局所環 $R=k[x_1,\\ldots,x_{4}]_{(x_1,\\ldots,x_4)}$ の大域次元を求めなさい。",
+      "answer": [
+        "4"
+      ],
+      "description": "$R$ は次元 $4$ の正則局所環。正則局所環の大域次元はそのクルル次元に等しく、$4$。",
+      "difficulty": 7,
+      "sublevel": 2,
+      "rank": 1
+    },
+    {
+      "question": "$R=k[x_1,\\ldots,x_{2}]$、$k=R/(x_1,\\ldots,x_{2})$ とします。$\\dim_k\\operatorname{Tor}_2^R(k,k)$ を求めなさい。",
+      "answer": [
+        "1"
+      ],
+      "description": "コズール分解を $k$ とテンソルすると微分が0となり、$\\operatorname{Tor}_2^R(k,k)\\cong\\bigwedge^2 k^{2}$。次元は $\\binom{2}2=1$。",
+      "difficulty": 7,
+      "sublevel": 2,
+      "rank": 2
+    },
+    {
+      "question": "$R=k[x_1,\\ldots,x_{3}]$、$k=R/(x_1,\\ldots,x_{3})$ とします。$\\dim_k\\operatorname{Tor}_2^R(k,k)$ を求めなさい。",
+      "answer": [
+        "3"
+      ],
+      "description": "コズール分解を $k$ とテンソルすると微分が0となり、$\\operatorname{Tor}_2^R(k,k)\\cong\\bigwedge^2 k^{3}$。次元は $\\binom{3}2=3$。",
+      "difficulty": 7,
+      "sublevel": 2,
+      "rank": 2
+    },
+    {
+      "question": "$R=k[x_1,\\ldots,x_{4}]$、$k=R/(x_1,\\ldots,x_{4})$ とします。$\\dim_k\\operatorname{Tor}_2^R(k,k)$ を求めなさい。",
+      "answer": [
+        "6"
+      ],
+      "description": "コズール分解を $k$ とテンソルすると微分が0となり、$\\operatorname{Tor}_2^R(k,k)\\cong\\bigwedge^2 k^{4}$。次元は $\\binom{4}2=6$。",
+      "difficulty": 7,
+      "sublevel": 2,
+      "rank": 2
+    },
+    {
+      "question": "$R=k[x_1,\\ldots,x_{2}]$、$k=R/(x_1,\\ldots,x_{2})$ とします。$\\dim_k\\operatorname{Ext}_R^2(k,k)$ を求めなさい。",
+      "answer": [
+        "1"
+      ],
+      "description": "コズール分解から $\\operatorname{Ext}_R^j(k,k)\\cong\\bigwedge^j(k^{2})^*$。最高外冪の次元は1。",
+      "difficulty": 7,
+      "sublevel": 2,
+      "rank": 3
+    },
+    {
+      "question": "$R=k[x_1,\\ldots,x_{3}]$、$k=R/(x_1,\\ldots,x_{3})$ とします。$\\dim_k\\operatorname{Ext}_R^3(k,k)$ を求めなさい。",
+      "answer": [
+        "1"
+      ],
+      "description": "コズール分解から $\\operatorname{Ext}_R^j(k,k)\\cong\\bigwedge^j(k^{3})^*$。最高外冪の次元は1。",
+      "difficulty": 7,
+      "sublevel": 2,
+      "rank": 3
+    },
+    {
+      "question": "$R=k[x_1,\\ldots,x_{4}]$、$k=R/(x_1,\\ldots,x_{4})$ とします。$\\dim_k\\operatorname{Ext}_R^4(k,k)$ を求めなさい。",
+      "answer": [
+        "1"
+      ],
+      "description": "コズール分解から $\\operatorname{Ext}_R^j(k,k)\\cong\\bigwedge^j(k^{4})^*$。最高外冪の次元は1。",
+      "difficulty": 7,
+      "sublevel": 2,
+      "rank": 3
+    },
+    {
+      "question": "$\\mathbb Z$ 加群について $\\operatorname{Tor}_1^\\mathbb Z(\\mathbb Z/24\\mathbb Z,\\mathbb Z/36\\mathbb Z)$ の元数を求めなさい。",
+      "answer": [
+        "12"
+      ],
+      "description": "$\\operatorname{Tor}_1^\\mathbb Z(\\mathbb Z/a,\\mathbb Z/b)\\cong\\mathbb Z/\\gcd(a,b)$。最大公約数は $12$。",
+      "difficulty": 7,
+      "sublevel": 2,
+      "rank": 4
+    },
+    {
+      "question": "$\\mathbb Z$ 加群について $\\operatorname{Tor}_1^\\mathbb Z(\\mathbb Z/36\\mathbb Z,\\mathbb Z/54\\mathbb Z)$ の元数を求めなさい。",
+      "answer": [
+        "18"
+      ],
+      "description": "$\\operatorname{Tor}_1^\\mathbb Z(\\mathbb Z/a,\\mathbb Z/b)\\cong\\mathbb Z/\\gcd(a,b)$。最大公約数は $18$。",
+      "difficulty": 7,
+      "sublevel": 2,
+      "rank": 4
+    },
+    {
+      "question": "$\\mathbb Z$ 加群について $\\operatorname{Tor}_1^\\mathbb Z(\\mathbb Z/48\\mathbb Z,\\mathbb Z/72\\mathbb Z)$ の元数を求めなさい。",
+      "answer": [
+        "24"
+      ],
+      "description": "$\\operatorname{Tor}_1^\\mathbb Z(\\mathbb Z/a,\\mathbb Z/b)\\cong\\mathbb Z/\\gcd(a,b)$。最大公約数は $24$。",
+      "difficulty": 7,
+      "sublevel": 2,
+      "rank": 4
+    },
+    {
+      "question": "$\\mathbb Z$ 加群について $\\operatorname{Ext}_\\mathbb Z^1(\\mathbb Z/2\\mathbb Z,\\mathbb Z)$ の元数を求めなさい。",
+      "answer": [
+        "2"
+      ],
+      "description": "分解 $0\\to\\mathbb Z\\xrightarrow{\\times2}\\mathbb Z\\to\\mathbb Z/2\\to0$ に $\\operatorname{Hom}(-,\\mathbb Z)$ を適用し、余核 $\\mathbb Z/2$ を得ます。",
+      "difficulty": 7,
+      "sublevel": 2,
+      "rank": 5
+    },
+    {
+      "question": "$\\mathbb Z$ 加群について $\\operatorname{Ext}_\\mathbb Z^1(\\mathbb Z/3\\mathbb Z,\\mathbb Z)$ の元数を求めなさい。",
+      "answer": [
+        "3"
+      ],
+      "description": "分解 $0\\to\\mathbb Z\\xrightarrow{\\times3}\\mathbb Z\\to\\mathbb Z/3\\to0$ に $\\operatorname{Hom}(-,\\mathbb Z)$ を適用し、余核 $\\mathbb Z/3$ を得ます。",
+      "difficulty": 7,
+      "sublevel": 2,
+      "rank": 5
+    },
+    {
+      "question": "$\\mathbb Z$ 加群について $\\operatorname{Ext}_\\mathbb Z^1(\\mathbb Z/4\\mathbb Z,\\mathbb Z)$ の元数を求めなさい。",
+      "answer": [
+        "4"
+      ],
+      "description": "分解 $0\\to\\mathbb Z\\xrightarrow{\\times4}\\mathbb Z\\to\\mathbb Z/4\\to0$ に $\\operatorname{Hom}(-,\\mathbb Z)$ を適用し、余核 $\\mathbb Z/4$ を得ます。",
+      "difficulty": 7,
+      "sublevel": 2,
+      "rank": 5
+    },
+    {
+      "question": "標準次数付けの多項式環 $k[x_1,x_2,x_3]$ の次数 $2$ の斉次成分の次元を求めなさい。",
+      "answer": [
+        "6"
+      ],
+      "description": "単項式は非負整数解 $a+b+c=2$ に対応し、個数は $\\binom{4}2=6$。",
+      "difficulty": 7,
+      "sublevel": 2,
+      "rank": 6
+    },
+    {
+      "question": "標準次数付けの多項式環 $k[x_1,x_2,x_3]$ の次数 $3$ の斉次成分の次元を求めなさい。",
+      "answer": [
+        "10"
+      ],
+      "description": "単項式は非負整数解 $a+b+c=3$ に対応し、個数は $\\binom{5}2=10$。",
+      "difficulty": 7,
+      "sublevel": 2,
+      "rank": 6
+    },
+    {
+      "question": "標準次数付けの多項式環 $k[x_1,x_2,x_3]$ の次数 $4$ の斉次成分の次元を求めなさい。",
+      "answer": [
+        "15"
+      ],
+      "description": "単項式は非負整数解 $a+b+c=4$ に対応し、個数は $\\binom{6}2=15$。",
+      "difficulty": 7,
+      "sublevel": 2,
+      "rank": 6
+    },
+    {
+      "question": "体 $k$ 上のアルティン局所環 $R=k[x,y]/(x^{2},y^{3})$ の $R$ 加群としての長さを求めなさい。",
+      "answer": [
+        "6"
+      ],
+      "description": "$x^a y^b$（$0\\le a<2$、$0\\le b<3$）が $k$ 基底。剰余体が $k$ なので長さは $k$ 次元 $6$。",
+      "difficulty": 7,
+      "sublevel": 2,
+      "rank": 7
+    },
+    {
+      "question": "体 $k$ 上のアルティン局所環 $R=k[x,y]/(x^{3},y^{4})$ の $R$ 加群としての長さを求めなさい。",
+      "answer": [
+        "12"
+      ],
+      "description": "$x^a y^b$（$0\\le a<3$、$0\\le b<4$）が $k$ 基底。剰余体が $k$ なので長さは $k$ 次元 $12$。",
+      "difficulty": 7,
+      "sublevel": 2,
+      "rank": 7
+    },
+    {
+      "question": "体 $k$ 上のアルティン局所環 $R=k[x,y]/(x^{4},y^{5})$ の $R$ 加群としての長さを求めなさい。",
+      "answer": [
+        "20"
+      ],
+      "description": "$x^a y^b$（$0\\le a<4$、$0\\le b<5$）が $k$ 基底。剰余体が $k$ なので長さは $k$ 次元 $20$。",
+      "difficulty": 7,
+      "sublevel": 2,
+      "rank": 7
+    },
+    {
+      "question": "円分体 $\\mathbb Q(\\zeta_{16})$ の $\\mathbb Q$ 上の次数を求めなさい。$\\zeta_m$ は原始 $m$ 乗根です。",
+      "answer": [
+        "8"
+      ],
+      "description": "次数はオイラー関数 $\\varphi(2^{4})=2^{3}=8$。",
+      "difficulty": 7,
+      "sublevel": 2,
+      "rank": 8
+    },
+    {
+      "question": "円分体 $\\mathbb Q(\\zeta_{32})$ の $\\mathbb Q$ 上の次数を求めなさい。$\\zeta_m$ は原始 $m$ 乗根です。",
+      "answer": [
+        "16"
+      ],
+      "description": "次数はオイラー関数 $\\varphi(2^{5})=2^{4}=16$。",
+      "difficulty": 7,
+      "sublevel": 2,
+      "rank": 8
+    },
+    {
+      "question": "円分体 $\\mathbb Q(\\zeta_{64})$ の $\\mathbb Q$ 上の次数を求めなさい。$\\zeta_m$ は原始 $m$ 乗根です。",
+      "answer": [
+        "32"
+      ],
+      "description": "次数はオイラー関数 $\\varphi(2^{6})=2^{5}=32$。",
+      "difficulty": 7,
+      "sublevel": 2,
+      "rank": 8
+    },
+    {
+      "question": "$\\mathbb F_2$ 上で、曲線 $X=\\mathbb P^1$ の点数 $\\#X(\\mathbb F_{2^2})$ を求めなさい。",
+      "answer": [
+        "5"
+      ],
+      "description": "アフィン直線の $2^{2}$ 点と無限遠点1個を合わせて $5$。",
+      "difficulty": 7,
+      "sublevel": 2,
+      "rank": 9
+    },
+    {
+      "question": "$\\mathbb F_2$ 上で、曲線 $X=\\mathbb P^1$ の点数 $\\#X(\\mathbb F_{2^3})$ を求めなさい。",
+      "answer": [
+        "9"
+      ],
+      "description": "アフィン直線の $2^{3}$ 点と無限遠点1個を合わせて $9$。",
+      "difficulty": 7,
+      "sublevel": 2,
+      "rank": 9
+    },
+    {
+      "question": "$\\mathbb F_2$ 上で、曲線 $X=\\mathbb P^1$ の点数 $\\#X(\\mathbb F_{2^4})$ を求めなさい。",
+      "answer": [
+        "17"
+      ],
+      "description": "アフィン直線の $2^{4}$ 点と無限遠点1個を合わせて $17$。",
+      "difficulty": 7,
+      "sublevel": 2,
+      "rank": 9
+    },
+    {
+      "question": "有限体 $\\mathbb F_{4}$ 上の $\\mathbb P^1$ のゼータ関数 $Z(T)=1/((1-T)(1-4T))$ の $T^2$ の係数を求めなさい。",
+      "answer": [
+        "21"
+      ],
+      "description": "2つの幾何級数の積で、$T^2$ の係数は $1+4+16=21$。",
+      "difficulty": 7,
+      "sublevel": 2,
+      "rank": 10
+    },
+    {
+      "question": "有限体 $\\mathbb F_{8}$ 上の $\\mathbb P^1$ のゼータ関数 $Z(T)=1/((1-T)(1-8T))$ の $T^2$ の係数を求めなさい。",
+      "answer": [
+        "73"
+      ],
+      "description": "2つの幾何級数の積で、$T^2$ の係数は $1+8+64=73$。",
+      "difficulty": 7,
+      "sublevel": 2,
+      "rank": 10
+    },
+    {
+      "question": "有限体 $\\mathbb F_{16}$ 上の $\\mathbb P^1$ のゼータ関数 $Z(T)=1/((1-T)(1-16T))$ の $T^2$ の係数を求めなさい。",
+      "answer": [
+        "273"
+      ],
+      "description": "2つの幾何級数の積で、$T^2$ の係数は $1+16+256=273$。",
+      "difficulty": 7,
+      "sublevel": 2,
+      "rank": 10
+    },
+    {
+      "question": "複素射影平面内の滑らかな次数 $5$ の曲線の種数を求めなさい。",
+      "answer": [
+        "6"
+      ],
+      "description": "随伴公式より平面曲線の種数は $(d-1)(d-2)/2$。$d=5$ で $6$。",
+      "difficulty": 7,
+      "sublevel": 3,
+      "rank": 1
+    },
+    {
+      "question": "複素射影平面内の滑らかな次数 $6$ の曲線の種数を求めなさい。",
+      "answer": [
+        "10"
+      ],
+      "description": "随伴公式より平面曲線の種数は $(d-1)(d-2)/2$。$d=6$ で $10$。",
+      "difficulty": 7,
+      "sublevel": 3,
+      "rank": 1
+    },
+    {
+      "question": "複素射影平面内の滑らかな次数 $7$ の曲線の種数を求めなさい。",
+      "answer": [
+        "15"
+      ],
+      "description": "随伴公式より平面曲線の種数は $(d-1)(d-2)/2$。$d=7$ で $15$。",
+      "difficulty": 7,
+      "sublevel": 3,
+      "rank": 1
+    },
+    {
+      "question": "$\\mathbb{CP}^1$ 上の直線束 $\\mathcal O(2)$ の正則切断空間の複素次元を求めなさい。",
+      "answer": [
+        "3"
+      ],
+      "description": "切断は2変数の次数 $2$ の斉次多項式に対応し、基底 $X^{2},X^{1}Y,\\ldots,Y^{2}$ の個数は $3$。",
+      "difficulty": 7,
+      "sublevel": 3,
+      "rank": 2
+    },
+    {
+      "question": "$\\mathbb{CP}^1$ 上の直線束 $\\mathcal O(3)$ の正則切断空間の複素次元を求めなさい。",
+      "answer": [
+        "4"
+      ],
+      "description": "切断は2変数の次数 $3$ の斉次多項式に対応し、基底 $X^{3},X^{2}Y,\\ldots,Y^{3}$ の個数は $4$。",
+      "difficulty": 7,
+      "sublevel": 3,
+      "rank": 2
+    },
+    {
+      "question": "$\\mathbb{CP}^1$ 上の直線束 $\\mathcal O(4)$ の正則切断空間の複素次元を求めなさい。",
+      "answer": [
+        "5"
+      ],
+      "description": "切断は2変数の次数 $4$ の斉次多項式に対応し、基底 $X^{4},X^{3}Y,\\ldots,Y^{4}$ の個数は $5$。",
+      "difficulty": 7,
+      "sublevel": 3,
+      "rank": 2
+    },
+    {
+      "question": "$\\mathbb{CP}^2$ 上の $\\mathcal O(2)$ について、$h^0(\\mathbb{CP}^2,\\mathcal O(2))$ を求めなさい。",
+      "answer": [
+        "6"
+      ],
+      "description": "3変数の次数 $2$ の斉次多項式を数え、$h^0=\\binom{4}2=6$。",
+      "difficulty": 7,
+      "sublevel": 3,
+      "rank": 3
+    },
+    {
+      "question": "$\\mathbb{CP}^2$ 上の $\\mathcal O(3)$ について、$h^0(\\mathbb{CP}^2,\\mathcal O(3))$ を求めなさい。",
+      "answer": [
+        "10"
+      ],
+      "description": "3変数の次数 $3$ の斉次多項式を数え、$h^0=\\binom{5}2=10$。",
+      "difficulty": 7,
+      "sublevel": 3,
+      "rank": 3
+    },
+    {
+      "question": "$\\mathbb{CP}^2$ 上の $\\mathcal O(4)$ について、$h^0(\\mathbb{CP}^2,\\mathcal O(4))$ を求めなさい。",
+      "answer": [
+        "15"
+      ],
+      "description": "3変数の次数 $4$ の斉次多項式を数え、$h^0=\\binom{6}2=15$。",
+      "difficulty": 7,
+      "sublevel": 3,
+      "rank": 3
+    },
+    {
+      "question": "種数 $2$ の滑らかな射影複素曲線 $X$ 上の直線束 $L$ が $\\deg L=6$ を満たします。$h^0(X,L)$ を求めなさい。",
+      "answer": [
+        "5"
+      ],
+      "description": "$\\deg L>2g-2$ なのでセール双対性より $h^1(L)=0$。リーマン・ロッホより $h^0(L)=\\deg L+1-g=5$。",
+      "difficulty": 7,
+      "sublevel": 3,
+      "rank": 4
+    },
+    {
+      "question": "種数 $3$ の滑らかな射影複素曲線 $X$ 上の直線束 $L$ が $\\deg L=9$ を満たします。$h^0(X,L)$ を求めなさい。",
+      "answer": [
+        "7"
+      ],
+      "description": "$\\deg L>2g-2$ なのでセール双対性より $h^1(L)=0$。リーマン・ロッホより $h^0(L)=\\deg L+1-g=7$。",
+      "difficulty": 7,
+      "sublevel": 3,
+      "rank": 4
+    },
+    {
+      "question": "種数 $4$ の滑らかな射影複素曲線 $X$ 上の直線束 $L$ が $\\deg L=12$ を満たします。$h^0(X,L)$ を求めなさい。",
+      "answer": [
+        "9"
+      ],
+      "description": "$\\deg L>2g-2$ なのでセール双対性より $h^1(L)=0$。リーマン・ロッホより $h^0(L)=\\deg L+1-g=9$。",
+      "difficulty": 7,
+      "sublevel": 3,
+      "rank": 4
+    },
+    {
+      "question": "種数 $2$ の滑らかな射影複素曲線 $X$ の標準束 $K_X$ の次数を求めなさい。",
+      "answer": [
+        "2"
+      ],
+      "description": "標準因子の次数は $2g-2$。$g=2$ より $2$。",
+      "difficulty": 7,
+      "sublevel": 3,
+      "rank": 5
+    },
+    {
+      "question": "種数 $3$ の滑らかな射影複素曲線 $X$ の標準束 $K_X$ の次数を求めなさい。",
+      "answer": [
+        "4"
+      ],
+      "description": "標準因子の次数は $2g-2$。$g=3$ より $4$。",
+      "difficulty": 7,
+      "sublevel": 3,
+      "rank": 5
+    },
+    {
+      "question": "種数 $4$ の滑らかな射影複素曲線 $X$ の標準束 $K_X$ の次数を求めなさい。",
+      "answer": [
+        "6"
+      ],
+      "description": "標準因子の次数は $2g-2$。$g=4$ より $6$。",
+      "difficulty": 7,
+      "sublevel": 3,
+      "rank": 5
+    },
+    {
+      "question": "$\\mathbb{CP}^2$ 上で、共通の既約成分を持たない次数 $2$ と $3$ の射影平面曲線の交点数を、重複度込みで求めなさい。",
+      "answer": [
+        "6"
+      ],
+      "description": "ベズーの定理より交点数は次数の積 $2(3)=6$。複素数上の射影曲線で重複度を数えます。",
+      "difficulty": 7,
+      "sublevel": 3,
+      "rank": 6
+    },
+    {
+      "question": "$\\mathbb{CP}^2$ 上で、共通の既約成分を持たない次数 $3$ と $4$ の射影平面曲線の交点数を、重複度込みで求めなさい。",
+      "answer": [
+        "12"
+      ],
+      "description": "ベズーの定理より交点数は次数の積 $3(4)=12$。複素数上の射影曲線で重複度を数えます。",
+      "difficulty": 7,
+      "sublevel": 3,
+      "rank": 6
+    },
+    {
+      "question": "$\\mathbb{CP}^2$ 上で、共通の既約成分を持たない次数 $4$ と $5$ の射影平面曲線の交点数を、重複度込みで求めなさい。",
+      "answer": [
+        "20"
+      ],
+      "description": "ベズーの定理より交点数は次数の積 $4(5)=20$。複素数上の射影曲線で重複度を数えます。",
+      "difficulty": 7,
+      "sublevel": 3,
+      "rank": 6
+    },
+    {
+      "question": "複素射影空間 $\\mathbb{CP}^{2}$ の接束について、標準複素向きでチャーン数 $\\int_{\\mathbb{CP}^{2}}c_1(T\\mathbb{CP}^{2})^{2}$ を求めなさい。",
+      "answer": [
+        "9"
+      ],
+      "description": "オイラー完全列より $c_1(T\\mathbb{CP}^{2})=(3)h$。超平面類の積分 $\\int h^{2}=1$ を用いるとチャーン数は $(3)^{2}=9$。",
+      "difficulty": 7,
+      "sublevel": 3,
+      "rank": 7
+    },
+    {
+      "question": "複素射影空間 $\\mathbb{CP}^{3}$ の接束について、標準複素向きでチャーン数 $\\int_{\\mathbb{CP}^{3}}c_1(T\\mathbb{CP}^{3})^{3}$ を求めなさい。",
+      "answer": [
+        "64"
+      ],
+      "description": "オイラー完全列より $c_1(T\\mathbb{CP}^{3})=(4)h$。超平面類の積分 $\\int h^{3}=1$ を用いるとチャーン数は $(4)^{3}=64$。",
+      "difficulty": 7,
+      "sublevel": 3,
+      "rank": 7
+    },
+    {
+      "question": "複素射影空間 $\\mathbb{CP}^{4}$ の接束について、標準複素向きでチャーン数 $\\int_{\\mathbb{CP}^{4}}c_1(T\\mathbb{CP}^{4})^{4}$ を求めなさい。",
+      "answer": [
+        "625"
+      ],
+      "description": "オイラー完全列より $c_1(T\\mathbb{CP}^{4})=(5)h$。超平面類の積分 $\\int h^{4}=1$ を用いるとチャーン数は $(5)^{4}=625$。",
+      "difficulty": 7,
+      "sublevel": 3,
+      "rank": 7
+    },
+    {
+      "question": "複素射影空間 $\\mathbb{CP}^{2}$ の接束について、$\\int_{\\mathbb{CP}^{2}}c_n(T\\mathbb{CP}^{2})$ を求めなさい。",
+      "answer": [
+        "3"
+      ],
+      "description": "オイラー完全列から全チャーン類は $(1+h)^{3}$。最高成分は $(3)h^{2}$ で、積分は $3$。",
+      "difficulty": 7,
+      "sublevel": 3,
+      "rank": 8
+    },
+    {
+      "question": "複素射影空間 $\\mathbb{CP}^{3}$ の接束について、$\\int_{\\mathbb{CP}^{3}}c_n(T\\mathbb{CP}^{3})$ を求めなさい。",
+      "answer": [
+        "4"
+      ],
+      "description": "オイラー完全列から全チャーン類は $(1+h)^{4}$。最高成分は $(4)h^{3}$ で、積分は $4$。",
+      "difficulty": 7,
+      "sublevel": 3,
+      "rank": 8
+    },
+    {
+      "question": "複素射影空間 $\\mathbb{CP}^{4}$ の接束について、$\\int_{\\mathbb{CP}^{4}}c_n(T\\mathbb{CP}^{4})$ を求めなさい。",
+      "answer": [
+        "5"
+      ],
+      "description": "オイラー完全列から全チャーン類は $(1+h)^{5}$。最高成分は $(5)h^{4}$ で、積分は $5$。",
+      "difficulty": 7,
+      "sublevel": 3,
+      "rank": 8
+    },
+    {
+      "question": "複素グラスマン多様体 $\\operatorname{Gr}(2,5)$ のオイラー標数を求めなさい。",
+      "answer": [
+        "10"
+      ],
+      "description": "シューベルトセルは $5$ 個から2個を選ぶ添字で数えられ、すべて実偶数次元です。従って $\\chi=\\binom{5}2=10$。",
+      "difficulty": 7,
+      "sublevel": 3,
+      "rank": 9
+    },
+    {
+      "question": "複素グラスマン多様体 $\\operatorname{Gr}(2,6)$ のオイラー標数を求めなさい。",
+      "answer": [
+        "15"
+      ],
+      "description": "シューベルトセルは $6$ 個から2個を選ぶ添字で数えられ、すべて実偶数次元です。従って $\\chi=\\binom{6}2=15$。",
+      "difficulty": 7,
+      "sublevel": 3,
+      "rank": 9
+    },
+    {
+      "question": "複素グラスマン多様体 $\\operatorname{Gr}(2,7)$ のオイラー標数を求めなさい。",
+      "answer": [
+        "21"
+      ],
+      "description": "シューベルトセルは $7$ 個から2個を選ぶ添字で数えられ、すべて実偶数次元です。従って $\\chi=\\binom{7}2=21$。",
+      "difficulty": 7,
+      "sublevel": 3,
+      "rank": 9
+    },
+    {
+      "question": "滑らかな閉向き付け4次元多様体 $M=\\#^{2}\\mathbb{CP}^2$（標準複素向きでの連結和）について、$\\langle p_1(TM),[M]\\rangle$ を求めなさい。",
+      "answer": [
+        "6"
+      ],
+      "description": "交叉形式は $2$ 個の $[1]$ の直和なので署名は $2$。ヒルツェブルフの署名定理 $\\langle p_1,[M]\\rangle=3\\sigma(M)$ より $6$。",
+      "difficulty": 7,
+      "sublevel": 3,
+      "rank": 10
+    },
+    {
+      "question": "滑らかな閉向き付け4次元多様体 $M=\\#^{3}\\mathbb{CP}^2$（標準複素向きでの連結和）について、$\\langle p_1(TM),[M]\\rangle$ を求めなさい。",
+      "answer": [
+        "9"
+      ],
+      "description": "交叉形式は $3$ 個の $[1]$ の直和なので署名は $3$。ヒルツェブルフの署名定理 $\\langle p_1,[M]\\rangle=3\\sigma(M)$ より $9$。",
+      "difficulty": 7,
+      "sublevel": 3,
+      "rank": 10
+    },
+    {
+      "question": "滑らかな閉向き付け4次元多様体 $M=\\#^{4}\\mathbb{CP}^2$（標準複素向きでの連結和）について、$\\langle p_1(TM),[M]\\rangle$ を求めなさい。",
+      "answer": [
+        "12"
+      ],
+      "description": "交叉形式は $4$ 個の $[1]$ の直和なので署名は $4$。ヒルツェブルフの署名定理 $\\langle p_1,[M]\\rangle=3\\sigma(M)$ より $12$。",
+      "difficulty": 7,
+      "sublevel": 3,
+      "rank": 10
+    }
+  ]
+}

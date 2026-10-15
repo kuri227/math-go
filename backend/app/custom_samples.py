@@ -5,6 +5,7 @@ import json
 import re
 import threading
 import uuid
+from functools import wraps
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -26,6 +27,15 @@ MANIFEST_FIELDS = [
 ]
 SAFE_VALUE = re.compile(r"^[\w .-]{0,64}$", re.UNICODE)
 _MANIFEST_LOCK = threading.Lock()
+_SAMPLE_LOCK = threading.Lock()
+
+
+def _serialized(function):
+    @wraps(function)
+    def wrapped(*args, **kwargs):
+        with _SAMPLE_LOCK:
+            return function(*args, **kwargs)
+    return wrapped
 
 
 def _safe_metadata_value(name: str, value: str) -> str:
@@ -35,6 +45,7 @@ def _safe_metadata_value(name: str, value: str) -> str:
     return value
 
 
+@_serialized
 def save_custom_sample(
     *,
     paths: Paths,
@@ -44,6 +55,8 @@ def save_custom_sample(
     category: str,
     difficulty: str,
     writer_id: str,
+    annotations: dict | None = None,
+    sample_key: str | None = None,
 ) -> dict[str, str]:
     ground_truth_latex = ground_truth_latex.strip()
     if not ground_truth_latex:
@@ -62,12 +75,24 @@ def save_custom_sample(
         }
     )
     created_at = datetime.now(timezone.utc)
-    sample_id = f"sample_{created_at:%Y%m%d_%H%M%S}_{uuid.uuid4().hex[:8]}"
+    sample_id = f"sample_{uuid.UUID(sample_key).hex}" if sample_key else f"sample_{created_at:%Y%m%d_%H%M%S}_{uuid.uuid4().hex[:8]}"
     images_dir = paths.custom_eval / "images"
     strokes_dir = paths.custom_eval / "strokes"
     metadata_dir = paths.custom_eval / "metadata"
     for directory in (images_dir, strokes_dir, metadata_dir):
         directory.mkdir(parents=True, exist_ok=True)
+
+    metadata_file = metadata_dir / f"{sample_id}.json"
+    if sample_key and metadata_file.is_file():
+        previous = json.loads(metadata_file.read_text(encoding="utf-8"))
+        if previous.get("ground_truth_latex") != ground_truth_latex or previous.get("question_id") != (annotations or {}).get("question_id"):
+            raise ValueError("This recognition request was already saved with a different label or question")
+        manifest_path = paths.custom_eval / "manifest.csv"
+        try:
+            manifest_string = manifest_path.resolve().relative_to(paths.repo_root).as_posix()
+        except ValueError:
+            manifest_string = str(manifest_path.resolve())
+        return {**previous, "manifest_path": manifest_string}
 
     saved_image = images_dir / f"{sample_id}.png"
     with Image.open(image_path) as image:
@@ -93,8 +118,8 @@ def save_custom_sample(
         "writer_id": writer_id or "anonymous",
         "created_at": created_at.isoformat(),
     }
-    (metadata_dir / f"{sample_id}.json").write_text(
-        json.dumps(row, ensure_ascii=False, indent=2), encoding="utf-8"
+    metadata_file.write_text(
+        json.dumps({**row, **(annotations or {})}, ensure_ascii=False, indent=2), encoding="utf-8"
     )
     manifest = paths.custom_eval / "manifest.csv"
     with _MANIFEST_LOCK:

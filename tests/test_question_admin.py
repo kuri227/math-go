@@ -45,5 +45,5 @@ def test_admin_endpoint_returns_new_total(monkeypatch):
     assert response == {
         "id": "custom-sample",
         "total": 2,
-        "message": "問題を登録しました。次のゲーム開始時から出題されます。",
+        "message": "問題を登録しました。テストプレイで確認してから、本番候補へ追加してください。",
     }

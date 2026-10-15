@@ -1,0 +1,244 @@
+{
+  "questions": [
+    {
+      "question": "$24 \\times 3$ を計算しなさい。",
+      "answer": ["72"],
+      "description": "$20 \\times 3 = 60$、$4 \\times 3 = 12$。合わせて 72 です。",
+      "difficulty": 2,
+      "sublevel": 1,
+      "rank": 1
+    },
+    {
+      "question": "$35 \\times 4$ を計算しなさい。",
+      "answer": ["140"],
+      "description": "$30 \\times 4 = 120$、$5 \\times 4 = 20$。合わせて 140 です。",
+      "difficulty": 2,
+      "sublevel": 1,
+      "rank": 1
+    },
+    {
+      "question": "$18 \\times 6$ を計算しなさい。",
+      "answer": ["108"],
+      "description": "$10 \\times 6 = 60$、$8 \\times 6 = 48$。合わせて 108 です。",
+      "difficulty": 2,
+      "sublevel": 1,
+      "rank": 1
+    },
+    {
+      "question": "$84 \\div 4$ を計算しなさい。",
+      "answer": ["21"],
+      "description": "$80 \\div 4 = 20$、$4 \\div 4 = 1$。合わせて 21 です。",
+      "difficulty": 2,
+      "sublevel": 1,
+      "rank": 2
+    },
+    {
+      "question": "$96 \\div 6$ を計算しなさい。",
+      "answer": ["16"],
+      "description": "$60 \\div 6 = 10$、$36 \\div 6 = 6$。合わせて 16 です。",
+      "difficulty": 2,
+      "sublevel": 1,
+      "rank": 2
+    },
+    {
+      "question": "$75 \\div 5$ を計算しなさい。",
+      "answer": ["15"],
+      "description": "$50 \\div 5 = 10$、$25 \\div 5 = 5$。合わせて 15 です。",
+      "difficulty": 2,
+      "sublevel": 1,
+      "rank": 2
+    },
+    {
+      "question": "$487 + 256$ を計算しなさい。",
+      "answer": ["743"],
+      "description": "一の位は $7 + 6 = 13$ で 1 くり上がり、十の位は $8 + 5 + 1 = 14$ で 1 くり上がり、百の位は $4 + 2 + 1 = 7$。743 です。",
+      "difficulty": 2,
+      "sublevel": 1,
+      "rank": 3
+    },
+    {
+      "question": "$602 - 285$ を計算しなさい。",
+      "answer": ["317"],
+      "description": "$285 = 300 - 15$ と考えます。$602 - 300 = 302$、$302 + 15 = 317$ です。",
+      "difficulty": 2,
+      "sublevel": 1,
+      "rank": 3
+    },
+    {
+      "question": "$358 + 467$ を計算しなさい。",
+      "answer": ["825"],
+      "description": "一の位は $8 + 7 = 15$ で 1 くり上がり、十の位は $5 + 6 + 1 = 12$ で 1 くり上がり、百の位は $3 + 4 + 1 = 8$。825 です。",
+      "difficulty": 2,
+      "sublevel": 1,
+      "rank": 3
+    },
+    {
+      "question": "$3.4 + 2.7$ を計算しなさい。",
+      "answer": ["6.1"],
+      "description": "$0.1$ を単位にすると $34 + 27 = 61$ なので、6.1 です。",
+      "difficulty": 2,
+      "sublevel": 1,
+      "rank": 4
+    },
+    {
+      "question": "$5.2 - 1.8$ を計算しなさい。",
+      "answer": ["3.4"],
+      "description": "$0.1$ を単位にすると $52 - 18 = 34$ なので、3.4 です。",
+      "difficulty": 2,
+      "sublevel": 1,
+      "rank": 4
+    },
+    {
+      "question": "$0.75 + 1.6$ を計算しなさい。",
+      "answer": ["2.35"],
+      "description": "小数点の位置をそろえて $0.75 + 1.60 = 2.35$ です。",
+      "difficulty": 2,
+      "sublevel": 1,
+      "rank": 4
+    },
+    {
+      "question": "$\\frac{1}{2} + \\frac{1}{3}$ を計算しなさい。(約分した分数で答える)",
+      "answer": ["\\frac{5}{6}"],
+      "description": "分母を 6 にそろえて $\\frac{3}{6} + \\frac{2}{6} = \\frac{5}{6}$。これ以上約分できません。",
+      "difficulty": 2,
+      "sublevel": 1,
+      "rank": 5
+    },
+    {
+      "question": "$\\frac{3}{4} - \\frac{1}{6}$ を計算しなさい。(約分した分数で答える)",
+      "answer": ["\\frac{7}{12}"],
+      "description": "分母を 12 にそろえて $\\frac{9}{12} - \\frac{2}{12} = \\frac{7}{12}$ です。",
+      "difficulty": 2,
+      "sublevel": 1,
+      "rank": 5
+    },
+    {
+      "question": "$\\frac{1}{6} + \\frac{1}{3}$ を計算しなさい。(約分した分数で答える)",
+      "answer": ["\\frac{1}{2}"],
+      "description": "分母を 6 にそろえて $\\frac{1}{6} + \\frac{2}{6} = \\frac{3}{6}$。3 で約分して $\\frac{1}{2}$ です。",
+      "difficulty": 2,
+      "sublevel": 1,
+      "rank": 5
+    },
+    {
+      "question": "$3.2 \\times 0.5$ を計算しなさい。",
+      "answer": ["1.6"],
+      "description": "$32 \\times 5 = 160$。小数点以下が合わせて 2 けたなので 1.60、つまり 1.6 です。",
+      "difficulty": 2,
+      "sublevel": 1,
+      "rank": 6
+    },
+    {
+      "question": "$\\frac{3}{4} \\times \\frac{2}{9}$ を計算しなさい。(約分した分数で答える)",
+      "answer": ["\\frac{1}{6}"],
+      "description": "分子どうし、分母どうしをかけて $\\frac{6}{36}$。6 で約分して $\\frac{1}{6}$ です。",
+      "difficulty": 2,
+      "sublevel": 1,
+      "rank": 6
+    },
+    {
+      "question": "$1.2 \\times 0.3$ を計算しなさい。",
+      "answer": ["0.36"],
+      "description": "$12 \\times 3 = 36$。小数点以下が合わせて 2 けたなので 0.36 です。",
+      "difficulty": 2,
+      "sublevel": 1,
+      "rank": 6
+    },
+    {
+      "question": "$\\frac{5}{6} \\div \\frac{5}{12}$ を計算しなさい。",
+      "answer": ["2"],
+      "description": "わる数の逆数をかけて $\\frac{5}{6} \\times \\frac{12}{5}$。約分して 2 です。",
+      "difficulty": 2,
+      "sublevel": 1,
+      "rank": 7
+    },
+    {
+      "question": "800円の30%は何円ですか。(数字だけ答える)",
+      "answer": ["240"],
+      "description": "30% は 0.3 なので、$800 \\times 0.3 = 240$ です。",
+      "difficulty": 2,
+      "sublevel": 1,
+      "rank": 7
+    },
+    {
+      "question": "$12 + 6 \\times (8 - 3)$ を計算しなさい。",
+      "answer": ["42"],
+      "description": "かっこの中を先に計算して $8 - 3 = 5$。次にかけ算で $6 \\times 5 = 30$。最後に $12 + 30 = 42$ です。",
+      "difficulty": 2,
+      "sublevel": 1,
+      "rank": 7
+    },
+    {
+      "question": "文化祭の会場まで、分速 80 m で 15 分歩きました。進んだ道のりは何 m ですか。(数字だけ答える)",
+      "answer": ["1200"],
+      "description": "道のり = 速さ × 時間 なので、$80 \\times 15 = 1200$ m です。",
+      "difficulty": 2,
+      "sublevel": 1,
+      "rank": 8
+    },
+    {
+      "question": "5回のテストの点数は 70点、85点、90点、75点、80点 でした。平均は何点ですか。(数字だけ答える)",
+      "answer": ["80"],
+      "description": "合計は $70 + 85 + 90 + 75 + 80 = 400$。平均 = 合計 ÷ 回数 なので、$400 \\div 5 = 80$ 点です。",
+      "difficulty": 2,
+      "sublevel": 1,
+      "rank": 8
+    },
+    {
+      "question": "たてと横の長さの比が 3:5 の長方形があります。たてが 12 cm のとき、横は何 cm ですか。(数字だけ答える)",
+      "answer": ["20"],
+      "description": "12 は 3 の 4 倍です。横も 5 の 4 倍なので、$5 \\times 4 = 20$ cm です。",
+      "difficulty": 2,
+      "sublevel": 1,
+      "rank": 8
+    },
+    {
+      "question": "A行きのバスは 12分おき、B行きのバスは 18分おきに発車します。同時に発車したあと、次に同時に発車するのは何分後ですか。(数字だけ答える)",
+      "answer": ["36"],
+      "description": "12 と 18 の最小公倍数を求めます。12 の倍数は 12, 24, 36、18 の倍数は 18, 36。共通で最小なのは 36 なので、36 分後です。",
+      "difficulty": 2,
+      "sublevel": 1,
+      "rank": 9
+    },
+    {
+      "question": "A、B、C、D の 4人から、委員長と副委員長を 1人ずつ選びます。選び方は何通りですか。(数字だけ答える)",
+      "answer": ["12"],
+      "description": "委員長の選び方は 4 通り。そのそれぞれに対して、副委員長は残りの 3 人から選ぶので 3 通り。$4 \\times 3 = 12$ 通りです。",
+      "difficulty": 2,
+      "sublevel": 1,
+      "rank": 9
+    },
+    {
+      "question": "次のように数がならんでいます。$2, 5, 8, 11, \\cdots$ 20番目の数はいくつですか。(数字だけ答える)",
+      "answer": ["59"],
+      "description": "3 ずつ増えています。20 番目は、最初の 2 に 3 を 19 回たした数なので、$2 + 3 \\times 19 = 59$ です。",
+      "difficulty": 2,
+      "sublevel": 1,
+      "rank": 9
+    },
+    {
+      "question": "100円のラムネと 50円のガムをあわせて 10こ買ったら、代金は 800円でした。ラムネは何こ買いましたか。(数字だけ答える)",
+      "answer": ["6"],
+      "description": "10 こ全部がガムだとすると 500 円。実際は $800 - 500 = 300$ 円多いです。ガム 1 こをラムネに替えると 50 円増えるので、ラムネは $300 \\div 50 = 6$ こです。",
+      "difficulty": 2,
+      "sublevel": 1,
+      "rank": 10
+    },
+    {
+      "question": "体育館と校門は 840 m はなれています。兄は体育館から、弟は校門から、同時に向かい合って歩きはじめました。兄は分速 60 m、弟は分速 80 m です。2人が出会うのは何分後ですか。(数字だけ答える)",
+      "answer": ["6"],
+      "description": "1 分間に 2 人は合わせて $60 + 80 = 140$ m 近づきます。$840 \\div 140 = 6$ 分後です。",
+      "difficulty": 2,
+      "sublevel": 1,
+      "rank": 10
+    },
+    {
+      "question": "長さ 120 m の道の両はしに木を植え、その間にも 8 m おきに木を植えます。木は全部で何本必要ですか。(数字だけ答える)",
+      "answer": ["16"],
+      "description": "木と木の間は $120 \\div 8 = 15$ か所。両はしに植えるので、木の数は間の数より 1 多く、$15 + 1 = 16$ 本です。",
+      "difficulty": 2,
+      "sublevel": 1,
+      "rank": 10
+    }
+  ]
+}

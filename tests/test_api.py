@@ -158,17 +158,17 @@ def test_game_questions_do_not_expose_answers():
     assert response.status_code == 200
     body = response.json()
     assert len(body) >= 50
-    assert body[0]["id"] == "add-single"
+    assert body[0]["id"] == "d1-s1-r01-v01"
     assert body[0]["difficulty"] == 1
     assert body[0]["difficulty_label"] == "小学校低学年"
-    assert body[0]["display_latex"] == "7+5"
+    assert body[0]["display_latex"] == "1 + 2 = ?"
     assert "answer_latex" not in body[0]
     assert "accepted_latex" not in body[0]
 
     by_id = {question["id"]: question for question in body}
-    assert by_id["definite-integral"]["display_latex"] == r"\int_{0}^{1}x\,dx"
-    assert by_id["standard-limit"]["display_latex"] == r"\lim_{x\to0}\frac{\sin x}{x}"
-    assert by_id["matrix-determinant"]["display_latex"] == r"\begin{vmatrix}1&2\\3&4\end{vmatrix}"
+    assert len(by_id) == 516
+    assert by_id["d5-s1-r01-v01"]["display_latex"] == r"A=\begin{pmatrix}2&1\\2&3\end{pmatrix}"
+    assert by_id["d7-s3-r08-v01"]["prompt"].find("c_2") >= 0
 
 
 def test_game_judgement_accepts_normalized_aliases():
@@ -176,41 +176,44 @@ def test_game_judgement_accepts_normalized_aliases():
         response = client.post(
             "/api/v1/judgements",
             json={
-                "question_id": "differentiate-quadratic",
-                "recognized_latex": r"\[3 + 2x\]",
+                "question_id": "d3-s3-r06-v02",
+                "recognized_latex": r"\[\sqrt{5} - 2\]",
             },
         )
     assert response.status_code == 200
     body = response.json()
     assert body["correct"] is True
-    assert body["recognized_normalized"] == "3+2x"
+    assert body["recognized_normalized"] == r"\sqrt{5}-2"
     assert body["judge_method"] == "normalized_alias"
-    assert "導関数" in body["explanation"]
+    assert body["explanation"]
 
 
 def test_game_judgement_preserves_function_command_boundary():
+    from backend.app.latex import normalize_latex
+    assert normalize_latex(r"\[\cos x\]") == r"\cos x"
+    assert normalize_latex(r"\cos x") != normalize_latex(r"\cosx")
     with TestClient(app) as client:
         response = client.post(
             "/api/v1/judgements",
             json={
-                "question_id": "differentiate-sine",
-                "recognized_latex": r"\[\cos x\]",
+                "question_id": "d1-s1-r01-v01",
+                "recognized_latex": r"\[3\]",
             },
         )
     assert response.status_code == 200
     body = response.json()
     assert body["correct"] is True
-    assert body["recognized_normalized"] == r"\cos x"
-    assert body["expected_latex"] == r"\cos x"
+    assert body["recognized_normalized"] == "3"
+    assert body["expected_latex"] == "3"
 
 
 def test_game_solution_reveals_answer_after_skip_or_timeout():
     with TestClient(app) as client:
-        response = client.get("/api/v1/solutions/fraction-add")
+        response = client.get("/api/v1/solutions/d2-s1-r05-v01")
     assert response.status_code == 200
     body = response.json()
-    assert body["expected_latex"] == r"\frac{3}{4}"
-    assert "3/4" in body["explanation"]
+    assert body["expected_latex"] == r"\frac{5}{6}"
+    assert "5}{6" in body["explanation"]
 
 
 def test_game_judgement_rejects_unknown_question():
