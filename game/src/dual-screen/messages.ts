@@ -1,7 +1,7 @@
 import type { RecognitionResponse } from "../domain/types";
 import type { Snapshot } from "../exhibition/Session";
 
-export const DUAL_SCREEN_PROTOCOL_VERSION = 1 as const;
+export const DUAL_SCREEN_PROTOCOL_VERSION = 2 as const;
 export type DualScreenRole = "display" | "controller";
 
 interface MessageBase {

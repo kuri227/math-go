@@ -2,7 +2,7 @@ import type { Question, RecognitionResponse, JudgementResponse } from "../domain
 
 export type Mode = "exhibition" | "test";
 export type Phase = "setup" | "guide" | "writing" | "recognizing" | "preview" | "judging" | "result" | "finished";
-export const EXHIBITION = { questions: 7, seconds: 20 } as const;
+export const EXHIBITION = { questions: 7, seconds: 20, lives: 3 } as const;
 export interface Snapshot {
   runId: string;
   mode: Mode;
@@ -14,6 +14,8 @@ export interface Snapshot {
   streak: number;
   attempts: number;
   wrongAttempts: number;
+  lives: number | null;
+  timedOut: boolean;
   remainingMs: number;
   paused: boolean;
   endReason: "completed" | "timeout" | "stopped" | null;
@@ -34,6 +36,7 @@ export class Session {
     this.snapshot = {
       runId: crypto.randomUUID(), mode, phase: "guide", question: questions[0]!,
       round: 1, total: questions.length, correct: 0, streak: 0, attempts: 0, wrongAttempts: 0,
+      lives: mode === "exhibition" ? EXHIBITION.lives : null, timedOut: false,
       remainingMs: EXHIBITION.seconds * 1000, paused: false, endReason: null,
       recognition: null, judgement: null, notice: "",
     };
@@ -43,7 +46,13 @@ export class Session {
     const s = this.snapshot, now = this.now();
     if (s.mode === "exhibition" && !s.paused && ["writing", "preview"].includes(s.phase)) {
       s.remainingMs = Math.max(0, s.remainingMs - Math.max(0, now - this.lastTick));
-      if (s.remainingMs === 0) { this.finish("timeout"); this.lastTick = now; return true; }
+      if (s.remainingMs === 0) {
+        s.lives = Math.max(0, (s.lives ?? EXHIBITION.lives) - 1); s.timedOut = true; s.streak = 0;
+        this.requestId = null; s.recognition = null; s.judgement = null;
+        if (s.lives === 0) this.finish("timeout");
+        else { s.phase = "result"; s.notice = `時間切れで残機が1減りました。残り${s.lives}。正答を確認して次へ進んでください。`; }
+        this.lastTick = now; return true;
+      }
     }
     this.lastTick = now;
     return false;
@@ -105,7 +114,7 @@ export class Session {
     if (s.phase !== "result") return false;
     if (this.index + 1 === this.questions.length) { this.finish("completed"); return true; }
     s.question = this.questions[++this.index]!; s.round = this.index + 1;
-    s.phase = "writing"; s.recognition = null; s.judgement = null; s.notice = "";
+    s.phase = "writing"; s.recognition = null; s.judgement = null; s.notice = ""; s.timedOut = false;
     s.remainingMs = EXHIBITION.seconds * 1000; this.lastTick = this.now(); return true;
   }
   retryTest(): boolean {
@@ -114,7 +123,7 @@ export class Session {
   }
   finish(reason: Snapshot["endReason"]): void {
     this.requestId = null; this.snapshot.phase = "finished"; this.snapshot.endReason = reason;
-    this.snapshot.recognition = null; this.snapshot.notice = reason === "timeout" ? "制限時間に達したため終了しました。" : reason === "completed" ? "選んだ問題をすべて回答しました。" : "プレイを終了しました。";
+    this.snapshot.recognition = null; this.snapshot.notice = reason === "timeout" ? "時間切れが3回となり、残機が0になったため終了しました。" : reason === "completed" ? "選んだ問題をすべて終えました。" : "プレイを終了しました。";
   }
 }
 

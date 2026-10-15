@@ -19,6 +19,7 @@ describe("two-mode game rules", () => {
     let now = 0; const session = new Session(questions.slice(0, 7), "exhibition", () => now); session.start();
     for (let i = 0; i < 50; i++) { now += 100; submit(session, false); expect(session.snapshot.phase).toBe("writing"); expect(session.snapshot.round).toBe(1); }
     expect(session.snapshot.wrongAttempts).toBe(50); expect(session.snapshot.remainingMs).toBe(15000);
+    expect(session.snapshot.lives).toBe(3);
     expect(session.snapshot.judgement).toBeNull();
   });
   it("charges preview/rewrite time, not image recognition or judgement time", () => {
@@ -28,14 +29,34 @@ describe("two-mode game rules", () => {
     session.beginJudge("a"); now += 50000; session.tick(); expect(session.snapshot.remainingMs).toBe(13000);
     session.judged("a", judged(false)); now += 1000; session.tick(); expect(session.snapshot.remainingMs).toBe(12000);
   });
-  it("ends immediately on timeout even while previewing and rejects late operations", () => {
+  it("loses one life on preview timeout and rejects late operations", () => {
     let now = 0; const session = new Session(questions.slice(0, 1), "exhibition", () => now); session.start();
     session.beginRecognition("a"); session.recognized("a", recognized("a")); now = 20001;
-    expect(session.beginJudge("late")).toBe(false); expect(session.snapshot.endReason).toBe("timeout"); expect(session.rewrite()).toBe(false);
+    expect(session.beginJudge("late")).toBe(false); expect(session.snapshot.phase).toBe("result"); expect(session.snapshot.lives).toBe(2); expect(session.rewrite()).toBe(false);
+    session.tick(); session.tick(); expect(session.snapshot.lives).toBe(2);
+    session.next(); expect(session.snapshot.endReason).toBe("completed");
+  });
+  it("resets time on the next question and ends on the third timeout only", () => {
+    let now = 0; const session = new Session(questions.slice(0, 7), "exhibition", () => now); session.start();
+    for (let loss = 1; loss <= 3; loss++) {
+      now += 20001; expect(session.tick()).toBe(true); expect(session.snapshot.lives).toBe(3 - loss);
+      expect(session.snapshot.round).toBe(loss); expect(session.snapshot.attempts).toBe(0);
+      if (loss < 3) { expect(session.snapshot.phase).toBe("result"); session.next(); expect(session.snapshot.remainingMs).toBe(20000); expect(session.snapshot.timedOut).toBe(false); }
+    }
+    expect(session.snapshot.endReason).toBe("timeout"); expect(session.next()).toBe(false);
+  });
+  it("finishes after the final question with lives remaining, but prioritizes life zero on final timeout", () => {
+    let now = 0; const session = new Session(questions.slice(0, 3), "exhibition", () => now); session.start();
+    for (let i = 0; i < 3; i++) { now += 20001; session.tick(); if (i < 2) session.next(); }
+    expect(session.snapshot.round).toBe(3); expect(session.snapshot.endReason).toBe("timeout");
+    const other = new Session(questions.slice(0, 2), "exhibition", () => now); other.start();
+    now += 20001; other.tick(); other.next(); submit(other, true); other.next();
+    expect(other.snapshot.endReason).toBe("completed"); expect(other.snapshot.lives).toBe(2);
   });
   it("never times out in test mode, and retesting cannot inflate unique correct count", () => {
     let now = 0; const session = new Session(questions.slice(0, 1), "test", () => now); session.start();
     now = 10e10; expect(session.tick()).toBe(false);
+    expect(session.snapshot.lives).toBeNull();
     for (let i = 0; i < 5; i++) { submit(session, true); if (i < 4) session.retryTest(); }
     expect(session.snapshot.correct).toBe(1); expect(session.snapshot.attempts).toBe(5);
     session.next(); expect(session.snapshot.endReason).toBe("completed");

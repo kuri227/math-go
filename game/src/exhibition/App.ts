@@ -30,7 +30,7 @@ export function runApp(role: Role): void {
         <div class="intro"><h1 id="setupTitle">書いて、確かめて、<br>数学に挑もう。</h1><p>答えを手書き。読み取りを確認してから回答。<br>本番体験と問題テスト、目的に合わせて選べます。</p>
           <div class="screen-links" id="screenLinks">${role === "display" ? button("openController", "入力画面を開く") + '<a href="/">1画面で使う</a>' : '<a href="/display">2画面で使う</a>'}</div></div>
         <div class="settings"><fieldset><legend>遊び方</legend><div class="mode-choices">
-          <label><input type="radio" name="mode" value="exhibition" checked><strong>本番体験</strong><span>7問・1問20秒。時間内なら何度でも回答。</span></label>
+          <label><input type="radio" name="mode" value="exhibition" checked><strong>本番体験</strong><span>7問・1問20秒・残機3。時間切れでのみ残機が減ります。</span></label>
           <label><input type="radio" name="mode" value="test"><strong>テストプレイ・データ収集</strong><span>問題を選んで、時間を気にせず検証。</span></label></div></fieldset>
           <label class="field" for="difficulty">問題のレベル<select id="difficulty">${labels.map((label, i) => `<option value="${i + 1}">${i + 1} · ${label}</option>`).join("")}</select></label>
           <p id="poolSummary" class="muted"></p><p id="setupStatus" role="status">問題データを読み込んでいます。</p>
@@ -43,7 +43,7 @@ export function runApp(role: Role): void {
       <section id="guide" class="reading-surface" hidden aria-labelledby="guideTitle"><h1 id="guideTitle"></h1><p id="guideDescription"></p><ol><li>問題を読み、答えを白い欄に書きます。</li><li>「読み取りを確認」で、画像と認識した数式を見比べます。</li><li>合っていれば「この内容で回答」。違うときは書き直せます。</li></ol><p id="guideRules"></p><p id="guidePrivacy"></p><div class="actions">${button("guideBack", "設定に戻る")}${button("begin", "はじめる", true)}</div></section>
       <section id="waiting" class="reading-surface" hidden><h1>入力画面</h1><p id="waitingMessage">問題表示画面でモードと問題を選んでください。</p><a id="displayLink" href="/display">問題表示画面を開く</a></section>
       <section id="play" hidden aria-label="プレイ画面">
-        <div class="play-toolbar"><p id="modeName"></p><div class="hud"><span id="round"></span><span id="correct"></span><span id="streak"></span><strong id="time" aria-label="残り時間"></strong></div>${button("stop", "プレイを終了")}</div>
+        <div class="play-toolbar"><p id="modeName"></p><div class="hud"><span id="round"></span><span id="correct"></span><span id="streak"></span><span id="lives" role="status"></span><strong id="time" aria-label="残り時間"></strong></div>${button("stop", "プレイを終了")}</div>
         <div id="timerTrack" class="timer-track" aria-hidden="true"><div id="timerFill"></div></div>
         <div class="play-grid"><section id="problemPane" class="problem-pane" aria-label="問題"><p id="questionMeta" class="muted"></p><div class="prompt-space"><div id="prompt" class="prompt"></div></div></section>
           <section id="inputPane" class="input-pane" aria-label="手書き回答"><div id="inputHeading" class="input-heading"><h2>答えを書く</h2></div>
@@ -55,7 +55,7 @@ export function runApp(role: Role): void {
         <section id="result" class="result reading-surface" hidden aria-labelledby="resultTitle"><h2 id="resultTitle"></h2><div class="solution"><p>正答例</p><div id="expected"></div><p id="explanation"></p></div><div id="resultActions" class="actions">${button("retryTest", "同じ問題を再テスト")}${button("next", "次の問題へ", true)}</div></section>
         <section id="collection" class="reading-surface collection" hidden aria-labelledby="collectionTitle"><h2 id="collectionTitle">この手書きを学習候補として保存</h2><p>正解・不正解にかかわらず保存できます。問題の正答ではなく、画像に実際に書いた内容を入力してください。保存だけではモデルは学習されません。</p>
           <label class="field" for="transcription">書いた内容の正しいLaTeX<input id="transcription" maxlength="4000" autocomplete="off" spellcheck="false"></label><div id="transcriptionPreview" class="math-output" aria-label="保存するラベルの表示"></div>
-          <label class="field" for="writerId">筆者コード（任意・氏名を入れない）<input id="writerId" maxlength="64" placeholder="例：writer-01" autocomplete="off"></label>
+          <label class="field" for="writerId">筆者コード（学習に使う場合は必要・氏名不要）<input id="writerId" maxlength="64" placeholder="例：writer-01" autocomplete="off"></label>
           <label class="check-line"><input type="checkbox" id="labelConfirmed">画像に書いた内容と、保存するLaTeXが一致していることを確認しました</label>
           <label class="check-line"><input type="checkbox" id="consent">手書き画像・筆跡・確認済みLaTeXを、このPCへ学習・評価用データとして保存することに同意します</label>
           ${button("saveSample", "確認したデータを保存")}<p id="saveStatus" role="status"></p></section>
@@ -134,6 +134,7 @@ export function runApp(role: Role): void {
     $("modeName").textContent = s.mode === "test" ? "テストプレイ・時間制限なし" : "本番体験";
     $("round").textContent = `${s.round} / ${s.total}問`;
     $("correct").textContent = `正解 ${s.correct}`; $("streak").textContent = `連続 ${s.streak}`;
+    $("lives").hidden = s.mode === "test"; $("lives").textContent = `残機 ${s.lives ?? 3} / 3`;
     $("time").hidden = s.mode === "test"; $("time").textContent = `${(s.remainingMs / 1000).toFixed(1)}秒${s.paused || ["recognizing", "judging", "result"].includes(s.phase) ? "（停止中）" : ""}`;
     $("timerTrack").hidden = s.mode === "test";
     $("timerFill").style.width = `${Math.max(0, s.remainingMs / (EXHIBITION.seconds * 10))}%`;
@@ -169,6 +170,11 @@ export function runApp(role: Role): void {
     $("previewActions").hidden = !preview && phase !== "judging";
     $("preview").hidden = !["preview", "judging", "result"].includes(phase) || role === "display" || !draft?.response;
     $("result").hidden = phase !== "result";
+    if (phase === "result" && s.timedOut) {
+      $("resultTitle").textContent = "時間切れ · 残機 −1";
+      $("expected").textContent = "正答を読み込んでいます。"; $("explanation").textContent = "";
+      void loadTimeoutSolution(s);
+    }
     $("retryTest").hidden = s.mode !== "test" || role === "display";
     $("next").hidden = role === "display";
     $("next").textContent = s.round === s.total ? "結果を見る" : "次の問題へ";
@@ -194,11 +200,11 @@ export function runApp(role: Role): void {
       if (role !== "controller") { $<HTMLSelectElement>("reviewStatus").value = q.review_status ?? "pending"; $<HTMLInputElement>("exhibitionEnabled").checked = !!q.exhibition_enabled; }
     }
     if (phase === "finished") {
-      releaseDraft(); $("endTitle").textContent = s.endReason === "completed" ? "全問完了！" : s.endReason === "timeout" ? "タイムリミット" : "プレイ終了";
+      releaseDraft(); $("endTitle").textContent = s.endReason === "completed" ? "全問完了！" : s.endReason === "timeout" ? "残機0 · プレイ終了" : "プレイ終了";
       $("endReason").textContent = s.notice;
       const seen = s.endReason === "completed" ? s.total : s.round;
       $("endStats").textContent = `${seen}問中 ${s.correct}問正解 · 正解率 ${Math.round(s.correct / seen * 100)}%`;
-      $("endAttempts").textContent = `出題 ${seen} / ${s.total}問 · 回答送信 ${s.attempts}回 / 不正解 ${s.wrongAttempts}回。残機制はありません。`;
+      $("endAttempts").textContent = `出題 ${seen} / ${s.total}問 · 回答送信 ${s.attempts}回 / 不正解 ${s.wrongAttempts}回。${s.mode === "test" ? "時間・残機制限なし。" : `残機 ${s.lives} / 3（時間切れでのみ減少）。`}`;
       $("backToSetup").hidden = role === "controller";
     }
   }
@@ -235,6 +241,15 @@ export function runApp(role: Role): void {
       if (state()?.runId !== runId || state()?.phase !== "finished") return;
       richText(s.question.prompt ?? s.question.display, $("lastPrompt")); renderMath(solution.expected_latex, $("lastAnswer")); richText(solution.explanation, $("lastExplanation")); $("endSolution").hidden = false;
     } catch { $("endAttempts").textContent += " 正答の取得に失敗しました。スタッフへお知らせください。"; }
+  }
+  async function loadTimeoutSolution(s: Snapshot): Promise<void> {
+    const questionId = s.question!.id, runId = s.runId;
+    try {
+      const solution = await client.fetchSolution(questionId);
+      const current = state();
+      if (current?.runId !== runId || current.question?.id !== questionId || current.phase !== "result" || !current.timedOut) return;
+      renderMath(solution.expected_latex, $("expected")); richText(solution.explanation, $("explanation"));
+    } catch { if (state()?.runId === runId && state()?.phase === "result" && state()?.question?.id === questionId) $("explanation").textContent = "正答を取得できませんでした。次へ進むか、スタッフへお知らせください。"; }
   }
   async function recognize(): Promise<void> {
     const s = state(); if (!s?.question || s.phase !== "writing" || !canInput() || busy) return;
@@ -298,7 +313,7 @@ export function runApp(role: Role): void {
     session = new Session(questions, selectedMode); lastRender = "";
     $("guideTitle").textContent = selectedMode === "test" ? "テストプレイ・データ収集" : "本番体験の遊び方";
     $("guideDescription").textContent = selectedMode === "test" ? `選択した${questions.length}問を、選んだ順にテストします。` : `${labels[selectedLevel() - 1]}の本番候補から${questions.length}問に挑戦します。`;
-    $("guideRules").textContent = selectedMode === "test" ? "時間制限・残機はありません。同じ問題を何度でもテストできます。" : "1問20秒。不正解でも同じ問題に再回答できます。時間切れでプレイ終了。正解すると次の問題へ進めます。認識・判定の処理待ちだけ時計が止まり、読み取り確認中は時間が進みます。";
+    $("guideRules").textContent = selectedMode === "test" ? "時間制限・残機はありません。同じ問題を何度でもテストできます。" : "残機3・1問20秒。不正解でも残機は減らず、同じ問題に何度でも再回答できます。時間切れで残機が1減り、正答を確認して次へ進みます。残機0で終了。認識・判定の処理待ちだけ時計が止まり、読み取り確認中は時間が進みます。";
     $("guidePrivacy").textContent = selectedMode === "test" ? "データは自動保存しません。画像とラベルを確認し、保存に同意したものだけ、このPCへ保存します。" : "本番体験の手書き画像は学習データとして保存しません。";
     render(); sendState();
   });
