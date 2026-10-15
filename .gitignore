@@ -17,6 +17,7 @@ models/
 # User-collected data may contain personal handwriting
 data/custom/*
 !data/custom/.gitkeep
+data/training/
 
 # Generated benchmark artifacts
 results/*.csv
