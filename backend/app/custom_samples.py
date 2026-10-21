@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import csv
+import hashlib
 import json
 import re
 import threading
@@ -45,6 +46,12 @@ def _safe_metadata_value(name: str, value: str) -> str:
     return value
 
 
+def _image_identity(path: Path) -> str:
+    with Image.open(path) as opened:
+        image = opened.convert("RGB")
+        return hashlib.sha256(f"{image.width}x{image.height}:".encode() + image.tobytes()).hexdigest()
+
+
 @_serialized
 def save_custom_sample(
     *,
@@ -87,6 +94,14 @@ def save_custom_sample(
         previous = json.loads(metadata_file.read_text(encoding="utf-8"))
         if previous.get("ground_truth_latex") != ground_truth_latex or previous.get("question_id") != (annotations or {}).get("question_id"):
             raise ValueError("This recognition request was already saved with a different label or question")
+        if previous.get("writer_id") != (writer_id or "anonymous"):
+            raise ValueError("This recognition request was already saved for a different writer")
+        previous_image = images_dir / f"{sample_id}.png"
+        previous_strokes = strokes_dir / f"{sample_id}.json"
+        if not previous_image.is_file() or not previous_strokes.is_file():
+            raise ValueError("Incomplete saved sample; restore the original files before retrying")
+        if _image_identity(previous_image) != _image_identity(image_path) or json.loads(previous_strokes.read_text(encoding="utf-8")) != strokes:
+            raise ValueError("This recognition request was already saved with different handwriting")
         manifest_path = paths.custom_eval / "manifest.csv"
         try:
             manifest_string = manifest_path.resolve().relative_to(paths.repo_root).as_posix()

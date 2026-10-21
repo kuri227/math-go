@@ -40,12 +40,12 @@ def normalize_label(label: str) -> str:
 
 def canonical_image(path: Path) -> tuple[Image.Image, str, str]:
     with Image.open(path) as original:
+        if original.width * original.height > 16_000_000:
+            raise ValueError("Oversized image")
         image = ImageOps.exif_transpose(original).convert("RGBA")
         paper = Image.new("RGBA", image.size, "white")
         paper.alpha_composite(image)
         image = paper.convert("RGB")
-    if image.width * image.height > 16_000_000:
-        raise ValueError("Oversized image")
     # Ignore lossless encoding and white margins in duplicate identity.
     bbox = ImageChops.difference(image, Image.new("RGB", image.size, "white")).getbbox()
     if not bbox:

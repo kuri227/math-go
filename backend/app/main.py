@@ -4,10 +4,8 @@ import asyncio
 import logging
 import json
 import mimetypes
-import tempfile
 import time
 import uuid
-import math
 from contextlib import asynccontextmanager
 from pathlib import Path
 
@@ -15,10 +13,12 @@ from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.concurrency import run_in_threadpool
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
-from PIL import Image, UnidentifiedImageError
+from PIL import UnidentifiedImageError
 
 from backend.app.config import REPO_ROOT, load_paths
 from backend.app.custom_samples import save_custom_sample
+from backend.app.uploads import validated_temp_image as _validated_temp_image
+from backend.app.sample_validation import validate_strokes
 from backend.app.game_questions import add_question, get_questions, get_solution, judge_answer, update_question_review
 from backend.app.latex import normalize_latex
 from backend.app.recognizers.registry import RecognizerRegistry
@@ -41,8 +41,6 @@ from backend.app.schemas import (
 )
 
 LOGGER = logging.getLogger("math_go_hmer")
-MAX_IMAGE_BYTES = 10 * 1024 * 1024
-ALLOWED_FORMATS = {"PNG", "JPEG", "WEBP"}
 
 # Windows can inherit a registry mapping that labels JavaScript as text/plain.
 # Browsers reject ES modules served with that MIME type, so keep the static
@@ -264,24 +262,15 @@ async def recognize(
     except KeyError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
-    payload = await image.read(MAX_IMAGE_BYTES + 1)
-    if not payload:
-        raise HTTPException(status_code=400, detail="Image is empty")
-    if len(payload) > MAX_IMAGE_BYTES:
-        raise HTTPException(status_code=413, detail="Image exceeds 10 MiB")
-
-    suffix = Path(image.filename or "input.png").suffix.lower() or ".png"
-    with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as handle:
-        handle.write(payload)
-        temp_path = Path(handle.name)
+    try:
+        temp_path, _, _ = await _validated_temp_image(image)
+    except (UnidentifiedImageError, OSError) as exc:
+        raise HTTPException(status_code=400, detail="Invalid or corrupt image") from exc
 
     started = time.perf_counter()
     try:
-        with Image.open(temp_path) as opened:
-            opened.verify()
-            if opened.format not in ALLOWED_FORMATS:
-                raise HTTPException(status_code=415, detail="Use PNG, JPEG, or WebP")
-        result = recognizer.recognize(temp_path)
+        async with inference_locks[model.lower()]:
+            result = await run_in_threadpool(recognizer.recognize, temp_path)
         elapsed_ms = (time.perf_counter() - started) * 1000
         return RecognitionResponse(
             latex=result.latex,
@@ -347,29 +336,6 @@ def _run_recognizer(model: str, image_path: Path) -> RecognitionResponse:
         )
 
 
-async def _validated_temp_image(image: UploadFile) -> tuple[Path, int, int]:
-    payload = await image.read(MAX_IMAGE_BYTES + 1)
-    if not payload:
-        raise HTTPException(status_code=400, detail="Image is empty")
-    if len(payload) > MAX_IMAGE_BYTES:
-        raise HTTPException(status_code=413, detail="Image exceeds 10 MiB")
-    suffix = Path(image.filename or "input.png").suffix.lower() or ".png"
-    with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as handle:
-        handle.write(payload)
-        temp_path = Path(handle.name)
-    try:
-        with Image.open(temp_path) as opened:
-            opened.verify()
-        with Image.open(temp_path) as opened:
-            if opened.format not in ALLOWED_FORMATS:
-                raise HTTPException(status_code=415, detail="Use PNG, JPEG, or WebP")
-            width, height = opened.size
-        return temp_path, width, height
-    except Exception:
-        temp_path.unlink(missing_ok=True)
-        raise
-
-
 @app.post("/recognize/compare", response_model=ComparisonResponse)
 async def recognize_both(image: UploadFile = File(...)) -> ComparisonResponse:
     try:
@@ -377,7 +343,11 @@ async def recognize_both(image: UploadFile = File(...)) -> ComparisonResponse:
     except (UnidentifiedImageError, OSError) as exc:
         raise HTTPException(status_code=400, detail="Invalid or corrupt image") from exc
     try:
-        results = {name: _run_recognizer(name, temp_path) for name in ("texteller", "unimernet")}
+        results = {}
+        # Keep model execution sequential for VRAM, but never block the event loop.
+        for name in ("texteller", "unimernet"):
+            async with inference_locks[name]:
+                results[name] = await run_in_threadpool(_run_recognizer, name, temp_path)
         return ComparisonResponse(results=results, image_width=width, image_height=height)
     finally:
         temp_path.unlink(missing_ok=True)
@@ -397,7 +367,8 @@ async def save_sample(
     except (UnidentifiedImageError, OSError) as exc:
         raise HTTPException(status_code=400, detail="Invalid or corrupt image") from exc
     try:
-        saved = save_custom_sample(
+        saved = await run_in_threadpool(
+            save_custom_sample,
             paths=paths,
             image_path=temp_path,
             strokes_json=strokes_json,
@@ -439,22 +410,7 @@ async def api_save_test_sample(
         raise HTTPException(status_code=413, detail="Stroke data exceeds 2 MB")
     try:
         uuid.UUID(recognition_request_id)
-        strokes = json.loads(strokes_json)
-        if not isinstance(strokes, dict) or not isinstance(strokes.get("strokes"), list) or not strokes["strokes"]:
-            raise ValueError("Non-empty strokes required")
-        if len(strokes["strokes"]) > 10000:
-            raise ValueError("Too many strokes")
-        pointer_types = strokes.get("pointer_types", [])
-        if not isinstance(pointer_types, list) or any(p not in ("mouse", "pen", "touch", "unknown") for p in pointer_types):
-            raise ValueError("Invalid pointer types")
-        for stroke in strokes["strokes"]:
-            if not isinstance(stroke, dict) or not isinstance(stroke.get("points"), list) or not stroke["points"]:
-                raise ValueError("Invalid stroke points")
-            if stroke.get("pointerType", "unknown") not in ("mouse", "pen", "touch", "unknown"):
-                raise ValueError("Invalid pointer type")
-            for point in stroke["points"]:
-                if not isinstance(point, dict) or any(type(point.get(axis)) not in (int, float) or not math.isfinite(point[axis]) for axis in ("x", "y")):
-                    raise ValueError("Invalid point coordinates")
+        validate_strokes(strokes_json)
         question = next((q for q in get_questions() if q.id == question_id), None)
         if question is None:
             raise KeyError(question_id)

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 import re
 import threading
 from collections.abc import Mapping
@@ -138,9 +139,13 @@ def _parse_question(raw: object, index: int, seen_ids: set[str]) -> GameQuestion
     )
 
 
-def load_questions(path: Path = DEFAULT_QUESTION_PATH) -> tuple[GameQuestion, ...]:
+def _question_path(path: Path | None) -> Path:
+    return (path or Path(os.getenv("HMER_QUESTION_BANK", str(DEFAULT_QUESTION_PATH)))).resolve()
+
+
+def load_questions(path: Path | None = None) -> tuple[GameQuestion, ...]:
     """Load and validate the locally managed exhibition question bank."""
-    raw_questions = _read_question_list(path)
+    raw_questions = _read_question_list(_question_path(path))
 
     questions: list[GameQuestion] = []
     seen_ids: set[str] = set()
@@ -149,9 +154,9 @@ def load_questions(path: Path = DEFAULT_QUESTION_PATH) -> tuple[GameQuestion, ..
     return tuple(questions)
 
 
-def get_questions(path: Path = DEFAULT_QUESTION_PATH) -> tuple[GameQuestion, ...]:
+def get_questions(path: Path | None = None) -> tuple[GameQuestion, ...]:
     """Return the current validated bank so newly registered questions appear immediately."""
-    resolved = path.resolve()
+    resolved = _question_path(path)
     stat = resolved.stat()
     return _cached_questions(resolved, stat.st_mtime_ns, stat.st_ctime_ns, stat.st_size)
 
@@ -162,8 +167,9 @@ def _cached_questions(path: Path, _modified: int, _changed: int, _size: int) -> 
     return load_questions(path)
 
 
-def add_question(raw_question: Mapping[str, Any], path: Path = DEFAULT_QUESTION_PATH) -> GameQuestion:
+def add_question(raw_question: Mapping[str, Any], path: Path | None = None) -> GameQuestion:
     """Validate and atomically append one locally authored exhibition question."""
+    path = _question_path(path)
     with QUESTION_WRITE_LOCK:
         raw_questions = _read_question_list(path)
         updated_questions = [*raw_questions, dict(raw_question)]
@@ -193,8 +199,9 @@ def _get_question(question_id: str) -> GameQuestion:
     return question
 
 
-def update_question_review(question_id: str, status: str, enabled: bool, path: Path = DEFAULT_QUESTION_PATH) -> GameQuestion:
+def update_question_review(question_id: str, status: str, enabled: bool, path: Path | None = None) -> GameQuestion:
     """Explicit operator review; changing a status never silently enables a question."""
+    path = _question_path(path)
     with QUESTION_WRITE_LOCK:
         raw_questions = _read_question_list(path)
         index = next((i for i, q in enumerate(raw_questions) if isinstance(q, dict) and q.get("id") == question_id), None)

@@ -78,6 +78,21 @@ def test_save_retry_does_not_duplicate_or_overwrite_labels(client, tmp_path):
     assert client.post("/api/v1/test-samples", data={**data, "ground_truth_latex": "different"}, files=png()).status_code == 400
 
 
+@pytest.mark.parametrize("change", ["writer", "image", "strokes"])
+def test_retry_cannot_silently_replace_original_handwriting(client, tmp_path, change):
+    data = payload(); files = png()
+    assert client.post("/api/v1/test-samples", data=data, files=files).status_code == 201
+    if change == "writer": data["writer_id"] = "different-writer"
+    elif change == "strokes":
+        strokes = json.loads(data["strokes_json"]); strokes["strokes"][0]["points"][0]["x"] = 999
+        data["strokes_json"] = json.dumps(strokes)
+    else:
+        image = BytesIO(); Image.new("RGB", (40, 20), "black").save(image, format="PNG")
+        files = {"image": ("changed.png", image.getvalue(), "image/png")}
+    assert client.post("/api/v1/test-samples", data=data, files=files).status_code == 400
+    assert len(list((tmp_path / "custom/images").glob("*.png"))) == 1
+
+
 def test_review_update_validates_before_write(tmp_path):
     path = tmp_path / "bank.json"; path.write_bytes(DEFAULT_QUESTION_PATH.read_bytes())
     before = path.read_bytes()
@@ -113,3 +128,15 @@ def test_question_cache_reuses_immutable_bank_but_refreshes_on_review(tmp_path):
     after = get_questions(path)
     assert after is not before
     assert after[0].review_status == "needs_revision"
+
+
+def test_isolated_bank_override_does_not_modify_the_exhibition_bank(tmp_path, monkeypatch):
+    from backend.app.game_questions import get_questions
+    path = tmp_path / "isolated.json"; path.write_bytes(DEFAULT_QUESTION_PATH.read_bytes())
+    original = DEFAULT_QUESTION_PATH.read_bytes()
+    monkeypatch.setenv("HMER_QUESTION_BANK", str(path))
+    question = get_questions()[0]
+    update_question_review(question.id, "needs_revision", False)
+    assert get_questions()[0].review_status == "needs_revision"
+    assert DEFAULT_QUESTION_PATH.read_bytes() == original
+    assert load_questions(DEFAULT_QUESTION_PATH)[0].review_status != "needs_revision"
