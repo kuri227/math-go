@@ -1,14 +1,14 @@
 # アーキテクチャ（現行）
 
-更新日：2026-10-21。ゲーム仕様は [2モード仕様](two-mode-exhibition.md)、運用手順は [展示運用](festival-operation.md) を正とする。
+更新日：2026-10-22。ゲーム仕様は [2モード仕様](two-mode-exhibition.md)、運用手順は [展示運用](festival-operation.md) を正とする。
 以前のPhaser / GameCoordinator構成は [履歴資料](history/architecture-before-2026-10-21.md) に保全した。
 
 ## 全体構成
 
 ```text
-同一PC / 同一ブラウザー・プロファイル / 同一Origin
+同一PC / 同一Origin / 同じsession（1人用）
   Display: Session（唯一の進行正本） + App
-                  ↕ BroadcastChannel（状態 / 操作 / heartbeat）
+                  ↕ WebSocket → ローカルPairHub → WebSocket（状態 / 操作）
   Controller: HandwritingPad + App → PNGをAPIへ直接送信
   Single: 同じSessionとAppを1画面で利用
                   ↓ HTTP
@@ -17,7 +17,7 @@
   TexTeller worker（展示認識） / UniMERNet worker（任意比較）
 ```
 
-画像・筆跡はBroadcastChannelへ載せない。Controllerがcrop PNGをAPIへ送り、認識結果だけをDisplayへ通知する。
+画像・筆跡は2画面のリレーへ載せない。Controllerがcrop PNGをAPIへ送り、認識結果だけをDisplayへ通知する。
 Displayが採点・タイマー・残機を確定し、Controllerは受信状態を表示する。別PC間の同期は提供しない。
 
 ## フロントエンドの責務
@@ -31,14 +31,16 @@ Displayが採点・タイマー・残機を確定し、Controllerは受信状態
 | `exhibition/dom.ts` | 静的要素の参照と同値テキスト更新の抑制 |
 | `api/http.ts`, `RecognitionClient.ts` | HTTP・応答検証・エラー整形・タイムアウト |
 | `dual-screen/StatePublisher.ts` | 同じ状態の再送抑制。新規接続へは強制送信 |
-| `dual-screen/DualScreenChannel.ts` | 接続ID・通し番号・heartbeat・通信版の検証 |
+| `dual-screen/DualScreenChannel.ts` | 接続ID・通し番号・通信版の検証 |
+| `dual-screen/WebSocketTransport.ts`, `backend/app/pairing.py` | 同一PC内の1人用2画面リレー。ソケット寿命による役割所有と切断・再接続。操作を自動再送しない |
+| `exhibition/activity.ts` | 手書き中のみ進む時計と、認識・確認・判定・切断の表示契約 |
 | `ui/HandwritingPad.ts` | Pointer Events・undo・clear・resize・PNGと筆跡の生成 |
 | `ui/renderMath.ts`, `mathFit.ts` | KaTeX・文字列フォールバック・実寸による枠内調整 |
 
 認識は30秒、保存は15秒、通常の採点・正答・問題取得等は10秒で応答を待つ。ページ全体のモデル準備監視は最大3分。
 時間切れ後にPOSTが処理済みの場合もあるため、保存再試行には同じ認識要求IDを使い、サーバーが同じ画像・転記・筆者・筆跡であることを検証する。
 
-状態が変わらない結果画面やガイドは再送しない。時計が動く間の100ms更新と1秒ごとの接続heartbeatは継続する。
+状態が変わらない結果画面やガイドは再送しない。時計が動く間の100ms更新は継続する。本番の接続判定にブラウザーのheartbeatタイマーは使わず、サーバーのWebSocket開閉を使用する。完全なブラウザー休止・OSスリープは再接続が必要で、無停止を保証しない。
 画面遷移では適切な見出しへフォーカスを移す。手書きそのものの完全なキーボード代替・スクリーンリーダー実機確認は未提供／未検証。
 
 ## APIとモデル処理
@@ -52,7 +54,8 @@ Displayが採点・タイマー・残機を確定し、Controllerは受信状態
 - 要求IDを両モデルが応答へ返す。不一致・壊れた結果・無応答・EOFではワーカーと受信箱を破棄し、次の読取で再起動する。Windowsではvenvランチャーの実子プロセスも終了する。認識結果の無断自動再提出はしない。
 - `recognizers/input_image.py` は背景除去で空になる画像をモデル開始前に拒否する。Canvasの同一点列は点として描画し、白紙PNGにならないようにする。
 - ブラウザー側30秒とワーカーの推論25秒は異なる。初回／再起動のモデル準備は最大180秒なので、準備中にブラウザーが先に待ち上限に達する場合がある。
-- 公開先は既定127.0.0.1。管理APIに認証はない。インターネットへ公開せず、LAN利用も信頼できる範囲に限定する。
+- 公開先は既定127.0.0.1。問題管理API・編集画面は接続元とHostがループバック、ブラウザーOriginが同一の場合だけ許可し、iframe表示も禁止する。プロキシヘッダーだけで管理権限を付与しない。遠隔管理は提供せず、インターネット公開は禁止。
+- 評価・編集画面も `support.ts` のローカルビルドを通じて同じHTTP部品を利用する。比較60秒・保存15秒・通常10秒、モデル準備監視180秒。KaTeX JS/CSS/フォントも同梱し、外部CDNを不要にする。
 
 ## データと問題
 

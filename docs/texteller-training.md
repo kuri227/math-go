@@ -149,7 +149,22 @@ Remove-Item Env:TEXTELLER_MODEL_DIR -ErrorAction SilentlyContinue
 ## 失敗・中断・PC移動
 
 - 通常の例外は `failed`。そのrunの画像は再投入しない。新しいデータを収集して次のrunへ進む。
-- 強制終了・停電で `running` が残った場合は自動解除・自動resumeしない。まずプロセス停止、ログ、全体バックアップを確認し、管理者による個別復旧が必要。本版には安易な解除コマンドを設けていない。
+- 強制終了・停電で `running` が残った場合は自動解除・自動resumeしない。プロセス停止と全体バックアップを確認後、次のコマンドで**失敗として確定**できる。使用済み画像・予約・中途モデル・履歴は削除せず、その画像は二度と学習へ戻さない。新バージョンの学習はOSの排他ロックを保持し、実行中ならこの操作を拒否する。旧バージョンのプロセスは必ず人が停止を確認する。
+
+```powershell
+.\.venv\Scripts\python.exe scripts/train_texteller.py status
+.\.venv\Scripts\python.exe scripts/train_texteller.py abandon-interrupted --run-id <中断runのID> --operator <担当者コード> --reason "停電後に学習プロセス停止とバックアップを確認" --confirmed-process-stopped
+.\.venv\Scripts\python.exe scripts/train_texteller.py plan
+```
+
+この操作は再学習ではない。`plan` に戻るのは新しい未使用画像だけで、途中モデルからのresume・消費記録の解除・失敗runの再利用はしない。担当者・理由・時刻を台帳へ記録する。
+
+近似重複を見比べるオフラインHTMLも生成できる。自動承認はせず、同じ筆跡の再撮影・コピーは承認しない。既存ファイルへの上書きは拒否する。手書き画像を含むため公開・Git追加をしない。
+
+```powershell
+.\.venv\Scripts\python.exe scripts/train_texteller.py near-duplicate-report --output data/training/near-review.html
+```
+
 - DBだけ古い状態へ戻さない。サーバーと学習を停止した状態で `data/custom` と `data/training` を**全体で**バックアップする。SQLiteファイルを実行中に単体コピーしない。
 - 別PCで同じ収集原本を新規の空台帳へ入れて学習する運用は禁止。学習する管理PC・リポジトリは1つに固定する。移行時も元の学習運用を止め、全履歴・objects・runsを一緒に移し、元メタデータの絶対パスが台帳と一致することを確認する。パスが変わる移行は本版の自動対応外で、整合性確認を伴う管理者対応が必要。
 - すべての履歴とバックアップを人が削除した場合、過去の利用を復元して検知することはできない。台帳とバックアップの保全はこの保証の前提。

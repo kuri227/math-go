@@ -14,7 +14,8 @@
 | コードの責務・通信・API・データ | [アーキテクチャ](architecture.md) |
 | モデル比較・公開HWE評価 | [モデル評価ガイド](model-evaluation-guide.md) |
 | 外部プログラムからの認識API | [認識API要件](recognition_service_requirements.md) |
-| 最新の実プレイ・性能・残課題 | [2026-10-21の検証](../reports/refactor_playtest_2026-10-21.md) |
+| 最新の修正・時計停止表示・CPU設定比較 | [2026-10-22の検証](../reports/remaining_fixes_2026-10-22.md) |
+| 全体監査・最初の17件と当時の証拠 | [2026-10-21の検証](../reports/refactor_playtest_2026-10-21.md) |
 
 同じ内容に食い違いがある場合、ゲームの動作は2モード仕様、追加学習の扱いは再学習マニュアルを正とします。
 別PC間の同期・任意の数学的同値判定・モデルの自動採用は現行機能ではありません。

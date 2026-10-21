@@ -17,7 +17,7 @@ from PIL import Image
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--base-url", default="http://127.0.0.1:8019")
+    parser.add_argument("--base-url", default="http://127.0.0.1:8000")
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     records = []
@@ -33,6 +33,10 @@ def main():
         return body
     for path in ("/", "/display", "/controller", "/evaluation", "/questions/editor", "/health", "/models", "/api/v1/questions"):
         check(path, path)
+    check("local math CSS", "/support.css")
+    check("local shared module", "/game-assets/support.js")
+    check("admin cross-origin protection", "/api/v1/admin/questions", 403, b"{}", {"Content-Type": "application/json", "Origin": "https://invalid.example"})
+    check("admin Host protection", "/questions/editor", 403, headers={"Host": "invalid.example"})
     questions = json.loads(check("public bank", "/api/v1/questions"))
     assert all("answer" not in question and "answer_latex" not in question for question in questions)
     for _ in range(10): check("health latency", "/api/v1/health/live")
