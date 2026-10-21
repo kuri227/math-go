@@ -1,4 +1,4 @@
-"use strict";
+import { requestJson, katex } from "/game-assets/support.js";
 
 const canvas = document.querySelector("#canvas");
 const ctx = canvas.getContext("2d", { alpha: false });
@@ -12,6 +12,8 @@ let lastCapture = null;
 let modelsReady = false;
 let recognitionInProgress = false;
 let modelPollTimer = null;
+let modelPollDeadline = 0;
+const retryModels = document.querySelector("#retryModels");
 
 function resetSurface() {
   ctx.fillStyle = "#ffffff";
@@ -192,15 +194,16 @@ recognizeButton.addEventListener("click", async () => {
     setModelPending("textellerResult");
     setModelPending("unimernetResult");
     setStatus("認識中です");
-    const response = await fetch("/recognize/compare", { method: "POST", body: form });
-    const data = await response.json();
-    if (!response.ok) throw new Error(data.detail || "認識リクエストに失敗しました");
+    const data = await requestJson("/recognize/compare", { method: "POST", body: form }, 60_000, "比較処理が時間内に完了しませんでした。画像は残っています。モデル状態を確認して再試行してください。");
     document.querySelector("#inputMeta").textContent = `${crop.width}×${crop.height}px / ${strokes.length} strokes`;
     displayModelResult("textellerResult", data.results.texteller);
     displayModelResult("unimernetResult", data.results.unimernet);
     const succeeded = Object.values(data.results).filter((result) => !result.error).length;
     setStatus(`両モデルの処理が完了しました（成功 ${succeeded}/2）`, succeeded === 0);
   } catch (error) {
+    for (const id of ["textellerResult", "unimernetResult"]) {
+      displayModelResult(id, { error: error.message, latex: null, device: "-" });
+    }
     setStatus(`認識できませんでした: ${error.message}`, true);
   } finally {
     recognitionInProgress = false;
@@ -220,7 +223,7 @@ function displayModelResult(elementId, result) {
     .replace(/^\\\[([\s\S]*)\\\]$/, "$1")
     .replace(/^\\\(([\s\S]*)\\\)$/, "$1")
     .replace(/^\$\$([\s\S]*)\$\$$/, "$1");
-  if (renderableLatex && window.katex) window.katex.render(renderableLatex, rendered, { throwOnError: false, displayMode: true });
+  if (renderableLatex) katex.render(renderableLatex, rendered, { throwOnError: false, displayMode: true });
   else rendered.textContent = result.latex || "-";
   const inference = result.inference_ms == null ? "-" : `${result.inference_ms.toFixed(1)} ms`;
   const initialization = result.initialization_ms == null ? "-" : `${result.initialization_ms.toFixed(0)} ms`;
@@ -247,9 +250,7 @@ document.querySelector("#saveSample").addEventListener("click", async () => {
     form.append("writer_id", document.querySelector("#writerId").value || "anonymous");
     button.disabled = true;
     setStatus("評価データを保存中です");
-    const response = await fetch("/samples", { method: "POST", body: form });
-    const data = await response.json();
-    if (!response.ok) throw new Error(data.detail || "保存に失敗しました");
+    const data = await requestJson("/samples", { method: "POST", body: form }, 15_000, "保存完了を確認できませんでした。自動再送はしません。保存先を確認してから再操作してください。");
     setStatus(`評価データ ${data.sample_id} を保存しました`);
   } catch (error) {
     setStatus(`保存できませんでした: ${error.message}`, true);
@@ -264,9 +265,8 @@ function modelDisplayName(name) {
 
 async function pollModelStatus() {
   try {
-    const response = await fetch("/models");
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    const models = await response.json();
+    if (performance.now() > modelPollDeadline) throw new Error("モデル準備が3分以内に完了しませんでした");
+    const models = await requestJson("/models");
     const ready = models.filter((model) => model.available);
     const loading = models.filter((model) => model.loading);
     const failed = models.filter((model) => !model.available && !model.loading && model.detail);
@@ -282,6 +282,7 @@ async function pollModelStatus() {
     modelsReady = false;
     recognizeButton.disabled = true;
     if (failed.length > 0) {
+      retryModels.hidden = false;
       recognizeButton.textContent = "モデルを読み込めません";
       const detail = failed.map((model) => `${modelDisplayName(model.name)}: ${model.detail}`).join(" / ");
       setStatus(`モデルの読み込みに失敗しました — ${detail}`, true);
@@ -298,20 +299,26 @@ async function pollModelStatus() {
     modelsReady = false;
     recognizeButton.disabled = true;
     recognizeButton.textContent = "APIに接続できません";
-    setStatus("APIへ接続できません", true);
+    retryModels.hidden = false;
+    setStatus(`モデル状態を確認できません: ${error.message}。「モデル準備を再試行」でやり直せます。`, true);
   }
 }
 
 async function preloadModels() {
+  if (modelPollTimer !== null) window.clearTimeout(modelPollTimer);
+  modelPollTimer = null;
+  modelPollDeadline = performance.now() + 180_000;
+  modelsReady = false;
+  retryModels.hidden = true;
   recognizeButton.disabled = true;
   recognizeButton.textContent = "モデルを読み込み中… (0/2)";
   try {
-    const response = await fetch("/models/preload", { method: "POST" });
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    await requestJson("/models/preload", { method: "POST" });
     await pollModelStatus();
   } catch (error) {
     if (modelPollTimer !== null) window.clearTimeout(modelPollTimer);
     modelsReady = false;
+    retryModels.hidden = false;
     recognizeButton.disabled = true;
     recognizeButton.textContent = "モデルを読み込めません";
     setStatus(`モデルの読み込みを開始できませんでした: ${error.message}`, true);
@@ -319,4 +326,6 @@ async function preloadModels() {
 }
 
 resetSurface();
+retryModels.addEventListener("click", preloadModels);
+window.addEventListener("pagehide", () => { if (modelPollTimer !== null) window.clearTimeout(modelPollTimer); });
 preloadModels();

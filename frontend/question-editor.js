@@ -1,3 +1,5 @@
+import { requestJson } from "/game-assets/support.js";
+
 const form = document.querySelector("#questionForm");
 const saveButton = document.querySelector("#saveButton");
 const formStatus = document.querySelector("#formStatus");
@@ -40,9 +42,7 @@ function updatePreview() {
 
 async function refreshCount() {
   try {
-    const response = await fetch("/api/v1/questions", { cache: "no-store" });
-    if (!response.ok) throw new Error();
-    const questions = await response.json();
+    const questions = await requestJson("/api/v1/questions", { cache: "no-store" });
     bankCount.textContent = `現在 ${questions.length} 問`;
   } catch {
     bankCount.textContent = "問題数を取得できません";
@@ -75,13 +75,11 @@ form.addEventListener("submit", async (event) => {
   };
 
   try {
-    const response = await fetch("/api/v1/admin/questions", {
+    const body = await requestJson("/api/v1/admin/questions", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     });
-    const body = await response.json();
-    if (!response.ok) throw new Error(body.detail || `HTTP ${response.status}`);
     formStatus.dataset.state = "success";
     formStatus.textContent = `${body.message}（全${body.total}問）`;
     const preservedDifficulty = value("difficulty");
