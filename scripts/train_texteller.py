@@ -24,6 +24,13 @@ def main():
     review.add_argument("--reviewer", required=True)
     review.add_argument("--checked-near-duplicates", action="store_true")
     sub.add_parser("plan", help="Show only unused approved training images; no GPU/model loading")
+    sheet = sub.add_parser("near-duplicate-report", help="Write an offline read-only comparison sheet; no automatic approval")
+    sheet.add_argument("--output", type=Path, required=True)
+    recover = sub.add_parser("abandon-interrupted", help="Finalize an interrupted batch as failed WITHOUT permitting replay")
+    recover.add_argument("--run-id", required=True)
+    recover.add_argument("--operator", required=True)
+    recover.add_argument("--reason", required=True)
+    recover.add_argument("--confirmed-process-stopped", action="store_true")
     train = sub.add_parser("run", help="One pass, no replay/resume; failed batches remain unavailable")
     train.add_argument("--device", choices=("cpu", "cuda"), required=True)
     train.add_argument("--learning-rate", type=float, default=1e-5)
@@ -41,6 +48,12 @@ def main():
             result = {"reviewed": args.sample_id, "split": args.split}
         elif args.command == "plan":
             result = registry.plan()
+        elif args.command == "near-duplicate-report":
+            from backend.training.review_report import write_near_duplicate_report
+            result = {"pairs": write_near_duplicate_report(registry, args.output), "output": str(args.output)}
+        elif args.command == "abandon-interrupted":
+            registry.abandon_interrupted(args.run_id, args.operator, args.reason, args.confirmed_process_stopped)
+            result = {"run_id": args.run_id, "status": "failed", "consumed_data_reusable": False}
         else:
             if not args.confirm_single_use:
                 parser.error("run requires --confirm-single-use; a reserved batch is NEVER retried, even after failure")

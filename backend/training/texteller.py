@@ -7,6 +7,7 @@ from importlib.metadata import version
 from pathlib import Path
 
 from backend.training.registry import Registry, digest, stamp
+from backend.training.execution_lock import execution_lock
 
 
 def model_fingerprint(path: Path) -> dict:
@@ -62,6 +63,11 @@ def single_pass(model, optimizer, train_samples, validation_samples, batch, prog
 
 
 def run(registry: Registry, base: Path, device: str, learning_rate: float) -> dict:
+    with execution_lock(registry.root):
+        return _run(registry, base, device, learning_rate)
+
+
+def _run(registry: Registry, base: Path, device: str, learning_rate: float) -> dict:
     """Preflight before reservation; any post-reservation failure permanently burns the batch."""
     import torch
     from PIL import Image

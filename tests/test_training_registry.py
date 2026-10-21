@@ -5,6 +5,39 @@ import pytest
 from PIL import Image, ImageDraw, ImageOps
 
 from backend.training.registry import Registry, canonical_image, normalize_label
+from backend.training.execution_lock import execution_lock
+
+
+def test_abandon_interrupted_never_releases_consumed_images(setup):
+    registry = reviewed(setup)
+    run_id, _ = registry.reserve(registry.plan(), {})
+    uses = list(registry.db.execute("SELECT * FROM uses"))
+    with execution_lock(registry.root), pytest.raises(ValueError, match="active"):
+        registry.abandon_interrupted(run_id, "operator", "power loss", True)
+    with pytest.raises(ValueError, match="confirmation"):
+        registry.abandon_interrupted(run_id, "operator", "power loss", False)
+    registry.abandon_interrupted(run_id, "operator", "power loss", True)
+    assert registry.plan()["train"] == []
+    assert list(registry.db.execute("SELECT * FROM uses")) == uses
+    run = registry.status()["runs"][0]
+    assert run["status"] == "failed" and "operator" in run["detail"]
+    with pytest.raises(ValueError, match="interrupted"):
+        registry.abandon_interrupted(run_id, "operator", "again", True)
+
+
+def test_offline_near_duplicate_sheet_is_read_only_and_escapes_labels(setup, tmp_path):
+    from backend.training.review_report import write_near_duplicate_report
+    registry = reviewed(setup)
+    registry.db.execute("UPDATE samples SET label='<script>bad</script>'"); registry.db.commit()
+    before = registry.status()
+    output = tmp_path / "review.html"
+    assert write_near_duplicate_report(registry, output) > 0
+    assert registry.status() == before
+    html = output.read_text(encoding="utf-8")
+    assert "data:image/png;base64," in html and "<script>" not in html
+    assert "自動承認は行いません" in html
+    with pytest.raises(FileExistsError):
+        write_near_duplicate_report(registry, output)
 
 
 @pytest.fixture

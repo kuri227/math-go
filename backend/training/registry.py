@@ -9,6 +9,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from PIL import Image, ImageChops, ImageOps
+from .execution_lock import execution_lock
 
 
 def stamp() -> str:
@@ -242,3 +243,14 @@ class Registry:
             if cursor.rowcount != 1:
                 raise ValueError("Run already finalized or unknown")
         # No deletion from uses, even on failure. No checkpoint resume.
+
+    def abandon_interrupted(self, run_id: str, operator: str, reason: str, confirmed_stopped: bool):
+        if not confirmed_stopped or not operator.strip() or not reason.strip():
+            raise ValueError("Explicit stopped-process confirmation, operator and reason are required")
+        with execution_lock(self.root), self.transaction():
+            self.audit()
+            detail = json.dumps({"action": "abandon-interrupted", "operator": operator.strip(), "reason": reason.strip(), "at": stamp(), "replay_allowed": False}, ensure_ascii=False)
+            cursor = self.db.execute("UPDATE runs SET status='failed',completed_at=?,detail=? WHERE id=? AND status='running'", (stamp(), detail, run_id))
+            if cursor.rowcount != 1:
+                raise ValueError("Only an interrupted running run can be abandoned")
+            # Intentionally leave uses, manifests, model output and receipts intact.
