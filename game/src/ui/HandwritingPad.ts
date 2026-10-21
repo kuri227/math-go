@@ -1,3 +1,5 @@
+import { isPointStroke } from "./strokeGeometry";
+
 interface Point {
   x: number;
   y: number;
@@ -145,7 +147,7 @@ export class HandwritingPad {
       this.strokes.push(this.activeStroke);
       this.activeStroke = null;
       this.pointerId = null;
-      this.updateHint();
+      this.redraw();
     };
     this.canvas.addEventListener("pointerup", finish);
     this.canvas.addEventListener("pointercancel", finish);
@@ -233,13 +235,17 @@ export class HandwritingPad {
     this.configureLine(context);
     for (const stroke of strokes) {
       if (stroke.length === 0) continue;
+      if (isPointStroke(stroke)) {
+        context.beginPath();
+        context.fillStyle = "#10182d";
+        context.arc(stroke[0]!.x + offsetX, stroke[0]!.y + offsetY, LINE_WIDTH / 2, 0, Math.PI * 2);
+        context.fill();
+        continue;
+      }
       context.beginPath();
       context.moveTo(stroke[0]!.x + offsetX, stroke[0]!.y + offsetY);
       for (const point of stroke.slice(1)) {
         context.lineTo(point.x + offsetX, point.y + offsetY);
-      }
-      if (stroke.length === 1) {
-        context.lineTo(stroke[0]!.x + offsetX + 0.01, stroke[0]!.y + offsetY + 0.01);
       }
       context.stroke();
     }

@@ -114,8 +114,10 @@ describe("DualScreenChannel", () => {
     const controller = new DualScreenChannel(controllerTransport, "session", "controller", () => 1);
     const states: boolean[] = [];
     const sentTypes: string[] = [];
+    const rejectionReasons: (string | undefined)[] = [];
     displayTransport.subscribe((message) => sentTypes.push(message.type));
     controller.subscribeConnection((state) => states.push(state.connected));
+    controller.subscribeConnection((state) => rejectionReasons.push(state.rejectionReason));
     controller.start();
     displayTransport.post({
       type: "connection-rejected",
@@ -129,6 +131,7 @@ describe("DualScreenChannel", () => {
       sentAt: 1,
     });
     vi.advanceTimersByTime(1_000);
+    expect(rejectionReasons.at(-1)).toBe("role-already-connected");
     expect(sentTypes.at(-1)).toBe("hello");
     displayTransport.post({
       type: "hello",
@@ -141,6 +144,7 @@ describe("DualScreenChannel", () => {
       sentAt: 1,
     });
     expect(states.at(-1)).toBe(true);
+    expect(rejectionReasons.at(-1)).toBeUndefined();
     controller.close();
     displayTransport.close();
   });

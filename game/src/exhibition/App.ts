@@ -12,6 +12,7 @@ import { BroadcastChannelTransport } from "../dual-screen/BroadcastChannelTransp
 import { formulaScale } from "../game/formulaLayout";
 import { UrgencySound } from "../ui/UrgencySound";
 import { StatePublisher } from "../dual-screen/StatePublisher";
+import { connectionCopy } from "../dual-screen/connectionCopy";
 import { byId as $, text } from "./dom";
 
 import { appMarkup, type Role } from "./view";
@@ -253,7 +254,8 @@ export function runApp(role: Role): void {
   });
   channel?.subscribeConnection(connection => {
     connected = connection.connected;
-    $("connection").textContent = connection.incompatible ? "画面のバージョンが違います。両画面を更新してください。" : connected ? "2画面接続済み" : "相手の画面を待っています";
+    text("connection", connectionCopy(connection));
+    text("waitingMessage", connection.rejectionReason || connection.incompatible ? connectionCopy(connection) : "問題表示画面でモードと問題を選んでください。");
     if (role === "display" && session) {
       session.pause(!connected);
       if (!connected && session.snapshot.phase === "recognizing" && activeRecognition === null) {

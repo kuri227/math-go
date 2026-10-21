@@ -9,6 +9,7 @@ import type { DualScreenTransport } from "./Transport";
 export interface DualScreenConnectionState {
   connected: boolean;
   incompatible: boolean;
+  rejectionReason?: "role-already-connected";
 }
 
 export class DualScreenChannel {
@@ -86,7 +87,7 @@ export class DualScreenChannel {
     if (message.type === "connection-rejected") {
       if (message.targetConnectionId !== this.connectionId) return;
       this.rejected = true;
-      this.setState({ connected: false, incompatible: false });
+      this.setState({ connected: false, incompatible: false, rejectionReason: message.reason });
       for (const listener of this.listeners) listener(message);
       return;
     }
@@ -124,7 +125,7 @@ export class DualScreenChannel {
   }
 
   private setState(next: DualScreenConnectionState): void {
-    if (next.connected === this.state.connected && next.incompatible === this.state.incompatible) return;
+    if (next.connected === this.state.connected && next.incompatible === this.state.incompatible && next.rejectionReason === this.state.rejectionReason) return;
     this.state = next;
     for (const listener of this.stateListeners) listener(next);
   }
