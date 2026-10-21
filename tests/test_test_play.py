@@ -17,7 +17,7 @@ from scripts.import_friend_questions import convert
 @pytest.fixture
 def client(tmp_path, monkeypatch):
     monkeypatch.setattr(main, "paths", replace(main.paths, custom_eval=tmp_path / "custom", repo_root=tmp_path))
-    with TestClient(main.app) as client:
+    with TestClient(main.app, base_url="http://127.0.0.1", client=("127.0.0.1", 50000)) as client:
         yield client
 
 

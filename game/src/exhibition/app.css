@@ -4,6 +4,7 @@ body { margin:0; min-width:280px; }
 [hidden] { display:none !important; }
 ::selection { background:var(--focus); color:var(--ink); }
 :focus-visible { outline:3px solid var(--focus); outline-offset:3px; }
+.reading-surface :focus-visible,.input-pane :focus-visible { outline-color:#117a70; }
 button, input, select { font:inherit; }
 button, select, input[type="search"], input[type="text"], input:not([type]) { min-height:48px; }
 button { background:#2d3a62; color:var(--paper); border:0; border-radius:12px; padding:10px 20px; font-weight:750; cursor:pointer; line-height:1.4; }
@@ -101,7 +102,16 @@ details { font-size:.78rem; margin-top:12px; }
 summary { cursor:pointer; min-height:44px; display:list-item; padding-top:10px; }
 code { display:block; overflow-wrap:anywhere; white-space:pre-wrap; }
 .notice { color:var(--muted); min-height:28px; margin:20px 0; }
+.activity { color:var(--paper); background:#183f46; border:1px solid #5fa69f; border-radius:14px; padding:16px 20px; margin:16px 0; }
+.activity h2 { margin:0 0 4px; font-size:clamp(1.1rem,2vw,1.4rem); }
+#activityTitle { scroll-margin-block:16px 90px; }
+.activity p { margin:0; overflow-wrap:anywhere; }
+.activity progress { display:block; width:min(100%,32rem); height:12px; margin-top:12px; accent-color:#92ddd1; }
+#time[data-paused="true"] { color:#a8e5d9; }
 .collection h2 { margin-bottom:12px; }
+.reading-surface > details { margin:0; font-size:1rem; }
+.reading-surface > details > summary { padding:0; font-size:1.05rem; font-weight:750; min-height:48px; line-height:1.6; }
+.reading-surface > details[open] > summary { margin-bottom:20px; }
 .collection p { font-size:.9rem; }
 .check-line { margin:20px 0; font-size:.85rem; }
 .check-line input { margin-top:3px; }

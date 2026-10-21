@@ -10,7 +10,7 @@ export function appMarkup(role: Role): string {
       <div class="header-actions"><span id="connection" role="status"></span><span id="modelStatus" role="status">認識モデルを準備中</span>${button("sound", "警告音 ON")}${button("fullscreen", "全画面")}</div></header>
     <main>
       <section id="setup" class="setup" aria-labelledby="setupTitle">
-        <div class="intro"><h1 id="setupTitle">書いて、確かめて、<br>数学に挑もう。</h1><p>答えを手書き。読み取りを確認してから回答。<br>本番体験と問題テスト、目的に合わせて選べます。</p>
+        <div class="intro"><h1 id="setupTitle">書いて、確かめて、<br>数学に挑もう。</h1><p>1人用の数学ゲーム。答えを手書きし、読み取りを確認してから回答。<br>2画面でも、1人で問題を見て入力するソロプレイです。</p>
           <div class="screen-links" id="screenLinks">${role === "display" ? button("openController", "入力画面を開く") + '<a href="/">1画面で使う</a>' : '<a href="/display">2画面で使う</a>'}</div></div>
         <div class="settings"><fieldset><legend>遊び方</legend><div class="mode-choices">
           <label><input type="radio" name="mode" value="exhibition" checked><strong>本番体験</strong><span>7問・1問20秒・残機3。時間切れでのみ残機が減ります。</span></label>
@@ -28,6 +28,7 @@ export function appMarkup(role: Role): string {
       <section id="play" hidden aria-label="プレイ画面">
         <div class="play-toolbar"><p id="modeName"></p><div class="hud"><span id="round"></span><span id="correct"></span><span id="streak"></span><span id="lives" role="status"></span><strong id="time" aria-label="残り時間"></strong></div>${button("stop", "プレイを終了")}</div>
         <div id="timerTrack" class="timer-track" aria-hidden="true"><div id="timerFill"></div></div>
+        <section id="activity" class="activity" hidden aria-label="処理と時計の状態"><div role="status"><h2 id="activityTitle"></h2><p id="activityDescription"></p></div><progress id="recognitionProgress" aria-label="認識・判定処理中"></progress></section>
         <div class="play-grid"><section id="problemPane" class="problem-pane" aria-label="問題"><p id="questionMeta" class="muted"></p><div class="prompt-space"><div id="prompt" class="prompt"></div></div></section>
           <section id="inputPane" class="input-pane" aria-label="手書き回答"><div id="inputHeading" class="input-heading"><h2>答えを書く</h2></div>
             <div id="padWrap" class="pad-wrap"><canvas id="pad" aria-label="手書き回答欄"></canvas><p id="padHint">ここに答えを書いてください</p><span id="pointer" hidden aria-hidden="true"></span></div>
@@ -36,13 +37,13 @@ export function appMarkup(role: Role): string {
           </section></div>
         <p id="notice" class="notice" role="status" aria-live="polite"></p>
         <section id="result" class="result reading-surface" hidden aria-labelledby="resultTitle"><h2 id="resultTitle"></h2><div class="solution"><p>正答例</p><div id="expected"></div><p id="explanation"></p></div><div id="resultActions" class="actions">${button("retryTest", "同じ問題を再テスト")}${button("next", "次の問題へ", true)}</div></section>
-        <section id="collection" class="reading-surface collection" hidden aria-labelledby="collectionTitle"><h2 id="collectionTitle">この手書きを学習候補として保存</h2><p>正解・不正解にかかわらず保存できます。問題の正答ではなく、画像に実際に書いた内容を入力してください。保存だけではモデルは学習されません。</p>
+        <section id="collection" class="reading-surface collection" hidden aria-labelledby="collectionTitle"><details id="collectionDetails"><summary id="collectionTitle">この手書きを学習候補として保存する</summary><p>必要なときだけ開いてください。問題の正答ではなく、画像に実際に書いた内容を入力します。保存だけではモデルは学習されません。</p>
           <label class="field" for="transcription">書いた内容の正しいLaTeX<input id="transcription" maxlength="4000" autocomplete="off" spellcheck="false"></label><div id="transcriptionPreview" class="math-output" aria-label="保存するラベルの表示"></div>
           <label class="field" for="writerId">筆者コード（学習に使う場合は必要・氏名不要）<input id="writerId" maxlength="64" placeholder="例：writer-01" autocomplete="off"></label>
           <label class="check-line"><input type="checkbox" id="labelConfirmed">画像に書いた内容と、保存するLaTeXが一致していることを確認しました</label>
           <label class="check-line"><input type="checkbox" id="consent">手書き画像・筆跡・確認済みLaTeXを、このPCへ学習・評価用データとして保存することに同意します</label>
-          ${button("saveSample", "確認したデータを保存")}<p id="saveStatus" role="status"></p></section>
-        <section id="review" class="reading-surface" hidden aria-labelledby="reviewTitle"><h2 id="reviewTitle">問題の確認・本番への反映</h2><p>問題文・正答・表示を確認してから変更してください。変更は次のプレイから反映されます。</p><label class="field" for="reviewStatus">確認状況<select id="reviewStatus"><option value="pending">未確認</option><option value="approved">確認済み</option><option value="needs_revision">要修正</option></select></label><label class="check-line"><input id="exhibitionEnabled" type="checkbox">本番体験の出題候補にする</label>${button("saveReview", "確認状況を保存")}<p id="reviewNotice" role="status"></p></section>
+          ${button("saveSample", "確認したデータを保存")}<p id="saveStatus" role="status"></p></details></section>
+        <section id="review" class="reading-surface" hidden aria-labelledby="reviewTitle"><details id="reviewDetails"><summary id="reviewTitle">問題の確認状況・本番候補を変更する（管理者）</summary><p>問題文・正答・表示を確認してから変更してください。変更は次のプレイから反映されます。</p><label class="field" for="reviewStatus">確認状況<select id="reviewStatus"><option value="pending">未確認</option><option value="approved">確認済み</option><option value="needs_revision">要修正</option></select></label><label class="check-line"><input id="exhibitionEnabled" type="checkbox">本番体験の出題候補にする</label>${button("saveReview", "確認状況を保存")}<p id="reviewNotice" role="status"></p></details></section>
       </section>
       <section id="finished" class="reading-surface finished" hidden aria-labelledby="endTitle"><h1 id="endTitle"></h1><p id="endReason"></p><p id="endStats" class="end-stats"></p><p id="endAttempts"></p><div id="endSolution" hidden><h2>最後の問題</h2><div id="lastPrompt"></div><p>正答例</p><div id="lastAnswer"></div><p id="lastExplanation"></p></div><div class="actions">${button("backToSetup", "モード・問題を選び直す", true)}</div></section>
     </main>`;

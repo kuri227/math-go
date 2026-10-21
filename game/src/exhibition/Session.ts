@@ -44,7 +44,7 @@ export class Session {
   start(): void { if (this.snapshot.phase === "guide") { this.snapshot.phase = "writing"; this.lastTick = this.now(); } }
   tick(): boolean {
     const s = this.snapshot, now = this.now();
-    if (s.mode === "exhibition" && !s.paused && ["writing", "preview"].includes(s.phase)) {
+    if (s.mode === "exhibition" && !s.paused && s.phase === "writing") {
       s.remainingMs = Math.max(0, s.remainingMs - Math.max(0, now - this.lastTick));
       if (s.remainingMs === 0) {
         s.lives = Math.max(0, (s.lives ?? EXHIBITION.lives) - 1); s.timedOut = true; s.streak = 0;

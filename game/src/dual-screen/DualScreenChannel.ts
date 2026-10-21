@@ -23,6 +23,7 @@ export class DualScreenChannel {
   private listeners = new Set<(message: DualScreenMessage) => void>();
   private stateListeners = new Set<(state: DualScreenConnectionState) => void>();
   private unsubscribe: (() => void) | null = null;
+  private unsubscribeDisconnect: (() => void) | null = null;
   private state: DualScreenConnectionState = { connected: false, incompatible: false };
 
   constructor(
@@ -35,7 +36,12 @@ export class DualScreenChannel {
   start(): void {
     if (this.unsubscribe) return;
     this.unsubscribe = this.transport.subscribe((message) => this.receive(message));
+    this.unsubscribeDisconnect = this.transport.subscribeDisconnect?.(() => {
+      this.remoteConnectionId = null; this.lastRemoteSequence = 0; this.lastSeenAt = 0;
+      this.setState({ connected: false, incompatible: false, ...(this.rejected ? { rejectionReason: "role-already-connected" as const } : {}) });
+    }) ?? null;
     this.send({ type: "hello", role: this.role });
+    if (this.transport.managedLiveness) return;
     this.heartbeatHandle = setInterval(() => {
       // A newly opened Controller can briefly collide with the final heartbeat
       // window of a tab that has just been closed. Keep asking to join so the
@@ -74,6 +80,7 @@ export class DualScreenChannel {
     this.heartbeatHandle = null;
     this.unsubscribe?.();
     this.unsubscribe = null;
+    this.unsubscribeDisconnect?.(); this.unsubscribeDisconnect = null;
     this.transport.close();
     this.setState({ connected: false, incompatible: false });
   }

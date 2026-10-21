@@ -83,7 +83,7 @@ def test_ready_cpu_install_does_not_require_nvidia_driver(monkeypatch, tmp_path)
         monkeypatch.delenv(name, raising=False)
     paths = [check.venv_python("base", "cpu"), check.venv_python("texteller", "cpu")]
     paths += [tmp_path / ".model-cache/texteller" / name for name in ("model.safetensors", "config.json", "tokenizer.json", "tokenizer_config.json")]
-    paths += [tmp_path / "game/dist" / name for name in ("index.html", "display.html", "controller.html", "game-assets/test.js")]
+    paths += [tmp_path / "game/dist" / name for name in ("index.html", "display.html", "controller.html", "game-assets/test.js", "game-assets/support.js", ".vite/manifest.json")]
     for path in paths:
         path.parent.mkdir(parents=True, exist_ok=True)
         path.touch()

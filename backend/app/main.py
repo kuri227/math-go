@@ -11,7 +11,7 @@ from pathlib import Path
 
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.concurrency import run_in_threadpool
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, RedirectResponse, Response
 from fastapi.staticfiles import StaticFiles
 from PIL import UnidentifiedImageError
 
@@ -19,6 +19,9 @@ from backend.app.config import REPO_ROOT, load_paths
 from backend.app.custom_samples import save_custom_sample
 from backend.app.uploads import validated_temp_image as _validated_temp_image
 from backend.app.sample_validation import validate_strokes
+from backend.app.local_admin import LocalAdminMiddleware
+from backend.app.pairing import router as pairing_router
+from backend.app.build_assets import entry_styles
 from backend.app.game_questions import add_question, get_questions, get_solution, judge_answer, update_question_review
 from backend.app.latex import normalize_latex
 from backend.app.recognizers.registry import RecognizerRegistry
@@ -63,6 +66,8 @@ async def lifespan(_: FastAPI):
 
 
 app = FastAPI(title="数学でGO Recognition Service", version="0.1.0a1", lifespan=lifespan)
+app.add_middleware(LocalAdminMiddleware)
+app.include_router(pairing_router)
 FRONTEND_DIR = REPO_ROOT / "frontend"
 GAME_DIST_DIR = REPO_ROOT / "game" / "dist"
 app.mount("/assets", StaticFiles(directory=FRONTEND_DIR), name="assets")
@@ -99,6 +104,20 @@ def controller_game() -> FileResponse:
 @app.get("/evaluation", include_in_schema=False)
 def evaluation() -> FileResponse:
     return FileResponse(FRONTEND_DIR / "index.html")
+
+
+@app.get("/support.css", include_in_schema=False)
+def support_styles():
+    manifest_path = GAME_DIST_DIR / ".vite" / "manifest.json"
+    if not manifest_path.is_file():
+        raise HTTPException(status_code=503, detail="Build the game to prepare local evaluation assets")
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    styles = entry_styles(manifest, "src/support.ts")
+    if not styles:
+        raise HTTPException(status_code=503, detail="Local math stylesheet is missing; rebuild the game")
+    if len(styles) == 1:
+        return RedirectResponse("/" + styles[0])
+    return Response("\n".join(f'@import url("/{path}");' for path in styles), media_type="text/css")
 
 
 @app.get("/questions/editor", include_in_schema=False)

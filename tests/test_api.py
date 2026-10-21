@@ -16,7 +16,7 @@ def png_bytes() -> bytes:
 
 
 def test_health():
-    with TestClient(app) as client:
+    with TestClient(app, base_url="http://127.0.0.1", client=("127.0.0.1", 50000)) as client:
         assert client.get("/health").json() == {"status": "ok"}
 
 
@@ -29,7 +29,7 @@ def test_built_game_javascript_is_served_as_a_module_compatible_type():
     if not javascript_assets:
         return
 
-    with TestClient(app) as client:
+    with TestClient(app, base_url="http://127.0.0.1", client=("127.0.0.1", 50000)) as client:
         response = client.get(f"/game-assets/{javascript_assets[0].name}")
 
     assert response.status_code == 200
@@ -41,7 +41,7 @@ def test_model_preload_starts_background_loading(monkeypatch):
 
     calls = []
     monkeypatch.setattr(main_module.registry, "begin_preload", lambda: calls.append(True) or "loading")
-    with TestClient(app) as client:
+    with TestClient(app, base_url="http://127.0.0.1", client=("127.0.0.1", 50000)) as client:
         response = client.post("/models/preload")
     assert response.status_code == 200
     assert response.json() == {"status": "loading"}
@@ -57,7 +57,7 @@ def test_game_preload_only_starts_requested_model(monkeypatch):
         "begin_preload",
         lambda names=None: calls.append(names) or "loading",
     )
-    with TestClient(app) as client:
+    with TestClient(app, base_url="http://127.0.0.1", client=("127.0.0.1", 50000)) as client:
         response = client.post("/api/v1/models/texteller/preload")
     assert response.status_code == 200
     assert response.json() == {"status": "loading", "model": "texteller"}
@@ -65,7 +65,7 @@ def test_game_preload_only_starts_requested_model(monkeypatch):
 
 
 def test_unknown_model_rejected():
-    with TestClient(app) as client:
+    with TestClient(app, base_url="http://127.0.0.1", client=("127.0.0.1", 50000)) as client:
         response = client.post(
             "/recognize",
             data={"model": "unknown"},
@@ -75,7 +75,7 @@ def test_unknown_model_rejected():
 
 
 def test_invalid_image_rejected():
-    with TestClient(app) as client:
+    with TestClient(app, base_url="http://127.0.0.1", client=("127.0.0.1", 50000)) as client:
         response = client.post(
             "/recognize",
             data={"model": "texteller"},
@@ -104,7 +104,7 @@ def test_compare_passes_the_exact_same_png_to_both_models(monkeypatch):
 
     recognizers = {name: FakeRecognizer(name) for name in ("texteller", "unimernet")}
     monkeypatch.setattr(main_module.registry, "get", lambda name: recognizers[name])
-    with TestClient(app) as client:
+    with TestClient(app, base_url="http://127.0.0.1", client=("127.0.0.1", 50000)) as client:
         response = client.post(
             "/recognize/compare",
             files={"image": ("test.png", png_bytes(), "image/png")},
@@ -137,7 +137,7 @@ def test_game_recognition_returns_normalized_latex_and_timing(monkeypatch):
             )
 
     monkeypatch.setattr(main_module.registry, "get", lambda _name: FakeRecognizer())
-    with TestClient(app) as client:
+    with TestClient(app, base_url="http://127.0.0.1", client=("127.0.0.1", 50000)) as client:
         response = client.post(
             "/api/v1/recognitions",
             data={"model": "texteller", "request_id": "request-1"},
@@ -153,7 +153,7 @@ def test_game_recognition_returns_normalized_latex_and_timing(monkeypatch):
 
 
 def test_game_questions_do_not_expose_answers():
-    with TestClient(app) as client:
+    with TestClient(app, base_url="http://127.0.0.1", client=("127.0.0.1", 50000)) as client:
         response = client.get("/api/v1/questions")
     assert response.status_code == 200
     body = response.json()
@@ -172,7 +172,7 @@ def test_game_questions_do_not_expose_answers():
 
 
 def test_game_judgement_accepts_normalized_aliases():
-    with TestClient(app) as client:
+    with TestClient(app, base_url="http://127.0.0.1", client=("127.0.0.1", 50000)) as client:
         response = client.post(
             "/api/v1/judgements",
             json={
@@ -192,7 +192,7 @@ def test_game_judgement_preserves_function_command_boundary():
     from backend.app.latex import normalize_latex
     assert normalize_latex(r"\[\cos x\]") == r"\cos x"
     assert normalize_latex(r"\cos x") != normalize_latex(r"\cosx")
-    with TestClient(app) as client:
+    with TestClient(app, base_url="http://127.0.0.1", client=("127.0.0.1", 50000)) as client:
         response = client.post(
             "/api/v1/judgements",
             json={
@@ -208,7 +208,7 @@ def test_game_judgement_preserves_function_command_boundary():
 
 
 def test_game_solution_reveals_answer_after_skip_or_timeout():
-    with TestClient(app) as client:
+    with TestClient(app, base_url="http://127.0.0.1", client=("127.0.0.1", 50000)) as client:
         response = client.get("/api/v1/solutions/d2-s1-r05-v01")
     assert response.status_code == 200
     body = response.json()
@@ -217,7 +217,7 @@ def test_game_solution_reveals_answer_after_skip_or_timeout():
 
 
 def test_game_judgement_rejects_unknown_question():
-    with TestClient(app) as client:
+    with TestClient(app, base_url="http://127.0.0.1", client=("127.0.0.1", 50000)) as client:
         response = client.post(
             "/api/v1/judgements",
             json={"question_id": "missing", "recognized_latex": "x"},
@@ -239,7 +239,7 @@ def test_custom_sample_is_saved(monkeypatch, tmp_path):
     )
     monkeypatch.setattr(main_module, "paths", test_paths)
     strokes = '{"pointer_types":["mouse"],"strokes":[{"pointerType":"mouse","points":[{"x":1,"y":2,"t":3,"pressure":0}]}]}'
-    with TestClient(app) as client:
+    with TestClient(app, base_url="http://127.0.0.1", client=("127.0.0.1", 50000)) as client:
         response = client.post(
             "/samples",
             data={

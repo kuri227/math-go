@@ -36,7 +36,7 @@ def inspect(require_ready: bool, device: str, port: int | None = None) -> list[d
     model = Path(os.getenv("TEXTELLER_MODEL_DIR", ROOT / ".model-cache/texteller"))
     for file in ("model.safetensors", "config.json", "tokenizer.json", "tokenizer_config.json"):
         add("Model: " + file, (model / file).is_file(), str(model / file), require_ready)
-    for file in ("index.html", "display.html", "controller.html"):
+    for file in ("index.html", "display.html", "controller.html", "game-assets/support.js", ".vite/manifest.json"):
         add("Build: " + file, (ROOT / "game/dist" / file).is_file(), "game/dist/" + file, require_ready)
     add("Build assets", any((ROOT / "game/dist/game-assets").glob("*.js")), "game/dist/game-assets/*.js", require_ready)
     if require_ready:

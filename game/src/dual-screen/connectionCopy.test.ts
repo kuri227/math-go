@@ -2,6 +2,9 @@ import { describe, expect, it } from "vitest";
 import { connectionCopy } from "./connectionCopy";
 
 describe("connection guidance", () => {
+  it("names the display role when a second problem screen is rejected", () => {
+    expect(connectionCopy({ connected: false, incompatible: false, rejectionReason: "role-already-connected" }, "display")).toContain("別の問題表示画面");
+  });
   it("explains duplicate input and automatic recovery", () => {
     const copy = connectionCopy({ connected: false, incompatible: false, rejectionReason: "role-already-connected" });
     expect(copy).toContain("別の入力画面が接続済み");

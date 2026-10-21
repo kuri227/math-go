@@ -26,16 +26,18 @@ describe("two-mode game rules", () => {
     expect(session.snapshot.lives).toBe(3);
     expect(session.snapshot.judgement).toBeNull();
   });
-  it("charges preview/rewrite time, not image recognition or judgement time", () => {
+  it("charges only writing time, not recognition, preview or judgement time", () => {
     let now = 0; const session = new Session(questions.slice(0, 1), "exhibition", () => now); session.start();
     now = 5000; session.beginRecognition("a"); now = 100000; session.tick(); expect(session.snapshot.remainingMs).toBe(15000);
-    session.recognized("a", recognized("a")); now += 2000; session.tick(); expect(session.snapshot.remainingMs).toBe(13000);
-    session.beginJudge("a"); now += 50000; session.tick(); expect(session.snapshot.remainingMs).toBe(13000);
-    session.judged("a", judged(false)); now += 1000; session.tick(); expect(session.snapshot.remainingMs).toBe(12000);
+    session.recognized("a", recognized("a")); now += 2000; session.tick(); expect(session.snapshot.remainingMs).toBe(15000);
+    session.beginJudge("a"); now += 50000; session.tick(); expect(session.snapshot.remainingMs).toBe(15000);
+    session.judged("a", judged(false)); now += 1000; session.tick(); expect(session.snapshot.remainingMs).toBe(14000);
   });
-  it("loses one life on preview timeout and rejects late operations", () => {
+  it("preserves time during preview, resumes on rewrite, and rejects late operations after writing timeout", () => {
     let now = 0; const session = new Session(questions.slice(0, 1), "exhibition", () => now); session.start();
     session.beginRecognition("a"); session.recognized("a", recognized("a")); now = 20001;
+    session.tick(); expect(session.snapshot.remainingMs).toBe(20000); expect(session.snapshot.lives).toBe(3);
+    expect(session.rewrite()).toBe(true); now += 20001; session.tick();
     expect(session.beginJudge("late")).toBe(false); expect(session.snapshot.phase).toBe("result"); expect(session.snapshot.lives).toBe(2); expect(session.rewrite()).toBe(false);
     session.tick(); session.tick(); expect(session.snapshot.lives).toBe(2);
     session.next(); expect(session.snapshot.endReason).toBe("completed");

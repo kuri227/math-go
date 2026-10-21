@@ -8,11 +8,12 @@ import { richText } from "./richText";
 import { Session, chooseExhibition, EXHIBITION, type Mode, type Snapshot } from "./Session";
 import type { Question, RecognitionResponse } from "../domain/types";
 import { DualScreenChannel } from "../dual-screen/DualScreenChannel";
-import { BroadcastChannelTransport } from "../dual-screen/BroadcastChannelTransport";
+import { WebSocketTransport } from "../dual-screen/WebSocketTransport";
 import { formulaScale } from "../game/formulaLayout";
 import { UrgencySound } from "../ui/UrgencySound";
 import { StatePublisher } from "../dual-screen/StatePublisher";
 import { connectionCopy } from "../dual-screen/connectionCopy";
+import { activity, clockRunning } from "./activity";
 import { byId as $, text } from "./dom";
 
 import { appMarkup, type Role } from "./view";
@@ -43,7 +44,7 @@ export function runApp(role: Role): void {
   if (role !== "single" && !params.has("session")) { params.set("session", sessionId); history.replaceState(null, "", `${location.pathname}?${params}`); }
   if (role !== "single") document.querySelector<HTMLAnchorElement>(".wordmark")!.href = `${location.pathname}?session=${encodeURIComponent(sessionId)}`;
   $<HTMLAnchorElement>("displayLink").href = `/display?session=${encodeURIComponent(sessionId)}`;
-  const channel = role === "single" ? null : new DualScreenChannel(new BroadcastChannelTransport(`math-go:v2:${sessionId}`), sessionId, role);
+  const channel = role === "single" ? null : new DualScreenChannel(new WebSocketTransport(sessionId, role), sessionId, role);
   const state = () => role === "controller" ? remote : session?.snapshot ?? null;
   const canInput = () => role !== "display" && modelReady && connected && !!state() && !state()!.paused;
   const publisher = new StatePublisher<Snapshot | null>(snapshot => channel?.send({ type: "exhibition-state", snapshot }));
@@ -85,6 +86,7 @@ export function runApp(role: Role): void {
     document.body.dataset.phase = phase;
     if (previousPhase !== phase) requestAnimationFrame(() => {
       if (document.body.dataset.phase !== phase) return;
+      if (["recognizing", "preview", "judging"].includes(phase)) $("activityTitle").scrollIntoView({ block: "nearest" });
       const target = ({ setup: role === "controller" ? "waitingMessage" : "setupTitle", guide: role === "controller" ? "waitingMessage" : "guideTitle", result: "resultTitle", finished: "endTitle", writing: role === "display" ? "questionMeta" : "inputHeading" } as Record<string, string>)[phase];
       if (target) { const element = $(target); element.tabIndex = -1; element.focus(); if (phase === "result") element.scrollIntoView({ block: "start" }); }
     });
@@ -101,7 +103,12 @@ export function runApp(role: Role): void {
     text("round", `${s.round} / ${s.total}問`);
     text("correct", `正解 ${s.correct}`); text("streak", `連続 ${s.streak}`);
     $("lives").hidden = s.mode === "test"; text("lives", `残機 ${s.lives ?? 3} / 3`);
-    $("time").hidden = s.mode === "test"; text("time", `${(s.remainingMs / 1000).toFixed(1)}秒${s.paused || ["recognizing", "judging", "result"].includes(s.phase) ? "（停止中）" : ""}`);
+    $("time").hidden = s.mode === "test"; text("time", `${(s.remainingMs / 1000).toFixed(1)}秒${clockRunning(s) ? "" : " · 時計停止中"}`);
+    $("time").dataset.paused = String(!clockRunning(s));
+    const status = activity(s);
+    $("activity").hidden = !status;
+    text("activityTitle", status?.title ?? ""); text("activityDescription", status?.description ?? "");
+    $("recognitionProgress").hidden = !status?.busy;
     $("timerTrack").hidden = s.mode === "test";
     $("timerFill").style.width = `${Math.max(0, s.remainingMs / (EXHIBITION.seconds * 10))}%`;
     $("timerTrack").dataset.urgent = String(s.remainingMs <= 5000);
@@ -112,7 +119,7 @@ export function runApp(role: Role): void {
       ? formulaScale(prompt.offsetWidth, prompt.offsetHeight, space.clientWidth, space.clientHeight, s.remainingMs / (EXHIBITION.seconds * 1000)) : 1;
     prompt.style.transform = `scale(${scale})`;
     const second = Math.ceil(s.remainingMs / 1000), soundKey = `${s.runId}:${s.round}:${second}`;
-    if (role !== "controller" && timed && !s.paused && ["writing", "preview"].includes(s.phase) && second > 0 && second <= 5 && lastSound !== soundKey) { lastSound = soundKey; sound.play(second); }
+    if (role !== "controller" && clockRunning(s) && second > 0 && second <= 5 && lastSound !== soundKey) { lastSound = soundKey; sound.play(second); }
     const renderKey = `${key}:${phase}:${s.notice}:${s.recognition?.request_id}:${s.judgement?.correct}:${s.paused}:${connected}:${modelReady}`;
     if (renderKey === lastRender) return; lastRender = renderKey;
     const q = s.question!;
@@ -121,7 +128,7 @@ export function runApp(role: Role): void {
     $("prompt").classList.toggle("short-prompt", (q.prompt ?? q.display).length < 48);
     $("problemPane").hidden = role === "controller";
     $("inputPane").hidden = role === "display" || phase === "result" && !draft?.response;
-    $("notice").textContent = !connected ? "相手の画面との接続が切れました。再接続まで時計を止めています。" : s.paused ? "入力画面を再接続してください。時計を止めています。" : s.notice || (role === "display" ? "入力画面に答えを書き、読み取りを確認してから回答してください。" : "答えを書いて「読み取りを確認」を押してください。");
+    $("notice").textContent = !connected ? "もう一方の画面との接続が切れました。再接続まで時計を止めています。" : s.paused ? "入力画面を再接続してください。時計を止めています。" : s.notice || (role === "display" ? "入力画面に答えを書き、読み取りを確認してから回答してください。" : "答えを書いて「読み取りを確認」を押してください。");
     const writing = phase === "writing", preview = phase === "preview";
     $("padWrap").hidden = !writing && phase !== "recognizing";
     $("inputHeading").hidden = !writing && phase !== "recognizing";
@@ -254,8 +261,9 @@ export function runApp(role: Role): void {
   });
   channel?.subscribeConnection(connection => {
     connected = connection.connected;
-    text("connection", connectionCopy(connection));
-    text("waitingMessage", connection.rejectionReason || connection.incompatible ? connectionCopy(connection) : "問題表示画面でモードと問題を選んでください。");
+    const connectionText = connectionCopy(connection, role === "display" ? "display" : "controller");
+    text("connection", connectionText);
+    text("waitingMessage", connection.rejectionReason || connection.incompatible ? connectionText : "問題表示画面でモードと問題を選んでください。");
     if (role === "display" && session) {
       session.pause(!connected);
       if (!connected && session.snapshot.phase === "recognizing" && activeRecognition === null) {
@@ -280,7 +288,7 @@ export function runApp(role: Role): void {
     session = new Session(questions, selectedMode); lastRender = "";
     $("guideTitle").textContent = selectedMode === "test" ? "テストプレイ・データ収集" : "本番体験の遊び方";
     $("guideDescription").textContent = selectedMode === "test" ? `選択した${questions.length}問を、選んだ順にテストします。` : `${labels[selectedLevel() - 1]}の本番候補から${questions.length}問に挑戦します。`;
-    $("guideRules").textContent = selectedMode === "test" ? "時間制限・残機はありません。同じ問題を何度でもテストできます。" : "残機3・1問20秒。不正解でも残機は減らず、同じ問題に何度でも再回答できます。時間切れで残機が1減り、正答を確認して次へ進みます。残機0で終了。認識・判定の処理待ちだけ時計が止まり、読み取り確認中は時間が進みます。";
+    $("guideRules").textContent = selectedMode === "test" ? "時間制限・残機はありません。同じ問題を何度でもテストできます。" : "残機3・1問20秒。不正解でも残機は減らず、同じ問題に何度でも再回答できます。時間切れで残機が1減り、正答を確認して次へ進みます。残機0で終了。時計が進むのは手書き中だけです。認識中・確認中・判定中・切断中は停止し、書き直しで再開します。";
     $("guidePrivacy").textContent = selectedMode === "test" ? "データは自動保存しません。画像とラベルを確認し、保存に同意したものだけ、このPCへ保存します。" : "本番体験の手書き画像は学習データとして保存しません。";
     render(); sendState();
   });
