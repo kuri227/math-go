@@ -8,6 +8,7 @@ import traceback
 from contextlib import redirect_stdout
 
 import torch
+from settings import cpu_thread_count
 
 PROTOCOL_OUT = sys.stdout
 PROTOCOL_PREFIX = "@@HMER_JSON@@"
@@ -28,6 +29,9 @@ def main() -> None:
     try:
         initialized_at = time.perf_counter()
         device = choose_device()
+        cpu_threads = cpu_thread_count(os.getenv("TEXTELLER_CPU_THREADS", "")) if device.type == "cpu" else None
+        if cpu_threads is not None:
+            torch.set_num_threads(cpu_threads)
         if device.type == "cuda":
             torch.cuda.reset_peak_memory_stats(device)
         use_onnx = os.getenv("TEXTELLER_USE_ONNX", "0") == "1"

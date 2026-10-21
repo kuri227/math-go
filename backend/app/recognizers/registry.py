@@ -40,6 +40,7 @@ class RecognizerRegistry:
                 log_path=REPO_ROOT / "results" / "logs" / "texteller.log",
                 extra_env={
                     "TEXTELLER_USE_ONNX": os.getenv("TEXTELLER_USE_ONNX", "0"),
+                    "TEXTELLER_CPU_THREADS": os.getenv("TEXTELLER_CPU_THREADS", ""),
                     "TEXTELLER_MODEL_DIR": os.getenv(
                         "TEXTELLER_MODEL_DIR", str(model_cache / "texteller")
                     ),
