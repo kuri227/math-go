@@ -2,11 +2,17 @@ from pathlib import Path
 from unittest.mock import Mock
 
 import pytest
+from PIL import Image, ImageDraw
 
 from backend.app.recognizers.worker import WorkerError, WorkerRecognizer
 
 
-def test_cuda_failure_discards_worker_and_restarts_on_next_submission(tmp_path: Path):
+def test_cuda_failure_discards_worker_and_restarts_on_next_submission(tmp_path: Path, monkeypatch):
+    import backend.app.recognizers.worker as module
+    monkeypatch.setattr(module.uuid, "uuid4", lambda: Mock(hex="request"))
+    image = Image.new("RGB", (40, 40), "white")
+    ImageDraw.Draw(image).line((10, 10, 20, 25), fill="black", width=3)
+    image.save(tmp_path / "answer.png")
     worker = WorkerRecognizer(
         name="texteller", variant="3.0", device="cuda",
         python_executable=tmp_path / "python", worker_script=tmp_path / "worker.py",
@@ -16,8 +22,8 @@ def test_cuda_failure_discards_worker_and_restarts_on_next_submission(tmp_path: 
     process.poll.return_value = None
     worker._process = process
     worker._read_protocol_message = Mock(side_effect=[
-        {"error": "AcceleratorError: CUDA error: unknown error"},
-        {"latex": "x=-3", "inference_ms": 10},
+        {"request_id": "request", "error": "AcceleratorError: CUDA error: unknown error"},
+        {"request_id": "request", "latex": "x=-3", "inference_ms": 10},
     ])
 
     with pytest.raises(WorkerError, match="次の提出"):

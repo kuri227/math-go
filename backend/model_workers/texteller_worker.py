@@ -55,6 +55,7 @@ def main() -> None:
         return
 
     for line in sys.stdin:
+        request = {}
         try:
             request = json.loads(line)
             if request.get("command") == "shutdown":
@@ -74,13 +75,14 @@ def main() -> None:
                 torch.cuda.synchronize()
             emit(
                 {
+                    "request_id": request.get("request_id"),
                     "latex": latex,
                     "inference_ms": (time.perf_counter() - started) * 1000,
                     "peak_vram_mb": torch.cuda.max_memory_allocated(device) / 1024**2 if device.type == "cuda" else None,
                 }
             )
         except Exception as exc:
-            emit({"error": f"{type(exc).__name__}: {exc}"})
+            emit({"request_id": request.get("request_id"), "error": f"{type(exc).__name__}: {exc}"})
             traceback.print_exc(file=sys.stderr)
 
 

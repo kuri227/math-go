@@ -1,15 +1,18 @@
 from __future__ import annotations
 
 import json
+import math
 import os
 import subprocess
 import threading
 import time
+import uuid
 from pathlib import Path
 
 from .base import Recognition
-
-PROTOCOL_PREFIX = "@@HMER_JSON@@"
+from .protocol import ProtocolReader
+from .input_image import require_visible_content
+from .process_cleanup import terminate_owned_process
 
 
 class WorkerError(RuntimeError):
@@ -28,6 +31,8 @@ class WorkerRecognizer:
         cwd: Path,
         log_path: Path,
         extra_env: dict[str, str] | None = None,
+        startup_timeout: float = 180,
+        inference_timeout: float = 25,
     ) -> None:
         self.name = name
         self.variant = variant
@@ -37,10 +42,14 @@ class WorkerRecognizer:
         self.cwd = cwd
         self.log_path = log_path
         self.extra_env = extra_env or {}
+        if startup_timeout <= 0 or inference_timeout <= 0:
+            raise ValueError("Worker deadlines must be positive")
+        self.startup_timeout = startup_timeout
+        self.inference_timeout = inference_timeout
+        self._reader: ProtocolReader | None = None
         self._process: subprocess.Popen[str] | None = None
         self._log_handle = None
-        self._lock = threading.Lock()
-        self._start_lock = threading.Lock()
+        self._lock = threading.RLock()
         self._starting = False
         self._detail: str | None = None
         self.initialization_ms: float | None = None
@@ -64,11 +73,12 @@ class WorkerRecognizer:
         return self._detail
 
     def start(self) -> None:
-        with self._start_lock:
+        with self._lock:
             if self.available:
                 return
             self._starting = True
             try:
+                self.close()
                 self._start_process()
             except Exception as exc:
                 self._detail = f"{type(exc).__name__}: {exc}"
@@ -104,9 +114,15 @@ class WorkerRecognizer:
             errors="replace",
             bufsize=1,
         )
+        assert self._process.stdout is not None
+        self._reader = ProtocolReader(self._process.stdout)
         ready: dict[str, object] | None = None
+        deadline = time.monotonic() + self.startup_timeout
         while self._process.stdout:
-            candidate = self._read_protocol_message()
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                raise TimeoutError("Recognition worker startup deadline exceeded")
+            candidate = self._read_protocol_message(remaining)
             if candidate is None:
                 break
             if candidate.get("status") in {"ready", "error"}:
@@ -128,21 +144,45 @@ class WorkerRecognizer:
         self._detail = None
 
     def recognize(self, image_path: Path) -> Recognition:
+        # Serialize startup, requests and disposal as one lifecycle operation.
+        with self._lock:
+            return self._recognize(image_path)
+
+    def _recognize(self, image_path: Path) -> Recognition:
+        try:
+            require_visible_content(image_path)
+        except ValueError as error:
+            raise WorkerError(str(error)) from error
         if not self.available:
             self.start()
         if not self.available or self._process is None:
             raise WorkerError(self._detail or f"{self.name} is unavailable")
 
-        request = json.dumps({"image_path": str(image_path.resolve())}, ensure_ascii=False)
-        with self._lock:
+        request_id = uuid.uuid4().hex
+        request = json.dumps({"request_id": request_id, "image_path": str(image_path.resolve())}, ensure_ascii=False)
+        try:
             assert self._process.stdin is not None
             assert self._process.stdout is not None
             self._process.stdin.write(request + "\n")
             self._process.stdin.flush()
-            response = self._read_protocol_message()
+            response = self._read_protocol_message(self.inference_timeout)
+            if response is not None and response.get("request_id") != request_id:
+                raise WorkerError("Recognition worker returned an unexpected request ID")
+            if response is not None and not response.get("error"):
+                duration = response.get("inference_ms")
+                if not isinstance(response.get("latex"), str) or not isinstance(duration, (int, float)) or not math.isfinite(duration) or duration < 0:
+                    raise WorkerError("Recognition worker returned an invalid result")
+        except (TimeoutError, OSError, WorkerError) as error:
+            self._detail = str(error)
+            self.close(force=True)
+            raise WorkerError(
+                "認識モデルの応答が途切れました。書いた内容は残っています。"
+                "もう一度読み取るとモデルを再起動します。"
+            ) from error
 
         if response is None:
             self._detail = self._read_log_tail() or "Worker stopped during inference"
+            self.close(force=True)
             raise WorkerError(self._detail)
         if response.get("error"):
             detail = str(response["error"])
@@ -168,35 +208,34 @@ class WorkerRecognizer:
             peak_vram_mb=self.peak_vram_mb,
         )
 
-    def _read_protocol_message(self) -> dict[str, object] | None:
-        if self._process is None or self._process.stdout is None:
-            return None
-        decoder = json.JSONDecoder()
-        for line in self._process.stdout:
-            offset = line.find(PROTOCOL_PREFIX)
-            if offset < 0:
-                continue
-            payload = line[offset + len(PROTOCOL_PREFIX) :]
-            try:
-                message, _ = decoder.raw_decode(payload)
-            except json.JSONDecodeError:
-                continue
-            if isinstance(message, dict):
-                return message
-        return None
+    def _read_protocol_message(self, timeout: float) -> dict[str, object] | None:
+        return self._reader.read(timeout) if self._reader is not None else None
 
-    def close(self) -> None:
-        if self._process is None:
-            return
-        if self._process.poll() is None:
+    def close(self, *, force: bool = False) -> None:
+        with self._lock:
+            self._close_process(force=force)
+
+    def _close_process(self, *, force: bool) -> None:
+        process, reader = self._process, self._reader
+        self._process, self._reader = None, None
+        if process is not None and process.poll() is None:
             try:
-                if self._process.stdin:
-                    self._process.stdin.write('{"command":"shutdown"}\n')
-                    self._process.stdin.flush()
-                self._process.wait(timeout=5)
-            except (BrokenPipeError, subprocess.TimeoutExpired):
-                self._process.terminate()
-        self._process = None
+                if force:
+                    terminate_owned_process(process)
+                elif process.stdin:
+                    process.stdin.write('{"command":"shutdown"}\n')
+                    process.stdin.flush()
+                process.wait(timeout=1)
+            except (OSError, subprocess.TimeoutExpired):
+                terminate_owned_process(process)
+                process.kill()
+                process.wait(timeout=2)
+        if reader is not None:
+            reader.thread.join(timeout=1)
+        if process is not None:
+            for pipe in (process.stdin, process.stdout):
+                if pipe is not None:
+                    pipe.close()
         if self._log_handle is not None:
             self._log_handle.close()
             self._log_handle = None
