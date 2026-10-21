@@ -11,58 +11,15 @@ import { DualScreenChannel } from "../dual-screen/DualScreenChannel";
 import { BroadcastChannelTransport } from "../dual-screen/BroadcastChannelTransport";
 import { formulaScale } from "../game/formulaLayout";
 import { UrgencySound } from "../ui/UrgencySound";
+import { StatePublisher } from "../dual-screen/StatePublisher";
+import { byId as $, text } from "./dom";
 
-type Role = "single" | "display" | "controller";
-const labels = ["小学校低学年", "小学校高学年", "中学校", "高校", "大学・理工系", "大学院", "超上級・専門数学"];
-const reviewLabels = { pending: "未確認", approved: "確認済み", needs_revision: "要修正" };
-const $ = <T extends HTMLElement = HTMLElement>(id: string): T => {
-  const element = document.getElementById(id); if (!element) throw new Error(`Missing ${id}`); return element as T;
-};
-const button = (id: string, text: string, primary = false) => `<button type="button" id="${id}"${primary ? ' class="primary"' : ""}>${text}</button>`;
+import { appMarkup, type Role } from "./view";
+import { DIFFICULTY_LABELS as labels, REVIEW_LABELS as reviewLabels, QuestionCatalog } from "./catalog";
 
 export function runApp(role: Role): void {
   document.body.dataset.role = role;
-  $("app").innerHTML = `
-    <header class="app-header"><a class="wordmark" href="${role === "controller" ? "/controller" : role === "display" ? "/display" : "/"}">数学で<span>GO</span></a>
-      <div class="header-actions"><span id="connection" role="status"></span><span id="modelStatus" role="status">認識モデルを準備中</span>${button("sound", "警告音 ON")}${button("fullscreen", "全画面")}</div></header>
-    <main>
-      <section id="setup" class="setup" aria-labelledby="setupTitle">
-        <div class="intro"><h1 id="setupTitle">書いて、確かめて、<br>数学に挑もう。</h1><p>答えを手書き。読み取りを確認してから回答。<br>本番体験と問題テスト、目的に合わせて選べます。</p>
-          <div class="screen-links" id="screenLinks">${role === "display" ? button("openController", "入力画面を開く") + '<a href="/">1画面で使う</a>' : '<a href="/display">2画面で使う</a>'}</div></div>
-        <div class="settings"><fieldset><legend>遊び方</legend><div class="mode-choices">
-          <label><input type="radio" name="mode" value="exhibition" checked><strong>本番体験</strong><span>7問・1問20秒・残機3。時間切れでのみ残機が減ります。</span></label>
-          <label><input type="radio" name="mode" value="test"><strong>テストプレイ・データ収集</strong><span>問題を選んで、時間を気にせず検証。</span></label></div></fieldset>
-          <label class="field" for="difficulty">問題のレベル<select id="difficulty">${labels.map((label, i) => `<option value="${i + 1}">${i + 1} · ${label}</option>`).join("")}</select></label>
-          <p id="poolSummary" class="muted"></p><p id="setupStatus" role="status">問題データを読み込んでいます。</p>
-          <section id="questionPicker" hidden aria-label="テストする問題の選択"><label class="field" for="search">問題文・ID・分野で検索<input id="search" type="search" placeholder="例：方程式、d3-s2"></label>
-            <div class="picker-toolbar"><label><input id="allLevels" type="checkbox">全レベルから探す</label><label><input id="onlyPending" type="checkbox">未確認だけ</label></div>
-            <p id="selectionCount" role="status">0問選択中</p><div id="questionList" class="question-list"></div>${button("clearSelection", "選択を解除")}</section>
-          ${button("showGuide", "遊び方を確認して進む", true)}
-        </div>
-      </section>
-      <section id="guide" class="reading-surface" hidden aria-labelledby="guideTitle"><h1 id="guideTitle"></h1><p id="guideDescription"></p><ol><li>問題を読み、答えを白い欄に書きます。</li><li>「読み取りを確認」で、画像と認識した数式を見比べます。</li><li>合っていれば「この内容で回答」。違うときは書き直せます。</li></ol><p id="guideRules"></p><p id="guidePrivacy"></p><div class="actions">${button("guideBack", "設定に戻る")}${button("begin", "はじめる", true)}</div></section>
-      <section id="waiting" class="reading-surface" hidden><h1>入力画面</h1><p id="waitingMessage">問題表示画面でモードと問題を選んでください。</p><a id="displayLink" href="/display">問題表示画面を開く</a></section>
-      <section id="play" hidden aria-label="プレイ画面">
-        <div class="play-toolbar"><p id="modeName"></p><div class="hud"><span id="round"></span><span id="correct"></span><span id="streak"></span><span id="lives" role="status"></span><strong id="time" aria-label="残り時間"></strong></div>${button("stop", "プレイを終了")}</div>
-        <div id="timerTrack" class="timer-track" aria-hidden="true"><div id="timerFill"></div></div>
-        <div class="play-grid"><section id="problemPane" class="problem-pane" aria-label="問題"><p id="questionMeta" class="muted"></p><div class="prompt-space"><div id="prompt" class="prompt"></div></div></section>
-          <section id="inputPane" class="input-pane" aria-label="手書き回答"><div id="inputHeading" class="input-heading"><h2>答えを書く</h2></div>
-            <div id="padWrap" class="pad-wrap"><canvas id="pad" aria-label="手書き回答欄"></canvas><p id="padHint">ここに答えを書いてください</p><span id="pointer" hidden aria-hidden="true"></span></div>
-            <div id="preview" class="preview" hidden><h2>書いた内容と合っていますか？</h2><div class="preview-comparison"><figure><figcaption>認識に送った画像</figcaption><img id="inkImage" alt="余白を切り取った手書き回答"></figure><div><p>読み取った数式</p><div id="recognized" class="math-output"></div></div></div><details><summary>LaTeX原文・処理時間</summary><code id="rawLatex"></code><p id="timing"></p></details></div>
-            <div id="inputActions" class="input-actions"><div id="editActions" class="edit-actions">${button("undo", "1画戻す")}${button("clear", "全消去")}</div><div id="writingActions">${button("recognize", "読み取りを確認", true)}</div><div id="previewActions" hidden>${button("rewrite", "書き直す")}${button("confirm", "この内容で回答", true)}</div></div>
-          </section></div>
-        <p id="notice" class="notice" role="status" aria-live="polite"></p>
-        <section id="result" class="result reading-surface" hidden aria-labelledby="resultTitle"><h2 id="resultTitle"></h2><div class="solution"><p>正答例</p><div id="expected"></div><p id="explanation"></p></div><div id="resultActions" class="actions">${button("retryTest", "同じ問題を再テスト")}${button("next", "次の問題へ", true)}</div></section>
-        <section id="collection" class="reading-surface collection" hidden aria-labelledby="collectionTitle"><h2 id="collectionTitle">この手書きを学習候補として保存</h2><p>正解・不正解にかかわらず保存できます。問題の正答ではなく、画像に実際に書いた内容を入力してください。保存だけではモデルは学習されません。</p>
-          <label class="field" for="transcription">書いた内容の正しいLaTeX<input id="transcription" maxlength="4000" autocomplete="off" spellcheck="false"></label><div id="transcriptionPreview" class="math-output" aria-label="保存するラベルの表示"></div>
-          <label class="field" for="writerId">筆者コード（学習に使う場合は必要・氏名不要）<input id="writerId" maxlength="64" placeholder="例：writer-01" autocomplete="off"></label>
-          <label class="check-line"><input type="checkbox" id="labelConfirmed">画像に書いた内容と、保存するLaTeXが一致していることを確認しました</label>
-          <label class="check-line"><input type="checkbox" id="consent">手書き画像・筆跡・確認済みLaTeXを、このPCへ学習・評価用データとして保存することに同意します</label>
-          ${button("saveSample", "確認したデータを保存")}<p id="saveStatus" role="status"></p></section>
-        <section id="review" class="reading-surface" hidden aria-labelledby="reviewTitle"><h2 id="reviewTitle">問題の確認・本番への反映</h2><p>問題文・正答・表示を確認してから変更してください。変更は次のプレイから反映されます。</p><label class="field" for="reviewStatus">確認状況<select id="reviewStatus"><option value="pending">未確認</option><option value="approved">確認済み</option><option value="needs_revision">要修正</option></select></label><label class="check-line"><input id="exhibitionEnabled" type="checkbox">本番体験の出題候補にする</label>${button("saveReview", "確認状況を保存")}<p id="reviewNotice" role="status"></p></section>
-      </section>
-      <section id="finished" class="reading-surface finished" hidden aria-labelledby="endTitle"><h1 id="endTitle"></h1><p id="endReason"></p><p id="endStats" class="end-stats"></p><p id="endAttempts"></p><div id="endSolution" hidden><h2>最後の問題</h2><div id="lastPrompt"></div><p>正答例</p><div id="lastAnswer"></div><p id="lastExplanation"></p></div><div class="actions">${button("backToSetup", "モード・問題を選び直す", true)}</div></section>
-    </main>`;
+  $("app").innerHTML = appMarkup(role);
 
   const client = new RecognitionClient();
   const sound = new UrgencySound();
@@ -71,6 +28,8 @@ export function runApp(role: Role): void {
   let lastSound = "";
   const pad = new HandwritingPad($<HTMLCanvasElement>("pad"), $("padHint"), $("pointer"));
   let bank: Question[] = [], modelReady = false, connected = role === "single";
+  let catalog = new QuestionCatalog(bank);
+  const setBank = (questions: Question[]) => { bank = questions; catalog = new QuestionCatalog(bank); };
   let selectedMode: Mode = "exhibition", session: Session | null = null, remote: Snapshot | null = null;
   let lastRender = "", lastQuestion = "", lastPreview = "", busy = false, saveBusy = false, savedRequest = "";
   let lastFocusedPreview = "", controllerConnectionId: string | null = null;
@@ -86,7 +45,8 @@ export function runApp(role: Role): void {
   const channel = role === "single" ? null : new DualScreenChannel(new BroadcastChannelTransport(`math-go:v2:${sessionId}`), sessionId, role);
   const state = () => role === "controller" ? remote : session?.snapshot ?? null;
   const canInput = () => role !== "display" && modelReady && connected && !!state() && !state()!.paused;
-  const sendState = () => { if (role === "display") channel?.send({ type: "exhibition-state", snapshot: session?.snapshot ?? null }); };
+  const publisher = new StatePublisher<Snapshot | null>(snapshot => channel?.send({ type: "exhibition-state", snapshot }));
+  const sendState = (force = false) => { if (role === "display") publisher.publish(session?.snapshot ?? null, force); };
   const selectedLevel = () => Number($<HTMLSelectElement>("difficulty").value);
   const on = (id: string, action: () => void | Promise<void>) => $(id).addEventListener("click", () => { void Promise.resolve().then(action).catch(showError); });
   function showError(error: unknown): void { const text = error instanceof Error ? error.message : String(error); $(state() && !["guide", "finished"].includes(state()!.phase) ? "notice" : "setupStatus").textContent = text; }
@@ -104,7 +64,7 @@ export function runApp(role: Role): void {
   function drawPicker(): void {
     const search = $<HTMLInputElement>("search").value.toLocaleLowerCase();
     const all = $<HTMLInputElement>("allLevels").checked, pending = $<HTMLInputElement>("onlyPending").checked;
-    const matches = bank.filter(q => (all || q.difficulty === selectedLevel()) && (!pending || q.review_status !== "approved") && `${q.id} ${q.display} ${q.category}`.toLocaleLowerCase().includes(search));
+    const matches = catalog.search(search, selectedLevel(), all, pending);
     const list = $("questionList"); list.replaceChildren();
     if (!matches.length) { list.textContent = "該当する問題がありません。検索条件を変更してください。"; }
     for (const q of matches) {
@@ -122,6 +82,11 @@ export function runApp(role: Role): void {
     const phase = s?.phase ?? "setup";
     const previousPhase = document.body.dataset.phase;
     document.body.dataset.phase = phase;
+    if (previousPhase !== phase) requestAnimationFrame(() => {
+      if (document.body.dataset.phase !== phase) return;
+      const target = ({ setup: role === "controller" ? "waitingMessage" : "setupTitle", guide: role === "controller" ? "waitingMessage" : "guideTitle", result: "resultTitle", finished: "endTitle", writing: role === "display" ? "questionMeta" : "inputHeading" } as Record<string, string>)[phase];
+      if (target) { const element = $(target); element.tabIndex = -1; element.focus(); if (phase === "result") element.scrollIntoView({ block: "start" }); }
+    });
     if (previousPhase !== phase && (["setup", "guide", "finished"].includes(phase) || phase === "writing" && previousPhase === "guide")) window.scrollTo({ top: 0 });
     $("setup").hidden = role === "controller" || phase !== "setup";
     $("waiting").hidden = role !== "controller" || !["setup", "guide"].includes(phase);
@@ -132,10 +97,10 @@ export function runApp(role: Role): void {
     const key = `${s.runId}:${s.question?.id}`;
     if (key !== lastQuestion) { lastQuestion = key; pad.clear(); releaseDraft(); lastPreview = ""; $("saveStatus").textContent = ""; $("reviewNotice").textContent = ""; window.scrollTo({ top: 0 }); }
     $("modeName").textContent = s.mode === "test" ? "テストプレイ・時間制限なし" : "本番体験";
-    $("round").textContent = `${s.round} / ${s.total}問`;
-    $("correct").textContent = `正解 ${s.correct}`; $("streak").textContent = `連続 ${s.streak}`;
-    $("lives").hidden = s.mode === "test"; $("lives").textContent = `残機 ${s.lives ?? 3} / 3`;
-    $("time").hidden = s.mode === "test"; $("time").textContent = `${(s.remainingMs / 1000).toFixed(1)}秒${s.paused || ["recognizing", "judging", "result"].includes(s.phase) ? "（停止中）" : ""}`;
+    text("round", `${s.round} / ${s.total}問`);
+    text("correct", `正解 ${s.correct}`); text("streak", `連続 ${s.streak}`);
+    $("lives").hidden = s.mode === "test"; text("lives", `残機 ${s.lives ?? 3} / 3`);
+    $("time").hidden = s.mode === "test"; text("time", `${(s.remainingMs / 1000).toFixed(1)}秒${s.paused || ["recognizing", "judging", "result"].includes(s.phase) ? "（停止中）" : ""}`);
     $("timerTrack").hidden = s.mode === "test";
     $("timerFill").style.width = `${Math.max(0, s.remainingMs / (EXHIBITION.seconds * 10))}%`;
     $("timerTrack").dataset.urgent = String(s.remainingMs <= 5000);
@@ -283,7 +248,7 @@ export function runApp(role: Role): void {
         // orphaned preview that it cannot visually verify.
         if (session?.snapshot.phase === "preview") session.rewrite();
       }
-      controllerConnectionId = message.connectionId; sendState();
+      controllerConnectionId = message.connectionId; sendState(true);
     }
   });
   channel?.subscribeConnection(connection => {
@@ -308,7 +273,7 @@ export function runApp(role: Role): void {
   for (const id of ["search", "allLevels", "onlyPending"]) $(id).addEventListener(id === "search" ? "input" : "change", drawPicker);
   on("clearSelection", () => { selected.clear(); drawPicker(); });
   on("showGuide", () => {
-    const questions = selectedMode === "test" ? [...selected].map(id => bank.find(q => q.id === id)!).filter(Boolean) : chooseExhibition(bank, selectedLevel());
+    const questions = selectedMode === "test" ? catalog.selected(selected) : chooseExhibition(bank, selectedLevel());
     if (!modelReady || !connected || !questions.length) return;
     session = new Session(questions, selectedMode); lastRender = "";
     $("guideTitle").textContent = selectedMode === "test" ? "テストプレイ・データ収集" : "本番体験の遊び方";
@@ -324,7 +289,7 @@ export function runApp(role: Role): void {
   on("confirm", () => action("confirm")); on("next", () => action("next"));
   on("retryTest", async () => { await action("retry-test"); pad.clear(); releaseDraft(); lastPreview = ""; });
   on("stop", () => { if (saveBusy) { $("notice").textContent = "保存処理が終わるまでお待ちください。"; return; } return action("stop"); });
-  on("backToSetup", () => { session = null; releaseDraft(); lastRender = ""; render(); sendState(); void client.fetchQuestions().then(qs => { bank = qs; drawPicker(); }).catch(showError); });
+  on("backToSetup", () => { session = null; releaseDraft(); lastRender = ""; render(); sendState(); void client.fetchQuestions().then(qs => { setBank(qs); drawPicker(); }).catch(showError); });
   on("fullscreen", async () => { try { if (document.fullscreenElement) await document.exitFullscreen(); else await document.documentElement.requestFullscreen(); } catch { $("modelStatus").textContent = "全画面にできませんでした。ブラウザーの全画面操作をお試しください。"; } });
   on("sound", () => { $("sound").textContent = sound.toggle() ? "警告音 ON" : "警告音 OFF"; });
   document.addEventListener("fullscreenchange", () => { $("fullscreen").textContent = document.fullscreenElement ? "全画面を終了" : "全画面"; });
@@ -340,7 +305,7 @@ export function runApp(role: Role): void {
     form.append("question_id", draft.questionId); form.append("ground_truth_latex", $<HTMLInputElement>("transcription").value);
     form.append("recognized_latex", draft.response.raw_latex); form.append("recognition_request_id", draft.response.request_id);
     form.append("writer_id", $<HTMLInputElement>("writerId").value || "anonymous"); form.append("consent", "true"); form.append("label_confirmed", "true");
-    try { const response = await fetch("/api/v1/test-samples", { method: "POST", body: form }); const result = await response.json(); if (!response.ok) throw new Error(result.detail || "保存に失敗しました。"); savedRequest = savingDraft.response!.request_id; $("saveStatus").textContent = `保存しました：${result.sample_id}（data/custom。学習候補・未学習）`; }
+    try { const result = await client.saveSample(form); savedRequest = savingDraft.response!.request_id; $("saveStatus").textContent = `保存しました：${result.sample_id}（学習候補・未学習）`; }
     catch (e) { $("saveStatus").textContent = `保存できませんでした。画像は残っています。${String(e)}`; }
     finally { saveBusy = false; for (const id of ["next", "retryTest", "rewrite", "confirm", "stop"]) $<HTMLButtonElement>(id).disabled = false; $<HTMLButtonElement>("saveSample").disabled = savedRequest === draft?.response?.request_id; lastRender = ""; render(); }
   });
@@ -349,7 +314,7 @@ export function runApp(role: Role): void {
     const status = $<HTMLSelectElement>("reviewStatus").value, enabled = $<HTMLInputElement>("exhibitionEnabled").checked;
     if (enabled && status !== "approved") { $("reviewNotice").textContent = "本番候補にするには確認状況を「確認済み」にしてください。"; return; }
     $<HTMLButtonElement>("saveReview").disabled = true;
-    try { const response = await fetch(`/api/v1/admin/questions/${encodeURIComponent(q.id)}/review`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ review_status: status, exhibition_enabled: enabled }) }); const result = await response.json(); if (!response.ok) throw new Error(result.detail || "保存できませんでした。"); Object.assign(q, result); bank = bank.map(item => item.id === q.id ? result : item); $("reviewNotice").textContent = "保存しました。次のプレイから反映されます。"; sendState(); }
+    try { const result = await client.reviewQuestion(q.id, status, enabled); Object.assign(q, result); setBank(bank.map(item => item.id === q.id ? result : item)); $("reviewNotice").textContent = "保存しました。次のプレイから反映されます。"; sendState(); }
     catch (e) { $("reviewNotice").textContent = `保存できませんでした。${String(e)}`; } finally { $<HTMLButtonElement>("saveReview").disabled = false; }
   });
   document.addEventListener("keydown", event => {
@@ -359,6 +324,6 @@ export function runApp(role: Role): void {
   });
   setInterval(() => { if (role !== "controller" && session) { const expired = session.tick(); render(); sendState(); if (expired) void loadLastSolution(session.snapshot); } }, 100);
   render(); updateSetup();
-  void client.fetchQuestions().then(questions => { bank = questions; drawPicker(); }).catch(e => { $("setupStatus").textContent = `問題を取得できません。ページを更新してください。${String(e)}`; });
+  void client.fetchQuestions().then(questions => { setBank(questions); drawPicker(); }).catch(e => { $("setupStatus").textContent = `問題を取得できません。ページを更新してください。${String(e)}`; });
   void client.beginPreload().then(() => client.waitUntilReady(() => {})).then(() => { modelReady = true; $("modelStatus").textContent = "認識モデル準備完了"; updateSetup(); lastRender = ""; render(); }).catch(e => { $("modelStatus").textContent = `モデルの準備に失敗。サーバーと環境を確認してページを更新してください。${String(e)}`; });
 }

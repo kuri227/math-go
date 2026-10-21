@@ -15,6 +15,10 @@ function submit(session: Session, correct: boolean, id = crypto.randomUUID()): v
 }
 
 describe("two-mode game rules", () => {
+  it("keeps the first terminal reason when an old stop action arrives again", () => {
+    const session = new Session(questions.slice(0, 1), "test"); session.start(); submit(session, true); session.next();
+    session.finish("stopped"); expect(session.snapshot.endReason).toBe("completed");
+  });
   it("allows unlimited wrong answers without leaving the question or resetting time", () => {
     let now = 0; const session = new Session(questions.slice(0, 7), "exhibition", () => now); session.start();
     for (let i = 0; i < 50; i++) { now += 100; submit(session, false); expect(session.snapshot.phase).toBe("writing"); expect(session.snapshot.round).toBe(1); }

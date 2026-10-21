@@ -107,6 +107,7 @@ code { display:block; overflow-wrap:anywhere; white-space:pre-wrap; }
 .check-line input { margin-top:3px; }
 .result .solution > p { font-size:.9rem; }
 .result h2 { margin-bottom:20px; }
+#resultTitle,#endTitle,#inputHeading { scroll-margin-top:24px; }
 .solution > p:first-child { margin-bottom:8px; font-weight:650; }
 #explanation,#lastExplanation { margin:20px 0 0; line-height:1.9; overflow-wrap:anywhere; }
 #explanation .katex,#lastExplanation .katex { display:inline-block; max-width:100%; overflow:auto; vertical-align:middle; padding-block:4px; }

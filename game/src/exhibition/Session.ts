@@ -122,6 +122,7 @@ export class Session {
     this.snapshot.phase = "writing"; this.snapshot.judgement = null; this.snapshot.recognition = null; return true;
   }
   finish(reason: Snapshot["endReason"]): void {
+    if (this.snapshot.phase === "finished") return;
     this.requestId = null; this.snapshot.phase = "finished"; this.snapshot.endReason = reason;
     this.snapshot.recognition = null; this.snapshot.notice = reason === "timeout" ? "時間切れが3回となり、残機が0になったため終了しました。" : reason === "completed" ? "選んだ問題をすべて終えました。" : "プレイを終了しました。";
   }
