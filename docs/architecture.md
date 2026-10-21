@@ -1,58 +1,67 @@
-# 数学でGO HMER PoC アーキテクチャ
+# アーキテクチャ（現行）
 
-2026-10-15のゲーム側現行仕様は [2モード設計](two-mode-exhibition.md)。旧Phaser・GameCoordinator・残機制の記述は過去の構成として参照する。
-現行は `exhibition/Session.ts` が単一の進行正本、`exhibition/App.ts` が3画面共通の表示と操作、DOM/KaTeXが問題表示、独立Canvasが手書きを担当する。
-認識プレビューと採点を分離し、学習候補は `POST /api/v1/test-samples` へ同意・人手転記付きで保存する。
+更新日：2026-10-21。ゲーム仕様は [2モード仕様](two-mode-exhibition.md)、運用手順は [展示運用](festival-operation.md) を正とする。
+以前のPhaser / GameCoordinator構成は [履歴資料](history/architecture-before-2026-10-21.md) に保全した。
 
-## 処理の流れ
-
-ブラウザはPointer Eventsでマウス、ペン、タッチを同じ経路で受け取る。ゲーム画面ではPhaserが問題進行を、独立したHTML Canvasが手書きを担当する。認識時には描画のbounding boxへ余白を加え、白背景・黒線のcrop済みPNGを生成する。通常ゲームはPNGを `POST /api/v1/recognitions` へ送りTexTellerだけで認識する。比較画面は `POST /recognize/compare` へ一度だけ送り、API内の同一一時ファイルを両モデルへ順番に渡す。評価データ保存では同じPNG、stroke JSON、人手確認済みGround Truth、匿名メタデータを `POST /samples` へ送る。
-
-FastAPIは画像形式とサイズを検証し、モデル名から共通Recognizerを選ぶ。TexTellerとUniMERNetは依存するTransformersの版が異なるため、モデルごとに独立したPython仮想環境と常駐ワーカープロセスを使用する。ゲームはページロード時に `POST /api/v1/models/texteller/preload` を呼び、`GET /api/v1/health/ready` を監視する。比較画面は従来どおり `POST /models/preload` で両モデルを順番に準備する。ワーカーはモデルを一度ロードし、標準入出力のJSON Linesで画像パスと認識結果を交換する。
+## 全体構成
 
 ```text
-Pointer Events
-  ├─ strokes.json
-  └─ cropped PNG
-        ↓
-FastAPI /recognize/compare
-        ↓
-Recognizer Registry
-  ├─ TexTeller worker (.venv-texteller)
-  └─ UniMERNet worker (.venv-unimernet)
-        ↓
-モデル別 LaTeX + inference_ms + initialization_ms + peak_vram_mb + device + error
-
-FastAPIはモデル依存処理を持たず、Recognizer Registryだけを参照する。ゲーム用 `/api/v1/recognitions` は選択モデル1つだけを実行し、生LaTeX、正規化LaTeX、画像情報、処理時間を返す。評価画面だけが `/recognize/compare` を使用する。
+同一PC / 同一ブラウザー・プロファイル / 同一Origin
+  Display: Session（唯一の進行正本） + App
+                  ↕ BroadcastChannel（状態 / 操作 / heartbeat）
+  Controller: HandwritingPad + App → PNGをAPIへ直接送信
+  Single: 同じSessionとAppを1画面で利用
+                  ↓ HTTP
+  FastAPI: 問題 / 採点 / 画像検証 / 保存
+                  ↓ 小さいJSON Lines + 一時画像パス
+  TexTeller worker（展示認識） / UniMERNet worker（任意比較）
 ```
 
-## データと評価
+画像・筆跡はBroadcastChannelへ載せない。Controllerがcrop PNGをAPIへ送り、認識結果だけをDisplayへ通知する。
+Displayが採点・タイマー・残機を確定し、Controllerは受信状態を表示する。別PC間の同期は提供しない。
 
-データ位置は `config/paths.toml` のみを設定元とする。通常はリポジトリルート基準の相対パスを使い、`HMER_DATA_ROOT` がある場合だけ別データルートへ切り替える。`benchmark/prepare_unimer.py` は公式ZIPのSHA-256を検証し、HWE画像と `hwe.txt` の行番号対応からmanifestを生成する。公開HWEはテスト専用であり、学習には使用しない。
+## フロントエンドの責務
 
-`benchmark/run_benchmark.py` は同じmanifestを両Recognizerへ与え、warm-upを計測から除外する。各行に予測、正解、Exact Match、保守的なNormalized Match、モデル内推論時間、端から端までの時間、初期化時間、peak VRAM、例外を保存する。失敗行も分母から除外しない。公開HWEにはGround TruthのLaTeX構造から再現可能な主カテゴリと難易度を付与する。`benchmark/analyze_results.py` はモデル別・カテゴリ別精度、平均/P50/P95/最大レイテンシ、失敗画像と原因仮説を再生成し、`benchmark/build_comparison_report.py` がTest AとTest Bを分離した最終レポートを作る。
+| モジュール | 責務 |
+|---|---|
+| `exhibition/Session.ts` | 進行・時計・残機・重複回答拒否。DOMを参照しない |
+| `exhibition/App.ts` | 3役割共通の操作・通信・表示の組み立て |
+| `exhibition/view.ts` | 静的な意味構造とラベル |
+| `exhibition/catalog.ts` | 問題検索の事前インデックス・ID選択・難易度名 |
+| `exhibition/dom.ts` | 静的要素の参照と同値テキスト更新の抑制 |
+| `api/http.ts`, `RecognitionClient.ts` | HTTP・応答検証・エラー整形・タイムアウト |
+| `dual-screen/StatePublisher.ts` | 同じ状態の再送抑制。新規接続へは強制送信 |
+| `dual-screen/DualScreenChannel.ts` | 接続ID・通し番号・heartbeat・通信版の検証 |
+| `ui/HandwritingPad.ts` | Pointer Events・undo・clear・resize・PNGと筆跡の生成 |
+| `ui/renderMath.ts`, `mathFit.ts` | KaTeX・文字列フォールバック・実寸による枠内調整 |
 
-## セキュリティとプライバシー
+認識は30秒、保存は15秒、通常の採点・正答・問題取得等は10秒で応答を待つ。ページ全体のモデル準備監視は最大3分。
+時間切れ後にPOSTが処理済みの場合もあるため、保存再試行には同じ認識要求IDを使い、サーバーが同じ画像・転記・筆者・筆跡であることを検証する。
 
-入力画像とstrokeデータはローカル処理のみで、外部認識APIには送信しない。独自データは匿名 `writer_id` のみを使い、Git管理対象外とする。アップロードは10 MiBまでのPNG、JPEG、WebPに制限する。
+状態が変わらない結果画面やガイドは再送しない。時計が動く間の100ms更新と1秒ごとの接続heartbeatは継続する。
+画面遷移では適切な見出しへフォーカスを移す。手書きそのものの完全なキーボード代替・スクリーンリーダー実機確認は未提供／未検証。
 
-## 2画面境界
+## APIとモデル処理
 
-現行1画面版をフォールバックとして維持しながら、同一PC上の別ブラウザーウィンドウへDisplayとControllerを分ける実装を追加している。入口は `/display` と `/controller?session=...` である。
+- `GET /api/v1/questions` は正答を含めない。採点と正答公開は別API。
+- `POST /api/v1/recognitions` は選択モデル1つの認識・前処理・待ち行列・推論時間を返す。
+- `uploads.py` でPNG/JPEG/WebP、10MiB、1600万画素を共通検証。一時ファイルは処理後に削除する。
+- モデルごとのasync lockで同時推論を直列化し、推論・比較・保存の重い同期処理はthreadpoolへ逃がす。
+- 比較用の `/recognize/compare` は同一PNGをモデルへ順番に渡す。イベントループは塞がないが、同一モデルの待ち行列は発生する。
+- ワーカーのCUDA異常では再生成する。一方、応答を一切返さないワーカーのサーバー側強制打切りは現時点の残課題。
+- 公開先は既定127.0.0.1。管理APIに認証はない。インターネットへ公開せず、LAN利用も信頼できる範囲に限定する。
 
-```text
-Display window                       Controller window
-GameCoordinator                     HandwritingPad
-GameSession / timer / score          Pointer Events / strokes
-problem / result / effects           crop PNG / answer controls
-        │                                  │
-        └── BroadcastChannel (small JSON) ──┘
-                                           │
-                                           └── POST cropped PNG
-                                                  ↓
-                                             FastAPI / TexTeller
-```
+## データと問題
 
-Displayの `GameCoordinator` だけが問題選択、得点、残機、タイマー、判定確定を所有する。ControllerはCanvas、stroke、undo履歴、PNG生成を所有し、正誤を独自判断しない。PNGやstroke列は `BroadcastChannel` へ載せず、Controllerから既存APIへ直接送る。現行1画面routeはフォールバックとして残す。
+`config/paths.toml` と `HMER_DATA_ROOT` が収集先・評価データを決める。
+問題バンクは既定 `config/game_questions.json`。隔離検証用に `HMER_QUESTION_BANK` で別ファイルを指定でき、読む・登録・レビュー・採点が同じ設定を参照する。
+問題キャッシュはmtime/ctime/sizeで無効化。書込時に全体検証し、プロセス内lockで直列化する。単一サーバープロセス運用を前提とし、複数workersは推奨しない。
 
-`GameCoordinator`、型付きメッセージ、in-memory transport、BroadcastChannel transport、Display／Controller entryは実装済みである。接続ごとの `connectionId` と単調増加 `sequence` で再読込後の順序を分離し、同じ `requestId` の提出はCoordinatorで重複排除する。実装判断と残る実機受入条件は `docs/dual-screen-game-design.md`、ADRは `docs/adr/0003-dual-screen-game-ui.md` を参照する。
+`POST /api/v1/test-samples` は同意と人の転記確認を要求する。候補PNG・筆跡・メタデータ・CSVを保存するが、自動学習しない。
+学習用台帳は `data/training` の一箇所。1回通過・未使用画像だけの追加学習、失敗時の再投入禁止、筆者別分割は [再学習手順](texteller-training.md) を参照。
+公開HWEは評価用であり、学習に使わない。元モデル・運用データ・台帳はGit対象外。
+
+## 検証と履歴
+
+自動テスト、ビルド、実API、ブラウザー操作の証拠は [2026-10-21検証](../reports/refactor_playtest_2026-10-21.md) に記録する。
+過去のレポートはその時点の仕様・環境の結果として扱い、現在の全機能の保証へ読み替えない。

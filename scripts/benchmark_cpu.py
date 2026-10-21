@@ -7,10 +7,13 @@ import json
 from pathlib import Path
 import statistics
 import time
+import sys
 from urllib.request import Request, urlopen
 from urllib.error import HTTPError
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+from backend.app.latex import normalize_latex
 
 
 def summarize(values):
@@ -57,7 +60,7 @@ def main():
                 with urlopen(request, timeout=args.timeout) as response:
                     result = json.load(response)
                 assert result["device"] == "cpu" and result["peak_vram_mb"] is None, result
-                record.update(success=True, timing=result["timing"], latex=result["normalized_latex"], label_chars=len(row["ground_truth_latex"]), image=result["image"])
+                record.update(success=True, timing=result["timing"], latex=result["normalized_latex"], label_chars=len(row["ground_truth_latex"]), image=result["image"], normalized_match=normalize_latex(result["raw_latex"]) == normalize_latex(row["ground_truth_latex"]))
             except (HTTPError, OSError, AssertionError) as exc:
                 record.update(success=False, error=str(exc))
             record["elapsed_ms"] = round((time.perf_counter() - started) * 1000, 2)
@@ -70,6 +73,9 @@ def main():
             break
     successes = [row for row in records if row["success"]]
     report = {"readiness": ready, "requests": len(records), "failures": len(records) - len(successes), "wall_seconds": round(time.perf_counter() - first_started, 2), "first_request_ms": records[0]["elapsed_ms"] if records else None, "all": summarize([r["elapsed_ms"] for r in successes]) if successes else None, "by_category": {category: summarize([r["elapsed_ms"] for r in successes if r["category"] == category]) for category in counts if any(r["category"] == category for r in successes)}, "records": records}
+    report["normalized_matches"] = sum(bool(row.get("normalized_match")) for row in records)
+    report["normalized_match_rate"] = report["normalized_matches"] / len(records) if records else 0
+    report["accuracy_note"] = "Small fixed sample, conservative string matching only; not a representative recognition-accuracy benchmark."
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
     print(json.dumps({k: v for k, v in report.items() if k != "records"}, indent=2))

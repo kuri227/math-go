@@ -33,6 +33,7 @@
 ## 目次
 
 - [必要なPC環境](#requirements)
+- [文書案内：現行仕様と履歴資料](docs/README.md)
 - [本番体験・テストプレイ・データ収集](docs/two-mode-exhibition.md)
 - [TexTeller再学習・学習済みデータの再投入防止](docs/texteller-training.md)
 - [共通準備：環境確認とgit clone](#prepare)
@@ -257,8 +258,8 @@ CPU専用torch 2.14.0+cpu、Ryzen 5 5600H（6コア12スレッド）、RAM 16GB�
 別のPCや長い式で同じ速度を保証しません。また、APIの処理成功と正しく読み取れることは別です。
 低性能CPU・RAM 8GB・液タブ実機・長時間稼働は未検証です。
 
-詳細：[CPU検証結果](reports/cpu_performance_validation_2026-10-08.md)、[展示前の大規模テスト](reports/exhibition_release_validation_2026-10-08.md)。
-2026-10-08の旧版ではPython 179件・TypeScript 110件が通過しています。GPU実認識とclean clone導入も旧版で検証済みです。2モード版は [2026-10-15の検証記録](reports/two_mode_validation_2026-10-15.md) を参照してください。
+上表は2026-10-08の測定値です。最新の実プレイ・CPU/GPU測定・残課題は [2026-10-21の検証](reports/refactor_playtest_2026-10-21.md) を参照してください。対象画像・同時要求数が異なる測定値を、そのまま速度改善率として比較しないでください。
+過去の [CPU検証](reports/cpu_performance_validation_2026-10-08.md) と [2モード導入時の検証](reports/two_mode_validation_2026-10-15.md) は開発経緯として残しています。
 
 <a id="development"></a>
 
@@ -283,11 +284,12 @@ CPU専用torch 2.14.0+cpu、Ryzen 5 5600H（6コア12スレッド）、RAM 16GB�
 ```
 
 GPUで確認する場合は `--expected-device cuda` を使います。
+画面・採点・不正入力などを保存なしで確認するには、`python scripts/audit_live_api.py --base-url http://127.0.0.1:8000 --output results/live_api_audit.json` を使えます。文書リンクは `python scripts/check_docs.py` で確認できます。
 回帰テストはビルド、問題バンク検証、TypeScript/Pythonテスト、pip checkを実行。実モデル検査は合成入力を使うAPI安定性確認で、認識精度の評価ではありません。
 バックエンドの直接依存は `requirements/festival.txt`、フロントエンドは `game/pnpm-lock.yaml` で固定しています。Pythonの推移的依存すべてを固定しているわけではありません。
 
 画面開発はFastAPIを8000番で起動したうえで `scripts/run_game_dev.ps1` を使用します。Viteは5173番で動き、APIをFastAPIへproxyします。
-**モデル比較・データ収集・ベンチマークは展示には不要**です。詳しい手順を [モデル評価ガイド](docs/model-evaluation-guide.md) に分けています。
+**モデル比較・ベンチマークは展示には不要**です。詳しい手順を [モデル評価ガイド](docs/model-evaluation-guide.md) に分けています。ゲームのテストプレイには同意付きデータ収集機能があり、使用は任意です。
 
 <a id="documents"></a>
 
@@ -304,8 +306,8 @@ docs/               設計・運用・問題作成・開発履歴
 reports/            検証結果と制約の記録
 ```
 
-- [ゲーム・システム仕様](docs/final-exhibition-game-spec.md)
-- [アーキテクチャ](docs/architecture.md) / [2画面設計](docs/dual-screen-game-design.md)
+- [文書案内](docs/README.md) / [現行ゲーム仕様](docs/two-mode-exhibition.md)
+- [アーキテクチャ](docs/architecture.md) / [展示運用](docs/festival-operation.md)
 - [外部プログラム向け認識API要件](docs/recognition_service_requirements.md)
 - [開発の変遷](docs/development-history.md) / [設計判断（ADR）](docs/adr/)
 - 公式モデル：[TexTeller](https://github.com/OleehyO/TexTeller)、[UniMERNet](https://github.com/opendatalab/UniMERNet)
@@ -313,5 +315,5 @@ reports/            検証結果と制約の記録
 ## 既知の制約
 
 正誤判定は、登録正答と許容表記の照合です。`x(x+1)` と `x^2+x` のような任意の数学的同値を判定するCASではありません。
-Fine-tuning、Online HMER、Unity連携は現在の範囲外です。
+管理CLIによるLM headのみ・1回通過の追加学習は実装済みですが、実サイズモデルの精度改善とGPU学習は未検証です。Online HMER、Unity連携、別PC間の2画面同期は現在の範囲外です。
 モデル重み・公開データセット本体・仮想環境・ビルド済み画面・個人の筆跡・実行ログはGitに入れません。
