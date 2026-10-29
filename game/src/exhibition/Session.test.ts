@@ -15,6 +15,28 @@ function submit(session: Session, correct: boolean, id = crypto.randomUUID()): v
 }
 
 describe("two-mode game rules", () => {
+  it("waits for controller readiness, counts down three seconds, then starts the clock", () => {
+    let now = 0; const session = new Session(questions.slice(0, 1), "exhibition", () => now);
+    expect(session.beginCountdown()).toBe(true);
+    now = 60_000; session.tick();
+    expect(session.snapshot.phase).toBe("countdown");
+    expect(session.snapshot.remainingMs).toBe(20_000);
+    expect(session.readyForCountdown()).toBe(true);
+    now += 2_999; session.tick(); expect(session.snapshot.phase).toBe("countdown");
+    now += 1; session.tick(); expect(session.snapshot.phase).toBe("writing");
+    expect(session.snapshot.remainingMs).toBe(20_000);
+    now += 1_000; session.tick(); expect(session.snapshot.remainingMs).toBe(19_000);
+  });
+  it("cancels a disconnected countdown without revealing the problem", () => {
+    const session = new Session(questions.slice(0, 1), "exhibition");
+    session.beginCountdown(); expect(session.cancelCountdown()).toBe(true);
+    expect(session.snapshot.phase).toBe("guide"); expect(session.snapshot.countdownRemainingMs).toBe(0);
+  });
+  it("prepares the next question without charging time before readiness", () => {
+    const session = new Session(questions.slice(0, 2), "test"); session.start(); submit(session, true);
+    expect(session.next(true)).toBe(true); expect(session.snapshot.phase).toBe("countdown"); expect(session.snapshot.paused).toBe(true);
+    expect(session.readyForCountdown()).toBe(true); expect(session.snapshot.phase).toBe("writing");
+  });
   it("keeps the first terminal reason when an old stop action arrives again", () => {
     const session = new Session(questions.slice(0, 1), "test"); session.start(); submit(session, true); session.next();
     session.finish("stopped"); expect(session.snapshot.endReason).toBe("completed");

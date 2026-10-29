@@ -22,7 +22,7 @@ describe("server-owned pairing lifetime", () => {
     const channel = new DualScreenChannel(transport, "s", "controller");
     let connected = false; channel.subscribeConnection(s => { connected = s.connected; });
     channel.start(); const first = Socket.instances[0]!; first.open();
-    first.receive({ type: "hello", role: "display", sender: "display", sessionId: "s", connectionId: "d", protocolVersion: 3, sequence: 1, sentAt: 1 });
+    first.receive({ type: "hello", role: "display", sender: "display", sessionId: "s", connectionId: "d", protocolVersion: 4, sequence: 1, sentAt: 1 });
     expect(connected).toBe(true);
     vi.advanceTimersByTime(300_000); expect(connected).toBe(true); expect(vi.getTimerCount()).toBe(0);
     first.close(); expect(connected).toBe(false);
@@ -30,7 +30,7 @@ describe("server-owned pairing lifetime", () => {
     vi.advanceTimersByTime(2000);
     const second = Socket.instances[1]!; second.open();
     expect(second.sent).toHaveLength(1); expect(second.sent[0]).toMatchObject({ type: "hello" });
-    second.receive({ type: "hello", role: "display", sender: "display", sessionId: "s", connectionId: "d", protocolVersion: 3, sequence: 1, sentAt: 1 });
+    second.receive({ type: "hello", role: "display", sender: "display", sessionId: "s", connectionId: "d", protocolVersion: 4, sequence: 1, sentAt: 1 });
     expect(connected).toBe(true);
     second.receive({ type: "pair-status", connected: false }); expect(connected).toBe(false);
     channel.close(); expect(vi.getTimerCount()).toBe(0);

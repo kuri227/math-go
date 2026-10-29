@@ -1,6 +1,7 @@
 """Local two-screen relay. Socket lifetime, not tab timers, owns each role."""
 import asyncio
 import json
+import math
 import time
 from contextlib import suppress
 from dataclasses import dataclass
@@ -10,8 +11,12 @@ from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from .local_admin import loopback_host
 
 router = APIRouter()
-PROTOCOL_VERSION = 3
+PROTOCOL_VERSION = 4
 MAX_MESSAGE_BYTES = 1_000_000
+ALLOWED_TYPES = {
+    "display": {"hello", "exhibition-state", "setup-error"},
+    "controller": {"hello", "exhibition-action", "exhibition-control", "ink-snapshot"},
+}
 
 
 @dataclass
@@ -43,7 +48,7 @@ class PairHub:
             if len(text.encode()) > MAX_MESSAGE_BYTES:
                 await socket.close(code=1009); return
             hello = json.loads(text)
-            if not isinstance(hello, dict) or hello.get("type") != "hello" or hello.get("sender") != role or hello.get("sessionId") != session_id or hello.get("protocolVersion") != PROTOCOL_VERSION or not isinstance(hello.get("connectionId"), str) or not 1 <= len(hello["connectionId"]) <= 128 or not isinstance(hello.get("sequence"), int):
+            if not self.valid_hello(hello, session_id, role):
                 await socket.close(code=1008); return
             peers = self.sessions.setdefault(session_id, {})
             opposite = "controller" if role == "display" else "display"
@@ -61,8 +66,7 @@ class PairHub:
                 if len(text.encode()) > MAX_MESSAGE_BYTES:
                     await socket.close(code=1009); break
                 message = json.loads(text)
-                allowed_types = {"hello", "exhibition-state"} if role == "display" else {"hello", "exhibition-action"}
-                if not isinstance(message, dict) or message.get("type") not in allowed_types or message.get("sessionId") != session_id or message.get("sender") != role or message.get("connectionId") != hello["connectionId"] or message.get("protocolVersion") != PROTOCOL_VERSION:
+                if not self.valid_message(message, session_id, role, hello["connectionId"]):
                     await socket.close(code=1008); break
                 if other := peers.get(opposite):
                     await self.send(other, message)
@@ -78,6 +82,81 @@ class PairHub:
                     self.sessions.pop(session_id, None)
             with suppress(RuntimeError, WebSocketDisconnect, OSError):
                 await socket.close()
+
+    @staticmethod
+    def valid_token(value):
+        return isinstance(value, str) and 1 <= len(value) <= 128
+
+    @staticmethod
+    def valid_envelope(message):
+        sequence = message.get("sequence") if isinstance(message, dict) else None
+        sent_at = message.get("sentAt") if isinstance(message, dict) else None
+        return (
+            isinstance(sequence, int)
+            and not isinstance(sequence, bool)
+            and sequence >= 1
+            and isinstance(sent_at, (int, float))
+            and not isinstance(sent_at, bool)
+            and math.isfinite(sent_at)
+        )
+
+    @classmethod
+    def valid_hello(cls, message, session_id, role):
+        return (
+            role in ALLOWED_TYPES
+            and isinstance(message, dict)
+            and message.get("type") == "hello"
+            and message.get("sender") == role
+            and message.get("sessionId") == session_id
+            and message.get("protocolVersion") == PROTOCOL_VERSION
+            and cls.valid_token(message.get("connectionId"))
+            and cls.valid_envelope(message)
+        )
+
+    @classmethod
+    def valid_message(cls, message, session_id, role, connection_id):
+        if (
+            role not in ALLOWED_TYPES
+            or not isinstance(message, dict)
+            or message.get("type") not in ALLOWED_TYPES[role]
+            or message.get("sessionId") != session_id
+            or message.get("sender") != role
+            or message.get("connectionId") != connection_id
+            or message.get("protocolVersion") != PROTOCOL_VERSION
+            or not cls.valid_envelope(message)
+        ):
+            return False
+        if message.get("type") != "ink-snapshot":
+            return True
+        generation = message.get("generation")
+        return (
+            cls.valid_token(message.get("runId"))
+            and cls.valid_token(message.get("questionId"))
+            and isinstance(generation, int)
+            and not isinstance(generation, bool)
+            and generation >= 0
+            and cls.valid_ink(message.get("ink"))
+        )
+
+    @staticmethod
+    def valid_ink(ink):
+        aspect = ink.get("aspectRatio") if isinstance(ink, dict) else None
+        if not isinstance(ink, dict) or ink.get("version") != 1 or not isinstance(ink.get("revision"), int) or ink["revision"] < 0 or not isinstance(aspect, (int, float)) or isinstance(aspect, bool) or not math.isfinite(aspect) or not 0.05 <= aspect <= 20 or not isinstance(ink.get("strokes"), list):
+            return False
+        count = 0
+        for stroke in ink["strokes"]:
+            if not isinstance(stroke, list):
+                return False
+            count += len(stroke)
+            if count > 12_000:
+                return False
+            for point in stroke:
+                if not isinstance(point, dict):
+                    return False
+                values = (point.get("x"), point.get("y"), point.get("pressure"))
+                if any(not isinstance(value, (int, float)) or isinstance(value, bool) or not math.isfinite(value) or value < 0 or value > 1 for value in values):
+                    return False
+        return True
 
 
 hub = PairHub()

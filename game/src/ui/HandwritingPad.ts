@@ -1,6 +1,6 @@
 import { isPointStroke } from "./strokeGeometry";
 
-interface Point {
+export interface InkPoint {
   x: number;
   y: number;
   pressure: number;
@@ -8,7 +8,14 @@ interface Point {
   pointerType: string;
 }
 
-type Stroke = Point[];
+type Stroke = InkPoint[];
+
+export interface InkSnapshot {
+  version: 1;
+  revision: number;
+  aspectRatio: number;
+  strokes: Array<Array<Pick<InkPoint, "x" | "y" | "pressure">>>;
+}
 
 export interface CroppedImage {
   blob: Blob;
@@ -29,11 +36,13 @@ export class HandwritingPad {
   private pointerId: number | null = null;
   private logicalWidth = 0;
   private logicalHeight = 0;
+  private revision = 0;
 
   constructor(
     private readonly canvas: HTMLCanvasElement,
     private readonly hint: HTMLElement,
     private readonly pointerPreview: HTMLElement,
+    private readonly onInkChange?: (snapshot: InkSnapshot) => void,
   ) {
     const context = canvas.getContext("2d");
     if (!context) throw new Error("Canvas 2D context is unavailable");
@@ -51,11 +60,53 @@ export class HandwritingPad {
   clear(): void {
     this.strokes = [];
     this.activeStroke = null;
+    this.pointerId = null;
     this.redraw();
+    this.changed();
   }
 
   undo(): void {
     this.strokes.pop();
+    this.redraw();
+    this.changed();
+  }
+
+  exportInkSnapshot(): InkSnapshot {
+    const width = Math.max(1, this.logicalWidth || this.cssWidth);
+    const height = Math.max(1, this.logicalHeight || this.cssHeight);
+    const strokes = [...this.strokes, ...(this.activeStroke ? [this.activeStroke] : [])];
+    return {
+      version: 1,
+      revision: this.revision,
+      aspectRatio: width / height,
+      strokes: strokes.map(stroke => stroke.map(point => ({
+        x: Math.min(1, Math.max(0, point.x / width)),
+        y: Math.min(1, Math.max(0, point.y / height)),
+        pressure: Math.min(1, Math.max(0, point.pressure)),
+      }))),
+    };
+  }
+
+  importInkSnapshot(snapshot: InkSnapshot): void {
+    if (snapshot.version !== 1 || snapshot.revision < this.revision) return;
+    const width = Math.max(1, this.cssWidth);
+    const height = Math.max(1, this.cssHeight);
+    const sourceWidth = Math.max(0.01, snapshot.aspectRatio);
+    const scale = Math.min(width / sourceWidth, height);
+    const offsetX = (width - sourceWidth * scale) / 2;
+    const offsetY = (height - scale) / 2;
+    this.revision = snapshot.revision;
+    this.logicalWidth = width;
+    this.logicalHeight = height;
+    this.activeStroke = null;
+    this.pointerId = null;
+    this.strokes = snapshot.strokes.map(stroke => stroke.map(point => ({
+      x: offsetX + point.x * sourceWidth * scale,
+      y: offsetY + point.y * scale,
+      pressure: point.pressure,
+      time: 0,
+      pointerType: "remote",
+    })));
     this.redraw();
   }
 
@@ -66,6 +117,7 @@ export class HandwritingPad {
       this.activeStroke = null;
       this.pointerId = null;
       this.redraw();
+      this.changed();
     }
     this.canvas.toggleAttribute("data-disabled", disabled);
     this.canvas.style.pointerEvents = disabled ? "none" : "auto";
@@ -130,6 +182,7 @@ export class HandwritingPad {
       this.activeStroke = [this.pointFromEvent(event)];
       this.hint.hidden = true;
       this.movePointerPreview(event);
+      this.changed(false);
     });
     this.canvas.addEventListener("pointermove", (event) => {
       this.movePointerPreview(event);
@@ -138,6 +191,7 @@ export class HandwritingPad {
       const previous = this.activeStroke.at(-1)!;
       this.activeStroke.push(point);
       this.drawSegment(previous, point);
+      this.changed(false);
     });
     const finish = (event: PointerEvent) => {
       if (!this.activeStroke || event.pointerId !== this.pointerId) return;
@@ -148,6 +202,7 @@ export class HandwritingPad {
       this.activeStroke = null;
       this.pointerId = null;
       this.redraw();
+      this.changed();
     };
     this.canvas.addEventListener("pointerup", finish);
     this.canvas.addEventListener("pointercancel", finish);
@@ -161,7 +216,7 @@ export class HandwritingPad {
     });
   }
 
-  private pointFromEvent(event: PointerEvent): Point {
+  private pointFromEvent(event: PointerEvent): InkPoint {
     const rect = this.canvas.getBoundingClientRect();
     return {
       x: event.clientX - rect.left,
@@ -181,10 +236,13 @@ export class HandwritingPad {
     const width = Math.max(1, this.cssWidth);
     const height = Math.max(1, this.cssHeight);
     if (this.logicalWidth > 1 && this.logicalHeight > 1 && width > 1 && height > 1) {
+      const scale = Math.min(width / this.logicalWidth, height / this.logicalHeight);
+      const offsetX = (width - this.logicalWidth * scale) / 2;
+      const offsetY = (height - this.logicalHeight * scale) / 2;
       for (const stroke of [...this.strokes, ...(this.activeStroke ? [this.activeStroke] : [])]) {
         for (const point of stroke) {
-          point.x *= width / this.logicalWidth;
-          point.y *= height / this.logicalHeight;
+          point.x = offsetX + point.x * scale;
+          point.y = offsetY + point.y * scale;
         }
       }
     }
@@ -211,7 +269,7 @@ export class HandwritingPad {
     this.updateHint();
   }
 
-  private drawSegment(from: Point, to: Point): void {
+  private drawSegment(from: InkPoint, to: InkPoint): void {
     const ratio = this.canvas.width / Math.max(1, this.cssWidth);
     this.context.save();
     this.context.scale(ratio, ratio);
@@ -261,6 +319,11 @@ export class HandwritingPad {
 
   private updateHint(): void {
     this.hint.hidden = this.hasInk;
+  }
+
+  private changed(increment = true): void {
+    if (increment) this.revision++;
+    this.onInkChange?.(this.exportInkSnapshot());
   }
 }
 

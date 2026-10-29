@@ -1,7 +1,7 @@
 import type { Question, RecognitionResponse, JudgementResponse } from "../domain/types";
 
 export type Mode = "exhibition" | "test";
-export type Phase = "setup" | "guide" | "writing" | "recognizing" | "preview" | "judging" | "result" | "finished";
+export type Phase = "setup" | "guide" | "countdown" | "writing" | "recognizing" | "preview" | "judging" | "result" | "finished";
 export const EXHIBITION = { questions: 7, seconds: 20, lives: 3 } as const;
 export interface Snapshot {
   runId: string;
@@ -17,6 +17,7 @@ export interface Snapshot {
   lives: number | null;
   timedOut: boolean;
   remainingMs: number;
+  countdownRemainingMs: number;
   paused: boolean;
   endReason: "completed" | "timeout" | "stopped" | null;
   recognition: RecognitionResponse | null;
@@ -38,12 +39,43 @@ export class Session {
       round: 1, total: questions.length, correct: 0, streak: 0, attempts: 0, wrongAttempts: 0,
       lives: mode === "exhibition" ? EXHIBITION.lives : null, timedOut: false,
       remainingMs: EXHIBITION.seconds * 1000, paused: false, endReason: null,
+      countdownRemainingMs: 0,
       recognition: null, judgement: null, notice: "",
     };
   }
   start(): void { if (this.snapshot.phase === "guide") { this.snapshot.phase = "writing"; this.lastTick = this.now(); } }
+  beginCountdown(durationMs = 3_000): boolean {
+    if (this.snapshot.phase !== "guide") return false;
+    this.snapshot.phase = "countdown";
+    this.snapshot.countdownRemainingMs = Math.max(0, durationMs);
+    this.snapshot.paused = true;
+    this.snapshot.notice = "入力画面の準備を待っています。問題と時計はまだ開始しません。";
+    return true;
+  }
+  readyForCountdown(): boolean {
+    if (this.snapshot.phase !== "countdown" || !this.snapshot.paused) return false;
+    this.snapshot.paused = false;
+    this.lastTick = this.now();
+    this.snapshot.notice = this.snapshot.countdownRemainingMs > 0 ? "まもなく問題を表示します。" : "問題を開始します。";
+    if (this.snapshot.countdownRemainingMs === 0) this.startPreparedQuestion();
+    return true;
+  }
+  cancelCountdown(): boolean {
+    if (this.snapshot.phase !== "countdown") return false;
+    this.snapshot.phase = "guide";
+    this.snapshot.countdownRemainingMs = 0;
+    this.snapshot.paused = false;
+    this.snapshot.notice = "接続が切れたため開始を取り消しました。再接続後にもう一度始めてください。";
+    return true;
+  }
   tick(): boolean {
     const s = this.snapshot, now = this.now();
+    if (s.phase === "countdown" && !s.paused) {
+      s.countdownRemainingMs = Math.max(0, s.countdownRemainingMs - Math.max(0, now - this.lastTick));
+      if (s.countdownRemainingMs === 0) this.startPreparedQuestion();
+      this.lastTick = now;
+      return false;
+    }
     if (s.mode === "exhibition" && !s.paused && s.phase === "writing") {
       s.remainingMs = Math.max(0, s.remainingMs - Math.max(0, now - this.lastTick));
       if (s.remainingMs === 0) {
@@ -109,22 +141,33 @@ export class Session {
     }
     this.lastTick = this.now(); return true;
   }
-  next(): boolean {
+  next(prepare = false): boolean {
     const s = this.snapshot;
     if (s.phase !== "result") return false;
     if (this.index + 1 === this.questions.length) { this.finish("completed"); return true; }
     s.question = this.questions[++this.index]!; s.round = this.index + 1;
-    s.phase = "writing"; s.recognition = null; s.judgement = null; s.notice = ""; s.timedOut = false;
+    s.phase = prepare ? "countdown" : "writing"; s.recognition = null; s.judgement = null; s.notice = prepare ? "次の問題を準備しています。" : ""; s.timedOut = false;
+    s.countdownRemainingMs = 0; s.paused = prepare;
     s.remainingMs = EXHIBITION.seconds * 1000; this.lastTick = this.now(); return true;
   }
-  retryTest(): boolean {
+  retryTest(prepare = false): boolean {
     if (this.snapshot.mode !== "test" || this.snapshot.phase !== "result") return false;
-    this.snapshot.phase = "writing"; this.snapshot.judgement = null; this.snapshot.recognition = null; return true;
+    this.snapshot.phase = prepare ? "countdown" : "writing"; this.snapshot.judgement = null; this.snapshot.recognition = null;
+    this.snapshot.countdownRemainingMs = 0; this.snapshot.paused = prepare; this.snapshot.notice = prepare ? "用紙を準備しています。" : ""; return true;
   }
   finish(reason: Snapshot["endReason"]): void {
     if (this.snapshot.phase === "finished") return;
     this.requestId = null; this.snapshot.phase = "finished"; this.snapshot.endReason = reason;
     this.snapshot.recognition = null; this.snapshot.notice = reason === "timeout" ? "時間切れが3回となり、残機が0になったため終了しました。" : reason === "completed" ? "選んだ問題をすべて終えました。" : "プレイを終了しました。";
+  }
+
+  private startPreparedQuestion(): void {
+    const s = this.snapshot;
+    s.phase = "writing";
+    s.paused = false;
+    s.countdownRemainingMs = 0;
+    s.notice = "";
+    this.lastTick = this.now();
   }
 }
 

@@ -32,8 +32,8 @@
       "sublevel": 1,
       "rank": 1,
       "category": "たし算",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d1"
     },
     {
@@ -50,8 +50,8 @@
       "sublevel": 1,
       "rank": 1,
       "category": "たし算",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d1"
     },
     {
@@ -86,8 +86,8 @@
       "sublevel": 1,
       "rank": 2,
       "category": "たし算",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d1"
     },
     {
@@ -104,8 +104,8 @@
       "sublevel": 1,
       "rank": 2,
       "category": "たし算",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d1"
     },
     {
@@ -140,8 +140,8 @@
       "sublevel": 1,
       "rank": 3,
       "category": "ひき算",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d1"
     },
     {
@@ -158,8 +158,8 @@
       "sublevel": 1,
       "rank": 3,
       "category": "ひき算",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d1"
     },
     {
@@ -194,8 +194,8 @@
       "sublevel": 1,
       "rank": 4,
       "category": "くり上がり",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d1"
     },
     {
@@ -212,8 +212,8 @@
       "sublevel": 1,
       "rank": 4,
       "category": "くり上がり",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d1"
     },
     {

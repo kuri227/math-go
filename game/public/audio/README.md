@@ -1,0 +1,3 @@
+# 数学でGO 効果音
+
+`scripts/audio/generate_game_sfx.mjs`で生成したプロジェクト専用のモノラルWAVです。外部素材・生成AIモデル・第三者ライセンスは使用していません。
