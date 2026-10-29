@@ -20,6 +20,8 @@
 画像・筆跡は2画面のリレーへ載せない。Controllerがcrop PNGをAPIへ送り、認識結果だけをDisplayへ通知する。
 Displayが採点・タイマー・残機を確定し、Controllerは受信状態を表示する。別PC間の同期は提供しない。
 
+2026-10-23の通信版v4では、正規化座標の回答筆跡snapshotだけをControllerからDisplayへリレーし、メモは通信へ載せません。設定・開始・次問・再プレイもControllerから要求し、DisplayのSessionが検証・確定します。詳細と未検証範囲は [2画面UX](dual-screen-controller-ux.md)、理由は [製品・技術選定](product-and-roadmap.md)、旧判断との関係は [ADR 0004](adr/0004-current-stack-and-controller-direction.md) を参照。
+
 ## フロントエンドの責務
 
 | モジュール | 責務 |

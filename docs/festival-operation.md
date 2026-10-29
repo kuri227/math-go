@@ -2,13 +2,13 @@
 
 ## 目的別入口
 
-- 初めて使う展示PC: READMEの「必要なPC環境」→「共通準備」→CPU/GPU別の手順へ。
+- 初めて使う展示PC: [はじめての導入ガイド](installation.md)を上から順に進める。
 - GPUあり: `setup_festival_gpu.ps1`（初回）→`start_festival_gpu.ps1`（毎回）。
 - GPUなし・GPUを使わない: `setup_festival_cpu.ps1`（初回）→`start_festival_cpu.ps1`（毎回）。
 - 問題がある: 下の「トラブル対処」へ。
 
 取得・更新はgit clone / git pullに統一します。改修しない展示PCでもGit・64bit Python・Node.js・pnpm・ブラウザーが必要です。
-CPU/GPU別セットアップスクリプトが依存導入と画面ビルドまで行います。グローバルpnpmの手動導入の影響はREADMEを確認してください。
+CPU/GPU別セットアップスクリプトが依存導入と画面ビルドまで行います。グローバルpnpmの手動導入の影響は [導入ガイド](installation.md) を確認してください。
 初回は依存関係と約1.2GBのモデル重みをインターネットから取得します。会場前に済ませてください。
 CPU版のモデル環境は `.venv-texteller-cpu`、GPU版は `.venv-texteller`。両方を導入しても重みの保存先は共通です。
 
@@ -21,7 +21,7 @@ Windows 11 x64 / Python 3.10 / Node 22.17.1 / pnpm 11.25.0 / NVIDIA RTX 3050 Lap
 
 ## 初回設営
 
-1. READMEのclone・セットアップコマンドを実行する。モデルの取得は初回のみネット接続が必要。
+1. [導入ガイド](installation.md)のclone・セットアップコマンドを実行する。モデルの取得は初回のみネット接続が必要。
 2. `check_environment.ps1 -RequireReady -Device cuda` のFAILがないことを確認する。
 3. `start_festival.ps1 -Device cuda` で起動する。準備完了まで待ち、Displayを開く。
 4. 液タブ・モニターをWindowsの「拡張」で接続。Displayはモニター、Controllerは液タブへ移す。
@@ -68,6 +68,7 @@ CPU性能と検証条件は `reports/cpu_performance_validation_2026-10-08.md` �
 | Python / pnpmが見つからない | PATHとバージョンを確認。Pythonは `-Python` にフルパスを指定。pnpm 11.25.0を導入する |
 | セットアップ失敗 | 最初に失敗したコマンドを確認し、通信・空き容量・ドライバーを直して再実行。成功したように続行はしない |
 | CUDA unavailable / 起動失敗 | NVIDIAドライバーとtorch wheelの互換性を確認。無理な自動フォールバックはせず、CPU版を明示的に選ぶ |
+| モデル準備が長い | RTX 3050 Laptop GPUでの2026-10-30実測は約20秒。10秒ごとに進捗が表示される。`results/logs/texteller.log`の最新`[startup]`行で、PyTorch import・TexTeller import・重み読込・GPU転送・tokenizerのどこが遅いか確認する。3分近く続く場合は通常状態ではないため、同じ起動スクリプトを重ねて実行せず、CUDAエラーと残存プロセスを確認する |
 | ポート使用中 | 自分が起動したサーバーをCtrl+Cで停止するか `-Port 8001` を使う。無関係なプロセスは終了しない |
 | 接続済みの別の液タブと表示 | 古いControllerを閉じる。数秒待って再接続。同じsessionの入力端末は1つのみ |
 | 裏タブ・スリープから戻した | ブラウザーのheartbeatではなくサーバー接続で判断する。完全休止・OSスリープでソケット自体が切れた場合は自動再接続する。接続しない場合は両画面のURLとsessionを確認し、両方を更新。切断中は時計を止め、提出操作は自動再送しない |
@@ -81,7 +82,7 @@ CPU性能と検証条件は `reports/cpu_performance_validation_2026-10-08.md` �
 | 途中で終了した | 本番体験は残機3。時間切れのみ1減少し、残機0で終了。全問完了・残機0・中断を結果画面で区別する |
 | 画面が古い | サーバー停止→再build→再起動→両画面再読み込み。片方だけ古いタブを残さない |
 
-ログ: `.runtime/server.stdout.log` / `.runtime/server.stderr.log` / `results/logs/texteller.log`。
+ログ: `.runtime/server.stdout.log` / `.runtime/server.stderr.log` / `results/logs/texteller.log`。通常のゲーム起動で先読みするモデルはTexTellerだけです。`/models`でTexTellerが`available:true`、UniMERNetが`available:false`なら正常です。
 ログ・参加者の筆跡・モデル・仮想環境はGitに入れないでください。
 展示終了時は起動したPowerShellでCtrl+C。モデル環境や重みを他PCへ丸ごとコピーせず、新PCではセットアップを実行します。
 

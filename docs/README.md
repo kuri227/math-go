@@ -1,16 +1,28 @@
 # 文書案内
 
-初めて使う場合は [プロジェクトREADME](../README.md) から始めてください。現行仕様と、過去の設計・測定記録を分けています。
+アプリの概要は [プロジェクトREADME](../README.md)、別PCへの導入は [はじめての導入ガイド](installation.md) から始めてください。現行仕様と、過去の設計・測定記録を分けています。
+
+## プロジェクトを理解・議論する
+
+- [次のコーディングエージェントへの引き継ぎ](../HANDOFF.md)：着手順、確定事項、未決定、作業ツリー、検証コマンドとデータ保全。
+- [製品・要件・技術選定・ロードマップ](product-and-roadmap.md)：なぜ作るか、要件の状態、現行フロー、技術の意図と代償、残る課題の入口。
+- [2画面コントローラーUXと検証境界](dual-screen-controller-ux.md)：操作移管、開始待機、回答筆跡共有、液タブ限定メモ、実装・レビューの受入条件。自動検査とComputer Useによる両画面比較を実施済み。物理ペン、同期遅延、長時間運転は本番機での確認が必要。
+- [2026-10-23 2画面実装・検証記録](../reports/dual_screen_implementation_2026-10-23.md)：通信版v4の実装内容、実行した検査、U01〜U12の証拠境界と未検証項目。
+- [ADR 0004](adr/0004-current-stack-and-controller-direction.md)：旧Phaser / BroadcastChannelの判断と現行構成の更新関係。
+
+文書の順番は「アプリ概要 → 導入 → 当日運用 → 現行仕様 → 開発・アーキテクチャ → 検証記録」です。導入だけなら、はじめての導入ガイドを上から順に進めれば完了します。
 
 ## 現行の手順・仕様
 
 | 目的 | 文書 |
 |---|---|
-| PC要件・clone・CPU/GPU別セットアップ | [README](../README.md) |
+| アプリの概要・機能・文書入口 | [README](../README.md) |
+| PC要件・clone・CPU/GPU別セットアップ | [はじめての導入ガイド](installation.md) |
 | 日々の起動・2画面の設営・トラブル対応 | [展示運用](festival-operation.md) |
 | 本番／テストのルール・保存・問題レビュー | [2モード仕様](two-mode-exhibition.md) |
 | 学習データの選び方・CPU/GPU追加学習・履歴保全 | [TexTeller再学習](texteller-training.md) |
 | 問題登録・正答候補・データ形式 | [問題作成ガイド](question-authoring-guide.md) |
+| 開発起動・回帰テスト・変更時の確認範囲 | [開発者向けガイド](development.md) |
 | コードの責務・通信・API・データ | [アーキテクチャ](architecture.md) |
 | モデル比較・公開HWE評価 | [モデル評価ガイド](model-evaluation-guide.md) |
 | 外部プログラムからの認識API | [認識API要件](recognition_service_requirements.md) |

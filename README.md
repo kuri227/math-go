@@ -1,335 +1,62 @@
 # 数学でGO
 
-「数学でGO」は、高専祭・文化祭で来場者が遊べる、手書き回答型の数学ゲームです。
-ソロプレイ専用です。2画面は1人が「問題を見る画面」と「手書きする画面」を使う構成で、対戦・マッチング・プレイヤー間のスコア比較はありません。
-モニターに表示された問題を解き、液タブに答えを書くと、手書き数式認識モデルTexTellerが読み取り、正誤と解説を表示します。
-小学校低学年から専門数学までの7段階の難易度を用意し、計算から微分・積分などまで楽しめる展示を目指しています。
+「数学でGO」は、文化祭・高専祭の来場者が数学の問題に手書きで答える、1人用のローカルWebゲームです。
 
-このリポジトリには、ゲーム本体に加え、ローカル認識API、JSON形式の問題管理、モデル比較・評価基盤を含みます。
-画面はTypeScript・DOM/Canvas・KaTeX、APIはFastAPIで実装し、認識モデルは専用のPythonプロセスで動かします。
-通常のゲームはTexTellerだけを使用します。認識画像を外部サービスへ送信せず、セットアップ後はPC内で認識します。
+モニターに問題を表示し、液タブに答えを書くと、PC内の数式認識モデルTexTellerが読み取ります。読み取った内容を本人が確認してから採点するため、認識結果が意図と違う場合は書き直せます。回答画像を外部の認識サービスへ送らず、初回導入後はオフラインでもプレイできます。
 
-## 主な機能と現在の状態
+## ゲームの流れ
 
-- モニター用Displayと液タブ用Controllerの2画面構成。1画面版も利用可能。
-- 7難易度・516問の問題バンク。初期の本番候補は各レベル7問、計49問。全問をテストプレイで選択可能。
-- 手書き入力、1画戻す、全消去、認識画像・数式の確認、確認後の回答送信、正答・解説の確認。
-- モード説明画面、全画面表示、画面サイズに応じたレイアウト、時間制限付き問題の拡大演出。
-- 正解数・連続正解数・正解率と、全問完了／残機0／中断の終了理由を表示。残機は3、時間切れでのみ1減少。スコア換算はしない。
-- テストプレイで問題を選び、同意した画像・筆跡・確認済み転記を学習候補として保存。問題の確認状況・本番候補も変更可能。
-- NVIDIA GPU／CPUでのローカル認識と、それぞれ専用のセットアップ・起動スクリプト。
+1. タイトル画面で1画面または2画面プレイを選ぶ
+2. 7段階から難易度を選ぶ
+3. モニターの問題を見て、回答用紙に答えを書く
+4. 読み取られた答えを確認して回答する
+5. 正答と解説を確認し、7問の結果を見る
 
-| モード | 問題数 | 制限時間 | 誤答時 |
-| --- | --- | --- | --- |
-| 本番体験 | 7問 | 1問20秒・残機3 | 誤答では減らず再回答。時間切れで残機−1、正答確認後に次へ。残機0で終了 |
-| テストプレイ・データ収集 | 任意に選択 | なし | 同じ問題を何度でも再テスト可能 |
+通常ゲームは1問20秒、残機3です。不正解では残機は減らず、時間切れのときだけ1つ減ります。途中計算には採点・保存されないメモ用紙を使えます。
 
-手書き→「読み取りを確認」→画像・認識数式を確認→「この内容で回答」の順に進みます。
-本番の20秒は手書き中だけ進みます。認識中・認識内容の確認中・判定中・切断中は「時計停止中」を表示し、書き直しで再開します。
-保存と問題の有効化は [2モードの操作・データ収集マニュアル](docs/two-mode-exhibition.md) を参照してください。保存しただけではモデルは学習されません。
-レビュー済みの新規データだけでTexTellerを追加学習する [再学習・重複利用防止マニュアル](docs/texteller-training.md) も用意しています。CPU/GPU別の実行スクリプトがあり、画像の使用履歴を台帳で管理します。元モデルや稼働モデルを自動更新しません。
+## 主な機能
 
-展示に向けて開発・検証を継続しています。WindowsでのCPU/GPU認識とゲームの回帰テストは実施済みですが、展示PC・液タブ実機での操作と長時間稼働は設営前にリハーサルしてください。
+- 小学校低学年から専門数学まで、7難易度・516問
+- 1画面プレイと、モニター＋液タブの2画面プレイ
+- 手書き入力、1画戻す、全消去、独立したメモ用紙
+- 認識画像と読み取った数式を確認してから採点
+- 正解数、連続正解、正解率、終了理由の結果表示
+- 全問題を選べるスタッフ用テストと、問題の確認・学習候補保存
+- NVIDIA GPU版とCPU版のローカル認識
+- 文化祭会場で通信せずに使えるオフライン動作
 
-## 目次
+2画面は対戦機能ではありません。1人が「問題を見るモニター」と「答えを書く液タブ」を使う構成です。
 
-- [必要なPC環境](#requirements)
-- [文書案内：現行仕様と履歴資料](docs/README.md)
-- [本番体験・テストプレイ・データ収集](docs/two-mode-exhibition.md)
-- [TexTeller再学習・学習済みデータの再投入防止](docs/texteller-training.md)
-- [共通準備：環境確認とgit clone](#prepare)
-- [NVIDIA GPUを使う](#gpu-start)
-- [GPUなし・GPUを使わない：CPUで使う](#cpu-start)
-- [モデル取得と既存環境への影響](#model-and-environment)
-- [毎日の起動・2画面の設営](#operation)
-- [git pullによる更新](#update)
-- [CPU性能と検証結果](#validation)
-- [問題編集・開発・テスト](#development)
-- [リポジトリ構成と関連文書](#documents)
+## はじめに読む文書
 
-配布・更新は **git clone / git pullで運用する方針**です。以下は、改修しない展示PCでも同じ手順です。
-
-<a id="requirements"></a>
-
-## 必要なPC環境
-
-git cloneにはビルド済み画面・モデル・Python仮想環境を含めません。
-そのため、**改修しないPCにもGit・Python・Node.js・pnpmが必要**です。初回セットアップが画面のビルドまで行います。
-
-| 項目 | 必要な環境・検証範囲 |
+| やりたいこと | 読む文書 |
 | --- | --- |
-| OS | Windows 11 x64で検証済み。Linuxの手順は運用マニュアルに記載するが未実機検証 |
-| PowerShell | Windows標準のWindows PowerShell 5.1、またはPowerShell 7。起動スクリプトは文字コードの誤読を避けるためASCIIで記述 |
-| Python | 64bit Python 3.10系で検証済み。スクリプトは3.10–3.12を受け付けるが、3.11/3.12は未実機検証 |
-| Git | リポジトリの取得・更新に必要 |
-| Node.js | 22.12以上。検証バージョンは22.17.1。画面のビルドに必要 |
-| pnpm | 11.25.0。フロントエンドの依存導入・ビルドに必要 |
-| ブラウザー | Display/Controllerを同じブラウザー・プロファイルで開く |
-| RAM・空き容量 | RAM 16GB、初回導入前の空き容量20GB以上を目安。評価データや追加モデルにはさらに容量が必要 |
-| GPU | **必須ではない**。GPU推論はCUDA対応NVIDIA GPUと互換ドライバーが必要。RTX 3050 Laptop・VRAM 4GBで検証 |
-| 液タブ | メーカー製ペンドライバーと、OSの拡張ディスプレイ設定を確認する |
-| インターネット | 初回の依存関係・モデル取得と、更新時のセットアップに必要 |
+| 別のWindows PCへ初めて導入する | [はじめての導入ガイド](docs/installation.md) |
+| 毎日の起動、2画面の設営、当日の復旧 | [展示PCの運用マニュアル](docs/festival-operation.md) |
+| ゲームのルール、テスト、データ保存を知る | [ゲームとデータ収集の操作仕様](docs/two-mode-exhibition.md) |
+| 問題を追加・確認する | [問題作成ガイド](docs/question-authoring-guide.md) |
+| 開発・テスト・コード構成を知る | [開発者向けガイド](docs/development.md) |
+| 学習候補からTexTellerを追加学習する | [再学習マニュアル](docs/texteller-training.md) |
+| すべての現行文書を探す | [文書案内](docs/README.md) |
 
-CPU版にはNVIDIAドライバー・CUDA Toolkitは不要です。AMD RyzenでCPU推論を検証済みです。
-GPU版も別途CUDA Toolkitを導入する手順ではなく、PyTorchのCUDA wheelと互換ドライバーを使います。
-AMD／IntelのGPUによるGPU推論は対象外です。その場合はCPU版を選んでください。macOS・ARM・WSLは未実機検証です。
+導入するだけなら、技術資料を読む必要はありません。[はじめての導入ガイド](docs/installation.md)を上から順に進めてください。
 
-公式配布元：[Git](https://git-scm.com/downloads)、[Python](https://www.python.org/downloads/)、[Node.js](https://nodejs.org/en/download)。
-Anacondaや開発用エディターは不要です。Python仮想環境はセットアップスクリプトが作ります。
+## 現在の状態
 
-<a id="prepare"></a>
+- Windows 11、NVIDIA GPU、CPUの各構成で起動・認識を検証しています。
+- 通常ゲームで読み込む認識モデルはTexTellerだけです。
+- 画面は1280×720、1024×600、320×568を含む代表サイズで確認しています。
+- 展示前には、実際に使うPC・液タブ・モニターで1ゲーム通したリハーサルが必要です。
 
-## 共通準備：環境確認とgit clone
+最新版の検証境界と残る確認事項は [HANDOFF.md](HANDOFF.md) を参照してください。
 
-### 1. 必要なコマンドを確認する
+## 安全上の注意
 
-Git・Python・Node.jsを事前に導入し、PowerShellで確認してください。
+- サーバーは会場のPC内だけで動かし、インターネットへ公開しないでください。
+- 参加者の筆跡、学習データ、モデル重み、ログはGitHubへ追加しません。
+- 保存した手書きは自動学習されません。人が確認したデータだけを別手順で学習に使います。
+- 問題や学習データがある状態で、`git reset --hard`やフォルダーの初期化を行わないでください。
 
-```powershell
-git --version
-python --version
-node --version
-pnpm --version
-```
+## ライセンスと外部要素
 
-Pythonが複数ある場合は、後述のセットアップの `-Python` に使用するpython.exeのフルパスを指定します。
-Pythonは64bit版を選び、インストール時にPATHへ追加してください。
-
-pnpm 11.25.0が既に利用できる場合は、再インストールしません。
-**pnpmが未導入の場合だけ**、次で導入できます。
-
-```powershell
-npm install -g pnpm@11.25.0
-```
-
-これはアプリ専用フォルダーではなく、npmのグローバル領域（PCの設定によってユーザー単位など）へ導入するコマンドです。
-既存のpnpmが別バージョンの場合、無条件に実行するとそれを置き換える可能性があります。他プロジェクトで使用中なら管理担当者と調整してください。
-このコマンドをアプリのセットアップスクリプトが自動実行することはありません。
-
-### 2. リポジトリを取得する
-
-書き込み可能なユーザーフォルダーで実行します。
-
-```powershell
-git clone https://github.com/kuri227/math-go.git
-cd math-go
-Set-ExecutionPolicy -Scope Process Bypass
-```
-
-`Set-ExecutionPolicy` は、このPowerShellだけでスクリプトを実行できるようにする指定です。PC全体の実行ポリシーは変更しません。
-以後のコマンドは、READMEがある `math-go` フォルダーで実行してください。
-
-次に **GPU／CPUのどちらか** のセットアップへ進みます。会場へ行く前に、モデル取得と初回起動を済ませてください。
-
-<a id="gpu-start"></a>
-
-## NVIDIA GPUを使う
-
-**対応するNVIDIA GPUと互換ドライバーが入っていれば、必要なモデル・ライブラリを自動導入してGPUで使えます。**
-GPUが存在するだけでは十分ではありません。NVIDIAドライバー自体のインストール・更新は、このスクリプトでは行いません。
-
-初回セットアップ：
-
-```powershell
-.\scripts\setup_festival_gpu.ps1 -Python python
-.\scripts\check_environment.ps1 -RequireReady -Device cuda
-```
-
-実行内容：アプリ用 `.venv`、GPUモデル用 `.venv-texteller` の作成、必要ライブラリとモデルの取得、画面のビルド、依存関係・CUDA利用可否の検査。
-GPU版は検証済みのtorch 2.14.0 / torchvision 0.29.0 / CUDA 13.2 wheelを導入します。
-CUDAが使えなければ理由を表示して止まり、勝手にCPUへ切り替えません。
-
-起動：
-
-```powershell
-.\scripts\start_festival_gpu.ps1
-```
-
-<a id="cpu-start"></a>
-
-## GPUなし・GPUを使わない：CPUで使う
-
-**CPUでの起動・認識は実測済みです。** GPUがないPCや、搭載GPUを使わずに動かしたいPCはこちらを選びます。
-
-初回セットアップ：
-
-```powershell
-.\scripts\setup_festival_cpu.ps1 -Python python
-.\scripts\check_environment.ps1 -RequireReady -Device cpu
-```
-
-実行内容：アプリ用 `.venv`、CPUモデル用 `.venv-texteller-cpu` の作成、CPU専用PyTorchなどの導入、モデル取得、画面のビルド、依存関係の検査。
-GPU版のモデル環境とは分離し、CPU起動スクリプトではCUDAも無効化します。
-
-起動：
-
-```powershell
-.\scripts\start_festival_cpu.ps1
-```
-
-両方の環境を初回に導入すれば、その後は起動スクリプトだけでCPU／GPUを選べます。モデル重みは共通です。
-まず時間制限なしの「テストプレイ・データ収集」で1問を選び、実際のペン入力と認識待ち時間を確認してください。
-
-<a id="model-and-environment"></a>
-
-## モデル取得と既存環境への影響
-
-### モデルはセットアップ時に自動取得する
-
-- 通常の展示ゲームはTexTellerだけを使用。UniMERNet・学習データ・公開評価データセットは不要です。
-- 公式Hugging Faceから固定revision `7b96df06b9d81cdb129c3bef68b7250bc3e2b0ea` の必要な9ファイルを取得します。重みだけで約1.2GBあります。
-- 保存先はリポジトリ内の `.model-cache/texteller`。CPU／GPUで同じ重みを共有します。
-- 取得完了後の認識はローカルPC内で処理し、回答画像を外部認識サービスへ送信しません。
-- 再セットアップでは配布元への確認通信が発生します。オフラインの日は起動スクリプトだけを使い、事前に回線なしでリハーサルしてください。
-- ゲームの数式・日本語フォントはビルドに同梱。旧モデル比較画面のCDN利用は別条件です。
-
-### 既存のGPU・Python環境を変更する？
-
-| 対象 | セットアップによる変更 |
-| --- | --- |
-| このリポジトリの `.venv` / `.venv-texteller` / `.venv-texteller-cpu` | 作成・再利用し、その中のライブラリを導入・変更する |
-| このリポジトリの `.model-cache` / `game/node_modules` / `game/dist` | モデル・フロント依存・ビルド済み画面を保存する |
-| 他プロジェクトのvenv・Anaconda・グローバルPythonのライブラリ | 通常のセットアップでは変更しない |
-| NVIDIAドライバー・システムのCUDA Toolkit | インストール・更新しない |
-| グローバルpnpm | セットアップスクリプトは変更しない。上記 `npm install -g` を手動実行した場合は変更しうる |
-
-新しくcloneした専用フォルダーで使い、アプリ専用venvを他用途と共有しないでください。
-同じフォルダーに既にあるvenvは再セットアップで内容が変わります。フォルダーを移動した場合も、venvをそのまま流用せずセットアップし直します。
-pnpmやpipのダウンロードキャッシュはユーザー領域にも保存されます。
-
-<a id="operation"></a>
-
-## 毎日の起動・2画面の設営
-
-新しいPowerShellでリポジトリへ移動し、使用する方だけを起動します。毎回のセットアップは不要です。
-
-```powershell
-cd C:\path\to\math-go
-Set-ExecutionPolicy -Scope Process Bypass
-# CPUを使う場合
-.\scripts\start_festival_cpu.ps1
-# NVIDIA GPUを使う場合は、上の代わりに次を実行
-# .\scripts\start_festival_gpu.ps1
-```
-
-起動スクリプトはモデルの準備完了を確認してから `http://127.0.0.1:8000/display` を開きます。
-Displayの「液タブ画面を開く」でControllerを出し、ポップアップを許可して液タブへ移動してください。
-Windowsの拡張ディスプレイでDisplayをモニター、Controllerを液タブに配置します。
-
-両画面は **同じPC・同じブラウザーのプロファイル・同じOrigin・同じsession** が必要です。
-`localhost` と `127.0.0.1`、異なるポートも別Originです。別PC間の2画面同期ではありません。
-
-CPU／GPU両方の起動スクリプトで `-SingleScreen`（1画面版）、`-Port 8001`（ポート変更）、`-NoBrowser` を使えます。
-停止は起動したPowerShellでCtrl+C。詳しい当日チェック・ログ・復旧は [運用マニュアル](docs/festival-operation.md) を参照してください。
-問題編集APIに認証はないため、不特定ネットワークやインターネットへ公開しないでください。
-
-<a id="update"></a>
-
-## git pullによる更新
-
-サーバーを停止してから、変更の有無を確認して更新します。
-
-```powershell
-git status
-git diff -- config/game_questions.json
-git pull --ff-only
-# 使用する方のセットアップを再実行（GPUならgpu版）
-.\scripts\setup_festival_cpu.ps1 -Python python
-.\scripts\check_environment.ps1 -RequireReady -Device cpu
-```
-
-セットアップの再実行で依存関係の導入と画面の再ビルドまで行います。その後に両画面を開き直し、1セットをリハーサルしてください。
-問題編集画面から追加した問題もローカル変更です。更新前に保存・バックアップし、衝突でpullが止まったら無理に上書きせず開発担当者へ確認してください。
-`git reset --hard` で変更を消す手順にはしません。
-
-<a id="validation"></a>
-
-## CPU性能と検証結果
-
-CPU専用torch 2.14.0+cpu、Ryzen 5 5600H（6コア12スレッド）、RAM 16GB、Windows 11で測定。GPU搭載PCですが、CUDA利用不可のCPU環境で検証しています。
-
-| CPUでの測定 | 結果 |
-| --- | --- |
-| サーバー起動→モデル準備完了（事前チェック除外） | 約10.79秒 |
-| 公開手書き画像16枚を各2回（32要求・逐次） | エラー0、中央値1.55秒、P95 2.71秒、最大2.75秒 |
-| 合成筆跡で同時2要求・計30回 | エラー0、中央値1.95秒、最大1.97秒（待ち行列含む） |
-| モデルプロセスのRAM | 測定時約1.52GiB、ピーク約2.60GiB（PC全体ではない） |
-
-認識待ち中はゲームの時計を止めますが、認識リクエスト自体には30秒の上限があります。
-別のPCや長い式で同じ速度を保証しません。また、APIの処理成功と正しく読み取れることは別です。
-低性能CPU・RAM 8GB・液タブ実機・長時間稼働は未検証です。
-
-上表は2026-10-08の測定値です。最新の実プレイ・CPU設定比較・対応状況は [2026-10-22の検証](reports/remaining_fixes_2026-10-22.md)、全体監査は [2026-10-21の検証](reports/refactor_playtest_2026-10-21.md) を参照してください。対象画像・同時要求数が異なる測定値を、そのまま速度改善率として比較しないでください。
-過去の [CPU検証](reports/cpu_performance_validation_2026-10-08.md) と [2モード導入時の検証](reports/two_mode_validation_2026-10-15.md) は開発経緯として残しています。
-
-CPUスレッド数は既定のままで起動できます。PC別に実測して変更する場合だけ、同じPowerShellで次のように指定します。PC全体・他のPython環境・GPU設定は変更せず、この起動プロセスだけに適用します（1〜256の整数、未指定はTorch既定）。このPCの比較では既定6が最速で、1〜4へ減らすと遅くなりました。
-
-```powershell
-$env:TEXTELLER_CPU_THREADS = "6"
-.\scripts\start_festival_cpu.ps1
-# 通常の既定へ戻すとき
-Remove-Item Env:TEXTELLER_CPU_THREADS -ErrorAction SilentlyContinue
-```
-
-公開HWEを別途取得済みなら、下記のモデル環境で比較できます。これは展示の起動には不要な任意検査です。画像取得は [モデル評価ガイド](docs/model-evaluation-guide.md) を参照してください。
-
-```powershell
-.\.venv-texteller-cpu\Scripts\python.exe scripts/benchmark_cpu_threads.py --threads 1 2 4 6 --output results/cpu-threads.json
-```
-
-<a id="development"></a>
-
-## 問題編集・開発・テスト
-
-### 問題を追加する
-
-起動中に `http://127.0.0.1:8000/questions/editor` を開くと、問題・正答候補・解説を登録できます。
-保存先は `config/game_questions.json`。形式と作成基準は [問題作成ガイド](docs/question-authoring-guide.md) を参照してください。
-
-```powershell
-.\.venv\Scripts\python.exe scripts/validate_game_questions.py
-```
-
-### 回帰テストと実モデル確認
-
-```powershell
-.\.venv\Scripts\python.exe -m pip install -r requirements/test.txt
-.\.venv\Scripts\python.exe scripts/verify_exhibition.py
-# サーバー起動済みの別PowerShellで、CPUの実認識を確認
-.\.venv\Scripts\python.exe scripts/smoke_exhibition.py --expected-device cpu --requests 30 --concurrency 2
-```
-
-GPUで確認する場合は `--expected-device cuda` を使います。
-画面・採点・不正入力などを保存なしで確認するには、`python scripts/audit_live_api.py --base-url http://127.0.0.1:8000 --output results/live_api_audit.json` を使えます。文書リンクは `python scripts/check_docs.py` で確認できます。
-回帰テストはビルド、問題バンク検証、TypeScript/Pythonテスト、pip checkを実行。実モデル検査は合成入力を使うAPI安定性確認で、認識精度の評価ではありません。
-バックエンドの直接依存は `requirements/festival.txt`、フロントエンドは `game/pnpm-lock.yaml` で固定しています。Pythonの推移的依存すべてを固定しているわけではありません。
-
-画面開発はFastAPIを8000番で起動したうえで `scripts/run_game_dev.ps1` を使用します。Viteは5173番で動き、APIをFastAPIへproxyします。
-**モデル比較・ベンチマークは展示には不要**です。詳しい手順を [モデル評価ガイド](docs/model-evaluation-guide.md) に分けています。ゲームのテストプレイには同意付きデータ収集機能があり、使用は任意です。
-
-<a id="documents"></a>
-
-## リポジトリ構成と関連文書
-
-```text
-game/               TypeScript + DOM/Canvasのゲーム画面
-backend/            FastAPI・認識モデル用ワーカー
-frontend/           モデル比較・手書き収集・問題編集画面
-config/             問題JSON・schema・データパス設定
-benchmark/          評価データ準備・認識評価・集計
-scripts/            CPU/GPU別セットアップ・起動・検証
-docs/               設計・運用・問題作成・開発履歴
-reports/            検証結果と制約の記録
-```
-
-- [文書案内](docs/README.md) / [現行ゲーム仕様](docs/two-mode-exhibition.md)
-- [アーキテクチャ](docs/architecture.md) / [展示運用](docs/festival-operation.md)
-- [外部プログラム向け認識API要件](docs/recognition_service_requirements.md)
-- [開発の変遷](docs/development-history.md) / [設計判断（ADR）](docs/adr/)
-- 公式モデル：[TexTeller](https://github.com/OleehyO/TexTeller)、[UniMERNet](https://github.com/opendatalab/UniMERNet)
-
-## 既知の制約
-
-正誤判定は、登録正答と許容表記の照合です。`x(x+1)` と `x^2+x` のような任意の数学的同値を判定するCASではありません。
-管理CLIによるLM headのみ・1回通過の追加学習は実装済みですが、実サイズモデルの精度改善とGPU学習は未検証です。Online HMER、Unity連携、別PC間の2画面同期は現在の範囲外です。
-モデル重み・公開データセット本体・仮想環境・ビルド済み画面・個人の筆跡・実行ログはGitに入れません。
+依存ライブラリ、フォント、認識モデルにはそれぞれのライセンスが適用されます。モデル取得元と固定バージョンは導入スクリプトおよび [アーキテクチャ](docs/architecture.md) に記録しています。

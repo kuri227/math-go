@@ -1,11 +1,11 @@
 # モデル比較・データ収集・評価ガイド
 
-ゲーム展示にはこの手順は不要です。通常はREADMEのCPU/GPU別セットアップを使い、TexTellerだけを導入します。
+ゲーム展示にはこの手順は不要です。通常は[はじめての導入ガイド](installation.md)のCPU/GPU別セットアップを使い、TexTellerだけを導入します。
 この文書はTexTellerとUniMERNetを比較・評価する開発者向けです。リポジトリルートから実行してください。
 
 ## 評価用環境を作る
 
-READMEのGit・Python・Node・pnpmの共通準備を済ませてから実行します。
+[はじめての導入ガイド](installation.md)のGit・Python・Node・pnpmの共通準備を済ませてから実行します。
 
 ```powershell
 Set-ExecutionPolicy -Scope Process Bypass
