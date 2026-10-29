@@ -64,6 +64,20 @@ def test_game_preload_only_starts_requested_model(monkeypatch):
     assert calls == [("texteller",)]
 
 
+def test_eager_start_is_backgrounded_and_only_uses_configured_models(monkeypatch):
+    from backend.app.recognizers.registry import RecognizerRegistry
+
+    instance = object.__new__(RecognizerRegistry)
+    instance._recognizers = {"texteller": object(), "unimernet": object()}
+    calls = []
+    instance.begin_preload = lambda names=None: calls.append(names) or "loading"
+    monkeypatch.setenv("HMER_EAGER_MODELS", "texteller,missing")
+
+    instance.start_all()
+
+    assert calls == [("texteller",)]
+
+
 def test_unknown_model_rejected():
     with TestClient(app, base_url="http://127.0.0.1", client=("127.0.0.1", 50000)) as client:
         response = client.post(

@@ -7,6 +7,8 @@ import time
 import traceback
 from contextlib import redirect_stdout
 
+PROCESS_STARTED_AT = time.perf_counter()
+
 import torch
 from settings import cpu_thread_count
 
@@ -18,6 +20,17 @@ def emit(payload: dict[str, object]) -> None:
     print(PROTOCOL_PREFIX + json.dumps(payload, ensure_ascii=False), file=PROTOCOL_OUT, flush=True)
 
 
+def log_startup(label: str, phase_started_at: float) -> float:
+    now = time.perf_counter()
+    print(
+        f"[startup] {label}: {(now - phase_started_at) * 1000:.1f} ms "
+        f"(total {(now - PROCESS_STARTED_AT) * 1000:.1f} ms)",
+        file=sys.stderr,
+        flush=True,
+    )
+    return now
+
+
 def choose_device() -> torch.device:
     requested = os.getenv("HMER_DEVICE", "auto")
     if requested == "auto":
@@ -27,7 +40,8 @@ def choose_device() -> torch.device:
 
 def main() -> None:
     try:
-        initialized_at = time.perf_counter()
+        phase_started_at = PROCESS_STARTED_AT
+        phase_started_at = log_startup("python and torch imports", phase_started_at)
         device = choose_device()
         cpu_threads = cpu_thread_count(os.getenv("TEXTELLER_CPU_THREADS", "")) if device.type == "cpu" else None
         if cpu_threads is not None:
@@ -39,17 +53,21 @@ def main() -> None:
         with redirect_stdout(sys.stderr):
             from texteller import img2latex, load_model, load_tokenizer
 
+            phase_started_at = log_startup("texteller imports", phase_started_at)
             model = load_model(model_dir=model_dir, use_onnx=use_onnx)
+            phase_started_at = log_startup("model weights", phase_started_at)
             if not use_onnx and hasattr(model, "to"):
                 model = model.to(device)
                 model.eval()
+            phase_started_at = log_startup(f"model transfer to {device}", phase_started_at)
             tokenizer = load_tokenizer(tokenizer_dir=model_dir)
+            log_startup("tokenizer", phase_started_at)
         emit(
             {
                 "status": "ready",
                 "device": str(device),
                 "variant": os.getenv("HMER_MODEL_VARIANT", "3.0"),
-                "initialization_ms": (time.perf_counter() - initialized_at) * 1000,
+                "initialization_ms": (time.perf_counter() - PROCESS_STARTED_AT) * 1000,
                 "peak_vram_mb": torch.cuda.max_memory_allocated(device) / 1024**2 if device.type == "cuda" else None,
             }
         )

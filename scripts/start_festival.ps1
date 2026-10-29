@@ -30,23 +30,38 @@ $Server = Start-Process -FilePath $Python `
 try {
     Write-Host "Loading TexTeller. CPU or slower PCs may take longer."
     $Ready = $false
-    $ReadyDeadline = [DateTime]::UtcNow.AddMinutes(3)
+    # The worker owns the 180-second model deadline. Keep a small margin so the
+    # launcher can surface the worker's actual failure instead of racing it.
+    $ReadyDeadline = [DateTime]::UtcNow.AddSeconds(195)
+    $NextProgressAt = 10
     while ([DateTime]::UtcNow -lt $ReadyDeadline) {
         if ($Server.HasExited) {
             $Detail = if (Test-Path $StderrLog) { Get-Content $StderrLog -Tail 30 | Out-String } else { "" }
             throw "The server exited during startup.`n$Detail"
         }
+        $FailureDetail = $null
         try {
             $Health = Invoke-RestMethod "$LocalUrl/api/v1/health/ready?model=texteller" -TimeoutSec 2
             if ($Health.status -eq "ready") {
                 $Ready = $true
                 break
             }
+            if ($Health.status -eq "unavailable" -and $Health.detail) {
+                $FailureDetail = $Health.detail
+            }
         } catch { }
+        if ($FailureDetail) {
+            throw "TexTeller failed during startup: $FailureDetail"
+        }
+        $ElapsedSeconds = [Math]::Floor($StartupWatch.Elapsed.TotalSeconds)
+        if ($ElapsedSeconds -ge $NextProgressAt) {
+            Write-Host "Still loading TexTeller... ${ElapsedSeconds}s"
+            $NextProgressAt += 10
+        }
         Start-Sleep -Seconds 1
     }
     if (-not $Ready) {
-        throw "TexTeller was not ready within 3 minutes. Check .runtime/server.stderr.log and results/logs/texteller.log."
+        throw "TexTeller was not ready within 195 seconds. Check .runtime/server.stderr.log and results/logs/texteller.log."
     }
 
     $GameUrl = if ($SingleScreen) { $LocalUrl } else { "$LocalUrl/display" }

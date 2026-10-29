@@ -77,12 +77,21 @@ if (GAME_DIST_DIR / "game-assets").is_dir():
         StaticFiles(directory=GAME_DIST_DIR / "game-assets"),
         name="game-assets",
     )
+if (GAME_DIST_DIR / "audio").is_dir():
+    app.mount(
+        "/audio",
+        StaticFiles(directory=GAME_DIST_DIR / "audio"),
+        name="game-audio",
+    )
 
 
 @app.get("/", include_in_schema=False)
 def index() -> FileResponse:
     game_index = GAME_DIST_DIR / "index.html"
-    return FileResponse(game_index if game_index.is_file() else FRONTEND_DIR / "index.html")
+    return FileResponse(
+        game_index if game_index.is_file() else FRONTEND_DIR / "index.html",
+        headers={"Cache-Control": "no-store"},
+    )
 
 
 @app.get("/display", include_in_schema=False)
@@ -90,7 +99,7 @@ def display_game() -> FileResponse:
     display_index = GAME_DIST_DIR / "display.html"
     if not display_index.is_file():
         raise HTTPException(status_code=503, detail="Build the game before opening the display")
-    return FileResponse(display_index)
+    return FileResponse(display_index, headers={"Cache-Control": "no-store"})
 
 
 @app.get("/controller", include_in_schema=False)
@@ -98,7 +107,7 @@ def controller_game() -> FileResponse:
     controller_index = GAME_DIST_DIR / "controller.html"
     if not controller_index.is_file():
         raise HTTPException(status_code=503, detail="Build the game before opening the controller")
-    return FileResponse(controller_index)
+    return FileResponse(controller_index, headers={"Cache-Control": "no-store"})
 
 
 @app.get("/evaluation", include_in_schema=False)

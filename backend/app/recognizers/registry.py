@@ -72,9 +72,12 @@ class RecognizerRegistry:
             for item in os.getenv("HMER_EAGER_MODELS", "").split(",")
             if item.strip()
         }
-        for name in eager:
-            if name in self._recognizers:
-                self._recognizers[name].start()
+        selected = tuple(name for name in sorted(eager) if name in self._recognizers)
+        if selected:
+            # Keep ASGI startup responsive while the selected worker loads. The
+            # readiness endpoint can now report loading/failure instead of the
+            # whole server appearing unreachable during model initialization.
+            self.begin_preload(selected)
 
     def begin_preload(self, names: tuple[str, ...] | None = None) -> str:
         """Start loading selected models without delaying the HTTP response."""
