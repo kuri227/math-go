@@ -67,6 +67,7 @@ def test_production_pages_and_their_assets(route, filename):
         assert page.status_code == 200
         assert "text/html" in page.headers["content-type"]
         assert page.headers["cache-control"] == "no-store"
+        assert "viewport-fit=cover" in page.text
         assets = set(re.findall(r'(?:src|href)="(/game-assets/[^"]+)"', page.text))
         assert assets
         for asset in assets:
