@@ -99,6 +99,7 @@ export function runApp(role: Role): void {
     else if (!inkTimer) inkTimer = setTimeout(send, 40);
   };
   const selectedLevel = () => Number($<HTMLSelectElement>("difficulty").value);
+  const selectedQuestionCount = () => Number($<HTMLSelectElement>("questionCount").value);
   const on = (id: string, action: () => void | Promise<void>) => $(id).addEventListener("click", () => {
     if (role !== "display") sound.playEffect("tap");
     void Promise.resolve().then(action).catch(showError);
@@ -121,20 +122,22 @@ export function runApp(role: Role): void {
   function updateSetup(): void {
     const pool = bank.filter(q => q.difficulty === selectedLevel());
     const eligible = pool.filter(q => q.exhibition_enabled && q.review_status === "approved");
+    const questionCount = selectedQuestionCount();
     $("staffTools").hidden = setupView !== "staff";
-    $("setupEyebrow").textContent = setupView === "staff" ? "STAFF TOOLS" : "SELECT LEVEL";
-    $("setupTitle").textContent = setupView === "staff" ? "問題テスト" : "難易度をえらぼう";
-    $("setupDescription").textContent = setupView === "staff" ? "確認したい問題を選び、認識や表示をテストします。" : "自分に合ったレベルを選んで、7問に挑戦しよう。";
+    $("questionCountField").hidden = setupView === "staff";
+    $("setupEyebrow").textContent = setupView === "staff" ? "STAFF TOOLS" : "GAME SETTINGS";
+    $("setupTitle").textContent = setupView === "staff" ? "問題テスト" : "ゲーム設定";
+    $("setupDescription").textContent = setupView === "staff" ? "確認したい問題を選び、認識や表示をテストします。" : "難易度と問題数を選んで挑戦しよう。";
     $("difficultyNumber").textContent = String(selectedLevel());
     $("difficultyName").textContent = difficultyLabels[selectedLevel() - 1] ?? "";
-    $("poolSummary").textContent = selectedMode === "test" ? `${pool.length}問あります。テストする問題を下から選んでください。` : eligible.length >= EXHIBITION.questions ? "このレベルから7問が出題されます。" : "このレベルは準備中です。スタッフへ声をかけてください。";
+    $("poolSummary").textContent = selectedMode === "test" ? `${pool.length}問あります。テストする問題を下から選んでください。` : eligible.length >= questionCount ? `このレベルから${questionCount}問が出題されます。` : `このレベルは${questionCount}問分の準備ができていません。問題数を減らすか、別のレベルを選んでください。`;
     $("selectAllQuestions").textContent = `全${bank.length}問を選択`;
     $<HTMLButtonElement>("selectAllQuestions").disabled = bank.length === 0 || selected.size === bank.length;
-    const ready = modelReady && bank.length > 0 && connected && (selectedMode === "test" ? selected.size > 0 : eligible.length >= EXHIBITION.questions);
+    const ready = modelReady && bank.length > 0 && connected && (selectedMode === "test" ? selected.size > 0 : eligible.length >= questionCount);
     $<HTMLButtonElement>("showGuide").disabled = !ready;
-    $("setupStatus").textContent = !bank.length || !modelReady ? "ゲームを準備しています。少しお待ちください。" : !connected ? "もう一方の画面を準備しています。" : selectedMode === "test" && !selected.size ? "テストする問題にチェックを入れてください。" : selectedMode === "exhibition" && eligible.length < EXHIBITION.questions ? "このレベルはまだ遊べません。別のレベルを選んでください。" : "準備OK！";
+    $("setupStatus").textContent = !bank.length || !modelReady ? "ゲームを準備しています。少しお待ちください。" : !connected ? "もう一方の画面を準備しています。" : selectedMode === "test" && !selected.size ? "テストする問題にチェックを入れてください。" : selectedMode === "exhibition" && eligible.length < questionCount ? "問題数を減らすか、別のレベルを選んでください。" : "準備OK！";
     $("selectionCount").textContent = `${selected.size}問選択中（選んだ順に出題）`;
-    $("showGuide").textContent = selectedMode === "test" ? "選んだ問題をテスト" : "このレベルで進む";
+    $("showGuide").textContent = selectedMode === "test" ? "選んだ問題をテスト" : "この設定で進む";
   }
   function drawPicker(): void {
     const search = $<HTMLInputElement>("search").value.toLocaleLowerCase();
@@ -400,11 +403,13 @@ export function runApp(role: Role): void {
           if (!modelReady) throw new Error("認識モデルの準備が終わるまでお待ちください。");
           if (!(["exhibition", "test"] as unknown[]).includes(message.mode) || !Number.isInteger(message.difficulty) || message.difficulty < 1 || message.difficulty > 7 || !Array.isArray(message.questionIds) || message.questionIds.length > bank.length || message.questionIds.some(id => typeof id !== "string")) throw new Error("設定内容が正しくありません。入力画面を再読み込みしてください。");
           const difficulty = Math.trunc(message.difficulty);
+          const maximumQuestions = message.mode === "test" ? bank.length : EXHIBITION.questions;
+          if (!Number.isInteger(message.questionCount) || message.questionCount < 1 || message.questionCount > maximumQuestions) throw new Error(`問題数は1〜${maximumQuestions}問で選んでください。`);
           const questions = message.mode === "test"
             ? message.questionIds.map(id => bank.find(q => q.id === id)).filter((q): q is Question => Boolean(q))
-            : chooseExhibition(bank, difficulty);
-          if (message.mode === "test" && questions.length !== message.questionIds.length) throw new Error("選択した問題を確認できませんでした。問題データを再読み込みしてください。");
-          if (message.mode === "exhibition" && questions.length !== EXHIBITION.questions) throw new Error(`レベル${difficulty}の通常ゲーム候補が${EXHIBITION.questions}問必要です。`);
+            : chooseExhibition(bank, difficulty, Math.random, message.questionCount);
+          if (message.mode === "test" && (questions.length !== message.questionIds.length || questions.length !== message.questionCount)) throw new Error("選択した問題を確認できませんでした。問題データを再読み込みしてください。");
+          if (message.mode === "exhibition" && questions.length !== message.questionCount) throw new Error(`レベル${difficulty}の通常ゲーム候補が${message.questionCount}問必要です。`);
           if (!questions.length) throw new Error("出題する問題を選んでください。");
           session = new Session(questions, message.mode); lastRender = ""; render(); sendState(true);
         } catch (error) {
@@ -460,6 +465,7 @@ export function runApp(role: Role): void {
   channel?.start();
   window.addEventListener("pagehide", () => channel?.close());
   $("difficulty").addEventListener("change", drawPicker);
+  $("questionCount").addEventListener("change", updateSetup);
   for (const id of ["search", "allLevels", "onlyPending"]) $(id).addEventListener(id === "search" ? "input" : "change", drawPicker);
   on("clearSelection", () => { selected.clear(); drawPicker(); });
   on("selectAllQuestions", () => { selected.clear(); for (const question of bank) selected.add(question.id); drawPicker(); });
@@ -470,11 +476,11 @@ export function runApp(role: Role): void {
   on("openStaffTools", () => { showSetupView("staff"); drawPicker(); });
   on("setupHome", () => showSetupView("home"));
   on("showGuide", () => {
-    const questions = selectedMode === "test" ? catalog.selected(selected) : chooseExhibition(bank, selectedLevel());
+    const questions = selectedMode === "test" ? catalog.selected(selected) : chooseExhibition(bank, selectedLevel(), Math.random, selectedQuestionCount());
     if (!modelReady || !connected || !questions.length) return;
     if (role === "controller") {
       $("setupStatus").textContent = "問題表示画面で設定を確認しています。";
-      channel?.send({ type: "exhibition-control", action: "configure", mode: selectedMode, difficulty: selectedLevel(), questionIds: selectedMode === "test" ? questions.map(q => q.id) : [] });
+      channel?.send({ type: "exhibition-control", action: "configure", mode: selectedMode, difficulty: selectedLevel(), questionCount: selectedMode === "test" ? questions.length : selectedQuestionCount(), questionIds: selectedMode === "test" ? questions.map(q => q.id) : [] });
     } else {
       session = new Session(questions, selectedMode); lastRender = ""; render(); sendState();
     }
@@ -511,9 +517,9 @@ export function runApp(role: Role): void {
     else { session = null; releaseDraft(); lastRender = ""; render(); sendState(); }
   });
   on("restart", () => {
-    const questions = selectedMode === "test" ? catalog.selected(selected) : chooseExhibition(bank, selectedLevel());
+    const questions = selectedMode === "test" ? catalog.selected(selected) : chooseExhibition(bank, selectedLevel(), Math.random, selectedQuestionCount());
     if (!questions.length) return;
-    if (role === "controller") channel?.send({ type: "exhibition-control", action: "configure", mode: selectedMode, difficulty: selectedLevel(), questionIds: selectedMode === "test" ? questions.map(q => q.id) : [] });
+    if (role === "controller") channel?.send({ type: "exhibition-control", action: "configure", mode: selectedMode, difficulty: selectedLevel(), questionCount: selectedMode === "test" ? questions.length : selectedQuestionCount(), questionIds: selectedMode === "test" ? questions.map(q => q.id) : [] });
     else { session = new Session(questions, selectedMode); releaseDraft(); lastRender = ""; render(); sendState(true); }
   });
   on("fullscreen", async () => { try { if (document.fullscreenElement) await document.exitFullscreen(); else await document.documentElement.requestFullscreen(); } catch { $("modelStatus").textContent = "全画面にできませんでした。ブラウザーの全画面操作をお試しください。"; } });

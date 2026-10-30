@@ -7,7 +7,7 @@ from backend.app.pairing import PairHub
 
 def hello(role, connection="connection", sequence=1):
     return {"type": "hello", "sessionId": "test", "connectionId": connection,
-            "protocolVersion": 4, "sequence": sequence, "sender": role,
+            "protocolVersion": 5, "sequence": sequence, "sender": role,
             "role": role, "sentAt": 1}
 
 
@@ -24,7 +24,7 @@ def test_hello_requires_bound_role_session_protocol_and_identity():
     assert PairHub.valid_hello(hello("display"), "test", "display")
     assert not PairHub.valid_hello(hello("controller"), "test", "display")
     assert not PairHub.valid_hello({**hello("display"), "sessionId": "other"}, "test", "display")
-    assert not PairHub.valid_hello({**hello("display"), "protocolVersion": 3}, "test", "display")
+    assert not PairHub.valid_hello({**hello("display"), "protocolVersion": 4}, "test", "display")
     assert not PairHub.valid_hello(hello("display", ""), "test", "display")
     assert not PairHub.valid_hello({**hello("display"), "sequence": True}, "test", "display")
     assert not PairHub.valid_hello({**hello("display"), "sentAt": math.inf}, "test", "display")

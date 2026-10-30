@@ -11,7 +11,7 @@ from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from .local_admin import loopback_host
 
 router = APIRouter()
-PROTOCOL_VERSION = 4
+PROTOCOL_VERSION = 5
 MAX_MESSAGE_BYTES = 1_000_000
 ALLOWED_TYPES = {
     "display": {"hello", "exhibition-state", "setup-error"},

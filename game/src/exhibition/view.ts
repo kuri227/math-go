@@ -1,4 +1,5 @@
 import { DIFFICULTY_LABELS as labels } from "./catalog";
+import { EXHIBITION } from "./Session";
 
 export type Role = "single" | "display" | "controller";
 const button = (id: string, text: string, primary = false) => `<button type="button" id="${id}"${primary ? ' class="primary"' : ""}>${text}</button>`;
@@ -6,7 +7,7 @@ const actionLink = (id: string, href: string, text: string) => `<a id="${id}" cl
 
 /** Static semantic structure, separate from session state and side effects. */
 export function appMarkup(role: Role): string {
-  const homeStart = button("startGame", role === "single" ? "1画面でスタート" : "難易度をえらぶ", true);
+  const homeStart = button("startGame", role === "single" ? "1画面でスタート" : "ゲーム設定へ", true);
   const dualScreenStart = role === "single" ? actionLink("startDualScreen", "/display", "2画面でスタート") : "";
   const screenGuide = role === "controller"
     ? "<div class=\"rule-note\"><strong>画面の使い分け</strong><p>問題はモニターに表示されます。回答とメモはこの液タブに書きます。</p></div>"
@@ -23,24 +24,25 @@ export function appMarkup(role: Role): string {
       <section id="home" class="home" aria-labelledby="homeTitle">
         <div class="home-orbit" aria-hidden="true"><span>+</span><span>×</span><span>π</span><span>√</span></div>
         <div class="home-copy"><p class="eyebrow">HANDWRITING MATH CHALLENGE</p><h1 id="homeTitle">数学で<span>GO</span></h1><p class="home-lead">ひらめいて、書いて、正解をつかめ！</p>
-          <div class="home-rules" aria-label="ゲームの概要"><span><strong>7</strong>問チャレンジ</span><span><strong>20</strong>秒で回答</span><span><strong>3</strong>つの残機</span></div>
+          <div class="home-rules" aria-label="ゲームの概要"><span><strong>1〜7</strong>問を選べる</span><span><strong>20</strong>秒で回答</span><span><strong>3</strong>つの残機</span></div>
           <div class="home-actions">${homeStart}${dualScreenStart}${button("showRules", "あそびかた")}</div>
           ${button("openStaffTools", "スタッフ用：問題テスト・学習データ整備")}
         </div>
       </section>
-      <section id="rules" class="reading-surface rules" hidden aria-labelledby="rulesTitle"><p class="eyebrow">HOW TO PLAY</p><h1 id="rulesTitle">あそびかた</h1><ol class="rule-cards"><li><span>1</span><strong>問題を見る</strong><p>画面に出る数学の問題を読もう。</p></li><li><span>2</span><strong>答えを書く</strong><p>回答用紙に答えを書こう。途中の計算はメモ用紙へ。</p></li><li><span>3</span><strong>読み取りを確認</strong><p>読み取った答えが合っていたら回答！</p></li></ol>${screenGuide}<div class="rule-note"><strong>チャンスは3回</strong><p>不正解では残機は減りません。時間切れになると残機が1つ減ります。</p></div><div class="actions">${button("rulesHome", "タイトルへ")}${button("rulesContinue", "難易度をえらぶ", true)}</div></section>
+      <section id="rules" class="reading-surface rules" hidden aria-labelledby="rulesTitle"><p class="eyebrow">HOW TO PLAY</p><h1 id="rulesTitle">あそびかた</h1><ol class="rule-cards"><li><span>1</span><strong>問題を見る</strong><p>画面に出る数学の問題を読もう。</p></li><li><span>2</span><strong>答えを書く</strong><p>回答用紙に答えを書こう。途中の計算はメモ用紙へ。</p></li><li><span>3</span><strong>読み取りを確認</strong><p>読み取った答えが合っていたら回答！</p></li></ol>${screenGuide}<div class="rule-note"><strong>チャンスは3回</strong><p>不正解では残機は減りません。時間切れになると残機が1つ減ります。</p></div><div class="actions">${button("rulesHome", "タイトルへ")}${button("rulesContinue", "ゲーム設定へ", true)}</div></section>
       <section id="setup" class="setup" aria-labelledby="setupTitle">
-        <div class="intro"><p id="setupEyebrow" class="eyebrow">SELECT LEVEL</p><h1 id="setupTitle">難易度を<br>えらぼう</h1><p id="setupDescription">自分に合ったレベルを選んで、7問に挑戦しよう。</p>${button("setupHome", "タイトルへ戻る")}</div>
+        <div class="intro"><p id="setupEyebrow" class="eyebrow">GAME SETTINGS</p><h1 id="setupTitle">ゲーム設定</h1><p id="setupDescription">難易度と問題数を選んで挑戦しよう。</p>${button("setupHome", "タイトルへ戻る")}</div>
         <div class="settings"><div id="difficultyStage" class="difficulty-stage" aria-hidden="true"><span>LEVEL</span><strong id="difficultyNumber">1</strong><p id="difficultyName">${labels[0]}</p></div>
-          <label class="field difficulty-field" for="difficulty">難易度<select id="difficulty">${labels.map((label, i) => `<option value="${i + 1}">LEVEL ${i + 1} · ${label}</option>`).join("")}</select></label>
+          <div class="game-settings-fields"><label class="field" for="difficulty">難易度<select id="difficulty">${labels.map((label, i) => `<option value="${i + 1}">LEVEL ${i + 1} · ${label}</option>`).join("")}</select></label>
+            <label id="questionCountField" class="field" for="questionCount">問題数<select id="questionCount">${Array.from({ length: EXHIBITION.questions }, (_, i) => `<option value="${i + 1}"${i + 1 === EXHIBITION.questions ? " selected" : ""}>${i + 1}問</option>`).join("")}</select></label></div>
           <p id="poolSummary" class="muted"></p><p id="setupStatus" role="status">問題を準備しています。</p>
           <section id="staffTools" hidden aria-labelledby="staffToolsTitle"><div class="staff-heading"><p class="eyebrow">STAFF TOOLS</p><h2 id="staffToolsTitle">問題テスト・データ整備</h2><p>出題確認や学習候補の保存を行うスタッフ専用モードです。</p>${staffScreenGuide}</div><section id="questionPicker" aria-label="テストする問題の選択"><label class="field" for="search">問題文・ID・分野で検索<input id="search" type="search" placeholder="例：方程式、d3-s2"></label>
             <div class="picker-toolbar"><label><input id="allLevels" type="checkbox">全レベルから探す</label><label><input id="onlyPending" type="checkbox">未確認だけ</label></div>
             <p id="selectionCount" role="status">0問選択中</p><div class="selection-actions" aria-label="問題の一括選択">${button("selectAllQuestions", "全問題を選択")}${button("clearSelection", "選択を解除")}</div><div id="questionList" class="question-list"></div></section></section>
-          ${button("showGuide", "このレベルで進む", true)}
+          ${button("showGuide", "この設定で進む", true)}
         </div>
       </section>
-      <section id="guide" class="reading-surface ready-screen" hidden aria-labelledby="guideTitle"><p class="eyebrow">READY?</p><h1 id="guideTitle"></h1><p id="guideDescription"></p><div class="ready-check"><span>問題を見る</span><span>白い用紙に答えを書く</span><span>読み取りを確認</span></div><p id="guideRules"></p><p id="guidePrivacy"></p><div class="actions">${button("guideBack", "難易度を選び直す")}${button("begin", "ゲームスタート！", true)}</div></section>
+      <section id="guide" class="reading-surface ready-screen" hidden aria-labelledby="guideTitle"><p class="eyebrow">READY?</p><h1 id="guideTitle"></h1><p id="guideDescription"></p><div class="ready-check"><span>問題を見る</span><span>白い用紙に答えを書く</span><span>読み取りを確認</span></div><p id="guideRules"></p><p id="guidePrivacy"></p><div class="actions">${button("guideBack", "ゲーム設定に戻る")}${button("begin", "ゲームスタート！", true)}</div></section>
       <section id="waiting" class="reading-surface waiting" hidden aria-labelledby="waitingTitle"><p class="eyebrow">DISPLAY READY</p><h1 id="waitingTitle">モニター画面の準備完了</h1><p>次に液タブ用の操作画面を開き、液タブへ移動してください。</p><p id="waitingMessage" role="status">液タブ用画面の接続を待っています。</p><div class="actions"><a id="openControllerWaiting" class="action-link" href="/controller" target="_blank" rel="noopener">液タブ用画面を開く</a><a id="displayLink" href="/display">問題表示画面を開く</a></div></section>
       <section id="play" hidden aria-label="プレイ画面">
         <div class="play-toolbar"><p id="modeName"></p><div class="hud"><span id="round"></span><span id="correct"></span><span id="streak"></span><span id="lives" role="status"></span><strong id="time" aria-label="残り時間"></strong></div>${button("stop", "プレイを終了")}</div>
@@ -64,6 +66,6 @@ export function appMarkup(role: Role): string {
           ${button("saveSample", "確認したデータを保存")}<p id="saveStatus" role="status"></p></details></section>
         <section id="review" class="reading-surface" hidden aria-labelledby="reviewTitle"><details id="reviewDetails"><summary id="reviewTitle">問題の確認状況・通常ゲーム候補を変更する（管理者）</summary><p>問題文・正答・表示を確認してから変更してください。変更は次のプレイから反映されます。</p><label class="field" for="reviewStatus">確認状況<select id="reviewStatus"><option value="pending">未確認</option><option value="approved">確認済み</option><option value="needs_revision">要修正</option></select></label><label class="check-line"><input id="exhibitionEnabled" type="checkbox">通常ゲームの出題候補にする</label>${button("saveReview", "確認状況を保存")}<p id="reviewNotice" role="status"></p></details></section>
       </section>
-      <section id="finished" class="reading-surface finished" hidden aria-labelledby="endTitle"><p class="eyebrow">GAME RESULT</p><h1 id="endTitle"></h1><p id="endReason"></p><p id="endStats" class="end-stats"></p><p id="endAttempts"></p><div id="endSolution" hidden><h2>最後の問題</h2><div id="lastPrompt"></div><p>正答例</p><div id="lastAnswer"></div><p id="lastExplanation"></p></div><div class="actions end-actions">${button("restart", "同じレベルでもう一度", true)}${button("backToSetup", "難易度を選ぶ")}${button("backHome", "タイトルへ")}</div></section>
+      <section id="finished" class="reading-surface finished" hidden aria-labelledby="endTitle"><p class="eyebrow">GAME RESULT</p><h1 id="endTitle"></h1><p id="endReason"></p><p id="endStats" class="end-stats"></p><p id="endAttempts"></p><div id="endSolution" hidden><h2>最後の問題</h2><div id="lastPrompt"></div><p>正答例</p><div id="lastAnswer"></div><p id="lastExplanation"></p></div><div class="actions end-actions">${button("restart", "同じ設定でもう一度", true)}${button("backToSetup", "ゲーム設定へ")}${button("backHome", "タイトルへ")}</div></section>
     </main>`;
 }

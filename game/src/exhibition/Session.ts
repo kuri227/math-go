@@ -171,15 +171,18 @@ export class Session {
   }
 }
 
-export function chooseExhibition(bank: readonly Question[], difficulty: number, random = Math.random): Question[] {
+export function chooseExhibition(bank: readonly Question[], difficulty: number, random = Math.random, questionCount: number = EXHIBITION.questions): Question[] {
+  if (!Number.isInteger(questionCount) || questionCount < 1 || questionCount > EXHIBITION.questions) {
+    throw new RangeError(`問題数は1〜${EXHIBITION.questions}問で指定してください。`);
+  }
   const pool = bank.filter(q => q.difficulty === difficulty && q.exhibition_enabled && q.review_status === "approved");
   // Randomize within groups, then round-robin categories to avoid runs of variants.
   const shuffle = <T>(items: T[]): T[] => { for (let i = items.length - 1; i > 0; i--) { const j = Math.floor(random() * (i + 1)); [items[i], items[j]] = [items[j]!, items[i]!]; } return items; };
   const groups = new Map<string, Question[]>();
   for (const q of shuffle([...pool])) { const key = `${q.sublevel ?? 1}:${q.category}`; groups.set(key, [...(groups.get(key) ?? []), q]); }
   const buckets = shuffle([...groups.values()]), selected: Question[] = [];
-  while (selected.length < EXHIBITION.questions && buckets.some(b => b.length)) {
-    for (const b of buckets) { const q = b.pop(); if (q) selected.push(q); if (selected.length === EXHIBITION.questions) break; }
+  while (selected.length < questionCount && buckets.some(b => b.length)) {
+    for (const b of buckets) { const q = b.pop(); if (q) selected.push(q); if (selected.length === questionCount) break; }
   }
   return selected.sort((a, b) => (a.rank ?? 1) - (b.rank ?? 1));
 }

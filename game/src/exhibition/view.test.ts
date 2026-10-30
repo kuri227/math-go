@@ -46,7 +46,9 @@ describe("solo game layout contract", () => {
       expect(markup).not.toContain("2画面でスタート");
       expect(markup).not.toContain("2画面テストを開く");
     }
-    expect(appMarkup("controller")).toContain(">難易度をえらぶ</button>");
+    expect(appMarkup("controller")).toContain(">ゲーム設定へ</button>");
+    expect(appMarkup("controller")).toContain('id="questionCount"');
+    expect(appMarkup("controller")).toContain('<option value="7" selected>7問</option>');
     expect(appMarkup("controller")).toContain("回答とメモはこの液タブ");
   });
 });

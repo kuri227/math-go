@@ -2,7 +2,7 @@ import type { RecognitionResponse } from "../domain/types";
 import type { Snapshot } from "../exhibition/Session";
 import type { InkSnapshot } from "../ui/HandwritingPad";
 
-export const DUAL_SCREEN_PROTOCOL_VERSION = 4 as const;
+export const DUAL_SCREEN_PROTOCOL_VERSION = 5 as const;
 export type DualScreenRole = "display" | "controller";
 
 interface MessageBase {
@@ -17,7 +17,7 @@ interface MessageBase {
 export type DualScreenPayload =
   | { type: "exhibition-state"; snapshot: Snapshot | null }
   | { type: "exhibition-action"; action: "recognize" | "confirm" | "rewrite" | "next" | "retry-test" | "stop"; runId: string; questionId: string; requestId?: string; response?: RecognitionResponse; error?: string }
-  | { type: "exhibition-control"; action: "configure"; mode: "exhibition" | "test"; difficulty: number; questionIds: string[] }
+  | { type: "exhibition-control"; action: "configure"; mode: "exhibition" | "test"; difficulty: number; questionCount: number; questionIds: string[] }
   | { type: "exhibition-control"; action: "back-to-setup" | "begin-countdown" | "controller-ready"; runId?: string; questionId?: string }
   | { type: "setup-error"; message: string }
   | { type: "ink-snapshot"; runId: string; questionId: string; generation: number; ink: InkSnapshot }

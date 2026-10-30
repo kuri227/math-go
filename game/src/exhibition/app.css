@@ -74,7 +74,8 @@ main { max-width:1600px; margin:auto; padding:24px clamp(16px,3vw,48px) 15px; }
 .difficulty-stage > span { grid-row:1; font-size:.7rem; font-weight:900; letter-spacing:.16em; color:#bac8e8; }
 .difficulty-stage > strong { grid-row:1 / span 2; font-size:4.5rem; line-height:.85; color:var(--focus); font-variant-numeric:tabular-nums; }
 .difficulty-stage > p { grid-column:2; margin:2px 0 0; font-weight:800; line-height:1.35; }
-.difficulty-field { margin-top:18px; }
+.game-settings-fields { display:grid; grid-template-columns:minmax(0,1.7fr) minmax(96px,.7fr); gap:12px; margin-top:18px; }
+.game-settings-fields .field { margin:0; }
 #staffTools { margin:24px 0; padding-top:24px; border-top:2px solid #d9dbe1; }
 .staff-heading h2 { margin-bottom:6px; }
 .staff-heading p:last-child { color:#525e73; font-size:.85rem; }
