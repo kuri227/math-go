@@ -3,6 +3,14 @@ export const GAME_VOLUME_STORAGE_KEY = "math-go-volume";
 const DEFAULT_VOLUME = 70;
 
 export type GameSoundEffect = "tap" | "start" | "correct" | "wrong" | "timeout" | "finish";
+const EFFECT_VOLUME: Readonly<Record<GameSoundEffect, number>> = {
+  tap: 0.28,
+  start: 0.78,
+  correct: 0.78,
+  wrong: 0.78,
+  timeout: 0.78,
+  finish: 0.78,
+};
 const source = (name: string) => `/audio/${name}.wav`;
 
 export class UrgencySound {
@@ -43,7 +51,7 @@ export class UrgencySound {
   }
 
   playEffect(effect: GameSoundEffect): void {
-    this.play(effect, effect === "tap" ? 0.38 : 0.78);
+    this.play(effect, EFFECT_VOLUME[effect]);
   }
 
   private play(name: string, volume: number): void {

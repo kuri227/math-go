@@ -1,6 +1,9 @@
 """Exhaustive bank/API/static checks; no model downloads or real bank edits."""
 from io import BytesIO
+from pathlib import Path
 import re
+import struct
+import wave
 
 from fastapi.testclient import TestClient
 from PIL import Image
@@ -11,6 +14,7 @@ from backend.app.main import app, GAME_DIST_DIR
 
 QUESTIONS = get_questions()
 ALIASES = [(q.id, answer) for q in QUESTIONS for answer in q.accepted_latex]
+ROOT = Path(__file__).resolve().parents[1]
 
 
 @pytest.mark.parametrize("question_id,answer", ALIASES, ids=[f"{i}-{qid}" for i, (qid, _) in enumerate(ALIASES)])
@@ -75,6 +79,17 @@ def test_production_pages_and_their_assets(route, filename):
             assert response.status_code == 200, asset
             if asset.endswith(".js"):
                 assert "javascript" in response.headers["content-type"]
+
+
+def test_ui_tap_sound_stays_soft():
+    tap_path = ROOT / "game" / "public" / "audio" / "tap.wav"
+    with wave.open(str(tap_path), "rb") as audio:
+        frame_count = audio.getnframes()
+        assert audio.getnchannels() == 1
+        assert audio.getframerate() == 44_100
+        assert 0.11 <= frame_count / audio.getframerate() <= 0.15
+        samples = struct.unpack(f"<{frame_count}h", audio.readframes(frame_count))
+    assert max(abs(sample) for sample in samples) <= round(0.37 * 32767)
 
 
 def test_readiness_rejects_unknown_model():
