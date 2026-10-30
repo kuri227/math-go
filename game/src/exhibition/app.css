@@ -76,6 +76,7 @@ main { max-width:1600px; margin:auto; padding:24px clamp(16px,3vw,48px) 15px; }
 .difficulty-stage > p { grid-column:2; margin:2px 0 0; font-weight:800; line-height:1.35; }
 .game-settings-fields { display:grid; grid-template-columns:minmax(0,1.7fr) minmax(96px,.7fr); gap:12px; margin-top:18px; }
 .game-settings-fields .field { margin:0; }
+.field-hint { color:#525e73; font-size:.72rem; font-weight:600; line-height:1.4; }
 #staffTools { margin:24px 0; padding-top:24px; border-top:2px solid #d9dbe1; }
 .staff-heading h2 { margin-bottom:6px; }
 .staff-heading p:last-child { color:#525e73; font-size:.85rem; }

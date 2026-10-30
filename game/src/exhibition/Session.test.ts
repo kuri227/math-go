@@ -122,13 +122,13 @@ describe("two-mode game rules", () => {
   it("excludes pending/disabled questions even if their ranks are easier", () => {
     const copy = questions.map(q => ({ ...q, exhibition_enabled: false })); expect(chooseExhibition(copy, 1)).toEqual([]);
   });
-  it.each([1, 2, 3, 4, 5, 6, 7])("selects the configured %i-question game length", count => {
+  it.each([1, 2, 3, 4, 5, 6, 7, 15])("selects the configured %i-question game length", count => {
     const chosen = chooseExhibition(questions, 1, () => 0.5, count);
     expect(chosen).toHaveLength(count);
     expect(new Set(chosen.map(question => question.id)).size).toBe(count);
   });
-  it.each([0, 8, 1.5])("rejects invalid game length %s", count => {
-    expect(() => chooseExhibition(questions, 1, Math.random, count)).toThrow("問題数は1〜7問");
+  it.each([0, 16, 1.5])("rejects invalid game length %s", count => {
+    expect(() => chooseExhibition(questions, 1, Math.random, count)).toThrow("問題数は1〜15問");
   });
 });
 

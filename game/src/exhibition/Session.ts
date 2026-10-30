@@ -2,7 +2,7 @@ import type { Question, RecognitionResponse, JudgementResponse } from "../domain
 
 export type Mode = "exhibition" | "test";
 export type Phase = "setup" | "guide" | "countdown" | "writing" | "recognizing" | "preview" | "judging" | "result" | "finished";
-export const EXHIBITION = { questions: 7, seconds: 20, lives: 3 } as const;
+export const EXHIBITION = { questions: 7, maxQuestions: 15, seconds: 20, lives: 3 } as const;
 export interface Snapshot {
   runId: string;
   mode: Mode;
@@ -172,8 +172,8 @@ export class Session {
 }
 
 export function chooseExhibition(bank: readonly Question[], difficulty: number, random = Math.random, questionCount: number = EXHIBITION.questions): Question[] {
-  if (!Number.isInteger(questionCount) || questionCount < 1 || questionCount > EXHIBITION.questions) {
-    throw new RangeError(`問題数は1〜${EXHIBITION.questions}問で指定してください。`);
+  if (!Number.isInteger(questionCount) || questionCount < 1 || questionCount > EXHIBITION.maxQuestions) {
+    throw new RangeError(`問題数は1〜${EXHIBITION.maxQuestions}問で指定してください。`);
   }
   const pool = bank.filter(q => q.difficulty === difficulty && q.exhibition_enabled && q.review_status === "approved");
   // Randomize within groups, then round-robin categories to avoid runs of variants.

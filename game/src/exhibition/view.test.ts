@@ -49,6 +49,7 @@ describe("solo game layout contract", () => {
     expect(appMarkup("controller")).toContain(">ゲーム設定へ</button>");
     expect(appMarkup("controller")).toContain('id="questionCount"');
     expect(appMarkup("controller")).toContain('<option value="7" selected>7問</option>');
+    expect(appMarkup("controller")).toContain('<option value="15">15問</option>');
     expect(appMarkup("controller")).toContain("回答とメモはこの液タブ");
   });
 });

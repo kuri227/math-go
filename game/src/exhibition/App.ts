@@ -122,9 +122,14 @@ export function runApp(role: Role): void {
   function updateSetup(): void {
     const pool = bank.filter(q => q.difficulty === selectedLevel());
     const eligible = pool.filter(q => q.exhibition_enabled && q.review_status === "approved");
+    const questionCountSelect = $<HTMLSelectElement>("questionCount");
+    const availableCount = Math.min(eligible.length, EXHIBITION.maxQuestions);
+    for (const option of questionCountSelect.options) option.disabled = bank.length > 0 && Number(option.value) > availableCount;
+    if (selectedMode === "exhibition" && availableCount > 0 && selectedQuestionCount() > availableCount) questionCountSelect.value = String(availableCount);
     const questionCount = selectedQuestionCount();
     $("staffTools").hidden = setupView !== "staff";
     $("questionCountField").hidden = setupView === "staff";
+    $("questionCountHint").textContent = availableCount > 0 ? `この難易度では最大${availableCount}問` : "本番候補を確認中";
     $("setupEyebrow").textContent = setupView === "staff" ? "STAFF TOOLS" : "GAME SETTINGS";
     $("setupTitle").textContent = setupView === "staff" ? "問題テスト" : "ゲーム設定";
     $("setupDescription").textContent = setupView === "staff" ? "確認したい問題を選び、認識や表示をテストします。" : "難易度と問題数を選んで挑戦しよう。";
@@ -403,7 +408,7 @@ export function runApp(role: Role): void {
           if (!modelReady) throw new Error("認識モデルの準備が終わるまでお待ちください。");
           if (!(["exhibition", "test"] as unknown[]).includes(message.mode) || !Number.isInteger(message.difficulty) || message.difficulty < 1 || message.difficulty > 7 || !Array.isArray(message.questionIds) || message.questionIds.length > bank.length || message.questionIds.some(id => typeof id !== "string")) throw new Error("設定内容が正しくありません。入力画面を再読み込みしてください。");
           const difficulty = Math.trunc(message.difficulty);
-          const maximumQuestions = message.mode === "test" ? bank.length : EXHIBITION.questions;
+          const maximumQuestions = message.mode === "test" ? bank.length : EXHIBITION.maxQuestions;
           if (!Number.isInteger(message.questionCount) || message.questionCount < 1 || message.questionCount > maximumQuestions) throw new Error(`問題数は1〜${maximumQuestions}問で選んでください。`);
           const questions = message.mode === "test"
             ? message.questionIds.map(id => bank.find(q => q.id === id)).filter((q): q is Question => Boolean(q))

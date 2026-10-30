@@ -24,7 +24,7 @@ export function appMarkup(role: Role): string {
       <section id="home" class="home" aria-labelledby="homeTitle">
         <div class="home-orbit" aria-hidden="true"><span>+</span><span>×</span><span>π</span><span>√</span></div>
         <div class="home-copy"><p class="eyebrow">HANDWRITING MATH CHALLENGE</p><h1 id="homeTitle">数学で<span>GO</span></h1><p class="home-lead">ひらめいて、書いて、正解をつかめ！</p>
-          <div class="home-rules" aria-label="ゲームの概要"><span><strong>1〜7</strong>問を選べる</span><span><strong>20</strong>秒で回答</span><span><strong>3</strong>つの残機</span></div>
+          <div class="home-rules" aria-label="ゲームの概要"><span><strong>1〜15</strong>問を選べる</span><span><strong>20</strong>秒で回答</span><span><strong>3</strong>つの残機</span></div>
           <div class="home-actions">${homeStart}${dualScreenStart}${button("showRules", "あそびかた")}</div>
           ${button("openStaffTools", "スタッフ用：問題テスト・学習データ整備")}
         </div>
@@ -34,7 +34,7 @@ export function appMarkup(role: Role): string {
         <div class="intro"><p id="setupEyebrow" class="eyebrow">GAME SETTINGS</p><h1 id="setupTitle">ゲーム設定</h1><p id="setupDescription">難易度と問題数を選んで挑戦しよう。</p>${button("setupHome", "タイトルへ戻る")}</div>
         <div class="settings"><div id="difficultyStage" class="difficulty-stage" aria-hidden="true"><span>LEVEL</span><strong id="difficultyNumber">1</strong><p id="difficultyName">${labels[0]}</p></div>
           <div class="game-settings-fields"><label class="field" for="difficulty">難易度<select id="difficulty">${labels.map((label, i) => `<option value="${i + 1}">LEVEL ${i + 1} · ${label}</option>`).join("")}</select></label>
-            <label id="questionCountField" class="field" for="questionCount">問題数<select id="questionCount">${Array.from({ length: EXHIBITION.questions }, (_, i) => `<option value="${i + 1}"${i + 1 === EXHIBITION.questions ? " selected" : ""}>${i + 1}問</option>`).join("")}</select></label></div>
+            <label id="questionCountField" class="field" for="questionCount">問題数<select id="questionCount">${Array.from({ length: EXHIBITION.maxQuestions }, (_, i) => `<option value="${i + 1}"${i + 1 === EXHIBITION.questions ? " selected" : ""}>${i + 1}問</option>`).join("")}</select><span id="questionCountHint" class="field-hint"></span></label></div>
           <p id="poolSummary" class="muted"></p><p id="setupStatus" role="status">問題を準備しています。</p>
           <section id="staffTools" hidden aria-labelledby="staffToolsTitle"><div class="staff-heading"><p class="eyebrow">STAFF TOOLS</p><h2 id="staffToolsTitle">問題テスト・データ整備</h2><p>出題確認や学習候補の保存を行うスタッフ専用モードです。</p>${staffScreenGuide}</div><section id="questionPicker" aria-label="テストする問題の選択"><label class="field" for="search">問題文・ID・分野で検索<input id="search" type="search" placeholder="例：方程式、d3-s2"></label>
             <div class="picker-toolbar"><label><input id="allLevels" type="checkbox">全レベルから探す</label><label><input id="onlyPending" type="checkbox">未確認だけ</label></div>
