@@ -1044,8 +1044,8 @@
       "sublevel": 1,
       "rank": 8,
       "category": "文章題",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d2"
     },
     {
@@ -1098,8 +1098,8 @@
       "sublevel": 1,
       "rank": 9,
       "category": "規則・場合の数",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d2"
     },
     {
@@ -1152,8 +1152,8 @@
       "sublevel": 1,
       "rank": 10,
       "category": "文章題",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d2"
     },
     {
@@ -1593,8 +1593,8 @@
       "sublevel": 1,
       "rank": 8,
       "category": "文章題",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d3"
     },
     {
@@ -1647,8 +1647,8 @@
       "sublevel": 1,
       "rank": 9,
       "category": "応用",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d3"
     },
     {
@@ -1704,8 +1704,8 @@
       "sublevel": 1,
       "rank": 10,
       "category": "発展",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d3"
     },
     {
@@ -3255,8 +3255,8 @@
       "sublevel": 1,
       "rank": 8,
       "category": "整数",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d4"
     },
     {
@@ -3309,8 +3309,8 @@
       "sublevel": 1,
       "rank": 9,
       "category": "合同式",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d4"
     },
     {
@@ -3363,8 +3363,8 @@
       "sublevel": 1,
       "rank": 10,
       "category": "最小値",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d4"
     },
     {
@@ -4895,8 +4895,8 @@
       "sublevel": 1,
       "rank": 8,
       "category": "広義積分",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d5"
     },
     {
@@ -4952,8 +4952,8 @@
       "sublevel": 1,
       "rank": 9,
       "category": "テイラー展開",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d5"
     },
     {
@@ -5009,8 +5009,8 @@
       "sublevel": 1,
       "rank": 10,
       "category": "級数",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d5"
     },
     {
@@ -6539,8 +6539,8 @@
       "sublevel": 1,
       "rank": 8,
       "category": "広義積分",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d6"
     },
     {
@@ -6593,8 +6593,8 @@
       "sublevel": 1,
       "rank": 9,
       "category": "確率収束",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d6"
     },
     {
@@ -6647,8 +6647,8 @@
       "sublevel": 1,
       "rank": 10,
       "category": "スペクトル",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d6"
     },
     {
@@ -8174,8 +8174,8 @@
       "sublevel": 1,
       "rank": 8,
       "category": "調和振動子",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d7"
     },
     {
@@ -8228,8 +8228,8 @@
       "sublevel": 1,
       "rank": 9,
       "category": "モーメント",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d7"
     },
     {
@@ -8282,8 +8282,8 @@
       "sublevel": 1,
       "rank": 10,
       "category": "ソボレフ指数",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d7"
     },
     {

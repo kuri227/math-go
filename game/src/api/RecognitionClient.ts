@@ -47,4 +47,18 @@ export class RecognitionClient {
     return requestJson(`${this.baseUrl}/admin/questions/${encodeURIComponent(questionId)}/review`, { method: "PATCH",
       headers: { "Content-Type": "application/json" }, body: JSON.stringify({ review_status: status, exhibition_enabled: enabled }) });
   }
+  reportQuestion(payload: {
+    question_id: string;
+    issue_type: string;
+    description: string;
+    run_id: string;
+    round: number;
+    recognized_latex?: string;
+  }): Promise<{ report_id: string; message: string }> {
+    return requestJson(`${this.baseUrl}/admin/question-reports`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+  }
 }

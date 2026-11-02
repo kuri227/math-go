@@ -5,7 +5,7 @@ import { RecognitionClient } from "../api/RecognitionClient";
 import { HandwritingPad, type CroppedImage, type InkSnapshot } from "../ui/HandwritingPad";
 import { renderMath } from "../ui/renderMath";
 import { richText } from "./richText";
-import { Session, chooseExhibition, EXHIBITION, type Mode, type Snapshot } from "./Session";
+import { Session, chooseExhibition, EXHIBITION, questionSeconds, type Mode, type Snapshot } from "./Session";
 import type { Question, RecognitionResponse } from "../domain/types";
 import { DualScreenChannel } from "../dual-screen/DualScreenChannel";
 import { WebSocketTransport } from "../dual-screen/WebSocketTransport";
@@ -65,7 +65,7 @@ export function runApp(role: Role): void {
   const setBank = (questions: Question[]) => { bank = questions; catalog = new QuestionCatalog(bank); };
   let selectedMode: Mode = "exhibition", session: Session | null = null, remote: Snapshot | null = null;
   let setupView: "home" | "difficulty" | "rules" | "staff" = "home";
-  let lastRender = "", lastQuestion = "", lastPreview = "", busy = false, saveBusy = false, savedRequest = "";
+  let lastRender = "", lastQuestion = "", lastPreview = "", busy = false, saveBusy = false, reportBusy = false, savedRequest = "";
   let lastFocusedPreview = "", controllerConnectionId: string | null = null;
   let activePaper: Paper = "answer", inkGeneration = 0, inkTimer: ReturnType<typeof setTimeout> | null = null;
   let pendingInk: InkSnapshot | null = null;
@@ -107,7 +107,6 @@ export function runApp(role: Role): void {
     else if (!inkTimer) inkTimer = setTimeout(send, 40);
   };
   const selectedLevel = () => Number($<HTMLSelectElement>("difficulty").value);
-  const selectedQuestionCount = () => Number($<HTMLSelectElement>("questionCount").value);
   const on = (id: string, action: () => void | Promise<void>) => $(id).addEventListener("click", () => {
     if (role !== "display") sound.playEffect("tap");
     void Promise.resolve().then(action).catch(showError);
@@ -131,27 +130,21 @@ export function runApp(role: Role): void {
   function updateSetup(): void {
     const pool = bank.filter(q => q.difficulty === selectedLevel());
     const eligible = pool.filter(q => q.exhibition_enabled && q.review_status === "approved");
-    const questionCountSelect = $<HTMLSelectElement>("questionCount");
-    const availableCount = Math.min(eligible.length, EXHIBITION.maxQuestions);
-    for (const option of questionCountSelect.options) option.disabled = bank.length > 0 && Number(option.value) > availableCount;
-    if (selectedMode === "exhibition" && availableCount > 0 && selectedQuestionCount() > availableCount) questionCountSelect.value = String(availableCount);
-    const questionCount = selectedQuestionCount();
+    const availableCount = eligible.length;
     $("staffTools").hidden = setupView !== "staff";
-    $("questionCountField").hidden = setupView === "staff";
-    $("questionCountHint").textContent = availableCount > 0 ? `この難易度では最大${availableCount}問` : "本番候補を確認中";
-    $("setupEyebrow").textContent = setupView === "staff" ? "STAFF TOOLS" : "GAME SETTINGS";
-    $("setupTitle").textContent = setupView === "staff" ? "問題テスト" : "ゲーム設定";
-    $("setupDescription").textContent = setupView === "staff" ? "確認したい問題を選び、認識や表示をテストします。" : "難易度と問題数を選んで挑戦しよう。";
+    $("setupEyebrow").textContent = setupView === "staff" ? "DEVELOPER TOOLS" : "GAME SETTINGS";
+    $("setupTitle").textContent = setupView === "staff" ? "テスト・開発者用画面" : "難易度を選ぶ";
+    $("setupDescription").textContent = setupView === "staff" ? "確認する問題を選び、残機がなくなるまで順番に繰り返しテストします。" : "選んだ難易度の10問に挑戦しよう。";
     $("difficultyNumber").textContent = String(selectedLevel());
     $("difficultyName").textContent = difficultyLabels[selectedLevel() - 1] ?? "";
-    $("poolSummary").textContent = selectedMode === "test" ? `${pool.length}問あります。テストする問題を下から選んでください。` : eligible.length >= questionCount ? `このレベルから${questionCount}問が出題されます。` : `このレベルは${questionCount}問分の準備ができていません。問題数を減らすか、別のレベルを選んでください。`;
+    $("poolSummary").textContent = selectedMode === "test" ? `${pool.length}問あります。選んだ問題は残機がなくなるまで繰り返し出題されます。` : eligible.length >= EXHIBITION.questions ? `1問${questionSeconds({ difficulty: selectedLevel() })}秒・全${EXHIBITION.questions}問です。` : `このレベルは本番用の問題が${EXHIBITION.questions}問そろっていません。`;
     $("selectAllQuestions").textContent = `全${bank.length}問を選択`;
     $<HTMLButtonElement>("selectAllQuestions").disabled = bank.length === 0 || selected.size === bank.length;
-    const ready = modelReady && bank.length > 0 && connected && (selectedMode === "test" ? selected.size > 0 : eligible.length >= questionCount);
+    const ready = modelReady && bank.length > 0 && connected && (selectedMode === "test" ? selected.size > 0 : eligible.length >= EXHIBITION.questions);
     $<HTMLButtonElement>("showGuide").disabled = !ready;
-    $("setupStatus").textContent = !bank.length || !modelReady ? "ゲームを準備しています。少しお待ちください。" : !connected ? "もう一方の画面を準備しています。" : selectedMode === "test" && !selected.size ? "テストする問題にチェックを入れてください。" : selectedMode === "exhibition" && eligible.length < questionCount ? "問題数を減らすか、別のレベルを選んでください。" : "準備OK！";
+    $("setupStatus").textContent = !bank.length || !modelReady ? "ゲームを準備しています。少しお待ちください。" : !connected ? "もう一方の画面を準備しています。" : selectedMode === "test" && !selected.size ? "テストする問題にチェックを入れてください。" : selectedMode === "exhibition" && eligible.length < EXHIBITION.questions ? "この難易度の本番用問題を10問準備してください。" : "準備OK！";
     $("selectionCount").textContent = `${selected.size}問選択中（選んだ順に出題）`;
-    $("showGuide").textContent = selectedMode === "test" ? "選んだ問題をテスト" : "この設定で進む";
+    $("showGuide").textContent = selectedMode === "test" ? "エンドレステストを始める" : "この難易度で進む";
   }
   function drawPicker(): void {
     const search = $<HTMLInputElement>("search").value.toLocaleLowerCase();
@@ -193,9 +186,14 @@ export function runApp(role: Role): void {
       if (document.body.dataset.phase !== phase) return;
       if (["recognizing", "preview", "judging"].includes(phase)) $("activityTitle").scrollIntoView({ block: "nearest" });
       const target = ({ setup: role === "display" ? "waitingTitle" : "homeTitle", guide: "guideTitle", countdown: "countdownTitle", result: "resultTitle", finished: "endTitle", writing: role === "display" ? "questionMeta" : "inputHeading" } as Record<string, string>)[phase];
-      if (target) { const element = $(target); element.tabIndex = -1; element.focus(); if (phase === "result") element.scrollIntoView({ block: "start" }); }
+      if (target) {
+        const element = $(target);
+        element.tabIndex = -1;
+        // Announce phase changes without moving compact game screens away from the HUD.
+        element.focus({ preventScroll: true });
+      }
     });
-    if (previousPhase !== phase && (["setup", "guide", "finished"].includes(phase) || phase === "writing" && previousPhase === "guide")) window.scrollTo({ top: 0 });
+    if (previousPhase !== phase && (["setup", "guide", "result", "finished"].includes(phase) || phase === "writing" && previousPhase === "guide")) window.scrollTo({ top: 0 });
     document.body.dataset.setupView = setupView;
     $("home").hidden = role === "display" || phase !== "setup" || setupView !== "home";
     $("rules").hidden = role === "display" || phase !== "setup" || setupView !== "rules";
@@ -211,20 +209,22 @@ export function runApp(role: Role): void {
     if (key !== lastQuestion) {
       lastQuestion = key; inkGeneration++;
       if (role !== "display") { pad.clear(); memoPad.clear(); activePaper = "answer"; }
-      replicaGeneration = -1; replicaPad.clear(); releaseDraft(); lastPreview = ""; $("saveStatus").textContent = ""; $("reviewNotice").textContent = ""; window.scrollTo({ top: 0 });
+      replicaGeneration = -1; replicaPad.clear(); releaseDraft(); lastPreview = ""; $("saveStatus").textContent = ""; $("reviewNotice").textContent = "";
+      $<HTMLTextAreaElement>("issueDescription").value = ""; $("issueStatus").textContent = ""; $<HTMLDetailsElement>("problemReport").open = false;
+      window.scrollTo({ top: 0 });
     }
-    $("modeName").textContent = s.mode === "test" ? "テストプレイ・時間制限なし" : "7問チャレンジ";
-    text("round", `${s.round} / ${s.total}問`);
+    $("modeName").textContent = s.mode === "test" ? "問題検証・エンドレス" : "10問チャレンジ";
+    text("round", s.mode === "test" ? `第${s.round}問` : `${s.round} / ${s.total}問`);
     text("correct", `正解 ${s.correct}`); text("streak", `連続 ${s.streak}`);
-    $("lives").hidden = s.mode === "test"; text("lives", `残機 ${s.lives ?? 3} / 3`);
-    $("time").hidden = s.mode === "test"; text("time", `${remainingSeconds(s.remainingMs)}秒${clockRunning(s) ? "" : " · 時計停止中"}`);
+    $("lives").hidden = false; text("lives", `残機 ${s.lives ?? 3} / 3`);
+    $("time").hidden = false; text("time", `${remainingSeconds(s.remainingMs)}秒${clockRunning(s) ? "" : " · 時計停止中"}`);
     $("time").dataset.paused = String(!clockRunning(s));
     const status = activity(s);
     $("activity").hidden = !status;
     text("activityTitle", status?.title ?? ""); text("activityDescription", status?.description ?? "");
     $("recognitionProgress").hidden = !status?.busy;
-    $("timerTrack").hidden = s.mode === "test";
-    $("timerFill").style.width = `${Math.max(0, s.remainingMs / (EXHIBITION.seconds * 10))}%`;
+    $("timerTrack").hidden = false;
+    $("timerFill").style.width = `${Math.max(0, s.remainingMs / s.questionTimeMs * 100)}%`;
     $("timerTrack").dataset.urgent = String(s.remainingMs <= 5000);
     $("countdown").hidden = phase !== "countdown";
     if (phase === "countdown") {
@@ -234,17 +234,17 @@ export function runApp(role: Role): void {
       scheduleControllerReady(s);
     }
     if (phase === "guide") {
-      $("guideTitle").textContent = s.mode === "test" ? "テストプレイ・データ収集" : "ゲームの遊び方";
-      $("guideDescription").textContent = s.mode === "test" ? `選択した${s.total}問を、選んだ順にテストします。` : `${s.question?.difficulty_label ?? "選んだ難易度"}の問題から${s.total}問に挑戦します。`;
-      $("guideRules").textContent = s.mode === "test" ? "時間制限・残機はありません。同じ問題を何度でもテストできます。" : "1問20秒。時間切れになると残機が1つ減ります。";
+      $("guideTitle").textContent = s.mode === "test" ? "問題検証・エンドレステスト" : "ゲームの遊び方";
+      $("guideDescription").textContent = s.mode === "test" ? `選択した${s.total}問を順番に繰り返します。` : `${s.question?.difficulty_label ?? "選んだ難易度"}の問題から${s.total}問に挑戦します。`;
+      $("guideRules").textContent = s.mode === "test" ? "問題ごとの制限時間内に回答します。時間切れで残機が1つ減り、残機0か手動終了まで続きます。" : `1問${questionSeconds(s.question!)}秒。時間切れになると残機が1つ減ります。`;
       $("guidePrivacy").textContent = s.mode === "test" ? "データは自動保存しません。同意して確認した回答だけ、このPCへ保存できます。メモは保存されません。" : "";
       $("guidePrivacy").hidden = s.mode !== "test";
     }
     const prompt = $("prompt"), space = prompt.parentElement!;
-    const timed = s.mode === "exhibition" && ["writing", "recognizing", "preview", "judging"].includes(s.phase);
+    const timed = ["writing", "recognizing", "preview", "judging"].includes(s.phase);
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const scale = !reducedMotion && timed && (s.question?.prompt ?? "").length < 48
-      ? formulaScale(prompt.offsetWidth, prompt.offsetHeight, space.clientWidth, space.clientHeight, s.remainingMs / (EXHIBITION.seconds * 1000)) : 1;
+      ? formulaScale(prompt.offsetWidth, prompt.offsetHeight, space.clientWidth, space.clientHeight, s.remainingMs / s.questionTimeMs) : 1;
     prompt.style.transform = `scale(${scale})`;
     const second = Math.ceil(s.remainingMs / 1000), soundKey = `${s.runId}:${s.round}:${second}`;
     if (role !== "controller" && clockRunning(s) && second > 0 && second <= 5 && lastSound !== soundKey) { lastSound = soundKey; sound.playUrgency(second); }
@@ -285,6 +285,7 @@ export function runApp(role: Role): void {
     $("preview").hidden = !["preview", "judging", "result"].includes(phase) || role === "display" || !draft?.response;
     $("recognitionDetails").hidden = s.mode !== "test";
     $("result").hidden = phase !== "result";
+    $("problemReport").hidden = s.mode !== "test" || role === "display" || phase !== "result";
     $("resultQuestion").hidden = role === "controller";
     $("resultAnswer").hidden = role === "controller" || s.timedOut || !s.recognition;
     $("solution").hidden = role === "controller";
@@ -298,9 +299,11 @@ export function runApp(role: Role): void {
       $("expected").textContent = "正答を読み込んでいます。"; $("explanation").textContent = "";
       if (role !== "controller") void loadTimeoutSolution(s);
     }
-    $("retryTest").hidden = s.mode !== "test" || role === "display";
+    $("retryTest").hidden = s.mode !== "test" || role === "display" || s.lives === 0;
     $("next").hidden = role === "display";
-    $("next").textContent = s.round === s.total ? "結果を見る" : "次の問題へ";
+    $("next").textContent = s.mode === "test"
+      ? s.lives === 0 ? "テスト結果を見る" : "次の問題へ"
+      : s.round === s.total ? "結果を見る" : "次の問題へ";
     if (s.recognition && s.recognition.request_id !== lastPreview) {
       lastPreview = s.recognition.request_id; renderMath(s.recognition.raw_latex, $("recognized"));
       $("rawLatex").textContent = s.recognition.raw_latex;
@@ -328,7 +331,7 @@ export function runApp(role: Role): void {
       const seen = s.endReason === "completed" ? s.total : s.round;
       $("endStats").textContent = `${seen}問中 ${s.correct}問正解 · 正解率 ${Math.round(s.correct / seen * 100)}%`;
       $("endAttempts").textContent = s.mode === "test"
-        ? `テストした問題 ${seen}問 · 回答 ${s.attempts}回 · 不正解 ${s.wrongAttempts}回`
+        ? `出題 ${seen}問 · 回答 ${s.attempts}回 · 不正解 ${s.wrongAttempts}回 · 残機 ${s.lives} / 3`
         : `挑戦した問題 ${seen}問 · 残機 ${s.lives} / 3`;
       $("endStats").hidden = role === "controller";
       $("endAttempts").hidden = role === "controller";
@@ -347,7 +350,7 @@ export function runApp(role: Role): void {
   // Apply one state transition locally, or relay it from Controller to Display.
   async function action(action: "recognize" | "confirm" | "rewrite" | "next" | "retry-test" | "stop", data: { requestId?: string; response?: RecognitionResponse; error?: string } = {}): Promise<void> {
     const s = state(); if (!s?.question) return;
-    if (saveBusy && action !== "recognize") return;
+    if ((saveBusy || reportBusy) && action !== "recognize") return;
     if (role === "controller") { channel?.send({ type: "exhibition-action", action, runId: s.runId, questionId: s.question.id, ...data }); return; }
     if (!session) return;
     if (action === "recognize") {
@@ -422,8 +425,8 @@ export function runApp(role: Role): void {
           if (!modelReady) throw new Error("認識モデルの準備が終わるまでお待ちください。");
           if (!(["exhibition", "test"] as unknown[]).includes(message.mode) || !Number.isInteger(message.difficulty) || message.difficulty < 1 || message.difficulty > 7 || !Array.isArray(message.questionIds) || message.questionIds.length > bank.length || message.questionIds.some(id => typeof id !== "string")) throw new Error("設定内容が正しくありません。入力画面を再読み込みしてください。");
           const difficulty = Math.trunc(message.difficulty);
-          const maximumQuestions = message.mode === "test" ? bank.length : EXHIBITION.maxQuestions;
-          if (!Number.isInteger(message.questionCount) || message.questionCount < 1 || message.questionCount > maximumQuestions) throw new Error(`問題数は1〜${maximumQuestions}問で選んでください。`);
+          const maximumQuestions = message.mode === "test" ? bank.length : EXHIBITION.questions;
+          if (!Number.isInteger(message.questionCount) || message.questionCount < 1 || message.questionCount > maximumQuestions || message.mode === "exhibition" && message.questionCount !== EXHIBITION.questions) throw new Error(message.mode === "exhibition" ? `通常ゲームは${EXHIBITION.questions}問です。` : `問題数は1〜${maximumQuestions}問で選んでください。`);
           const questions = message.mode === "test"
             ? message.questionIds.map(id => bank.find(q => q.id === id)).filter((q): q is Question => Boolean(q))
             : chooseExhibition(bank, difficulty, Math.random, message.questionCount);
@@ -485,7 +488,6 @@ export function runApp(role: Role): void {
   channel?.start();
   window.addEventListener("pagehide", () => channel?.close());
   $("difficulty").addEventListener("change", drawPicker);
-  $("questionCount").addEventListener("change", updateSetup);
   for (const id of ["search", "allLevels", "onlyPending"]) $(id).addEventListener(id === "search" ? "input" : "change", drawPicker);
   on("clearSelection", () => { selected.clear(); drawPicker(); });
   on("selectAllQuestions", () => { selected.clear(); for (const question of bank) selected.add(question.id); drawPicker(); });
@@ -496,11 +498,11 @@ export function runApp(role: Role): void {
   on("openStaffTools", () => { showSetupView("staff"); drawPicker(); });
   on("setupHome", () => showSetupView("home"));
   on("showGuide", () => {
-    const questions = selectedMode === "test" ? catalog.selected(selected) : chooseExhibition(bank, selectedLevel(), Math.random, selectedQuestionCount());
+    const questions = selectedMode === "test" ? catalog.selected(selected) : chooseExhibition(bank, selectedLevel());
     if (!modelReady || !connected || !questions.length) return;
     if (role === "controller") {
       $("setupStatus").textContent = "問題表示画面で設定を確認しています。";
-      channel?.send({ type: "exhibition-control", action: "configure", mode: selectedMode, difficulty: selectedLevel(), questionCount: selectedMode === "test" ? questions.length : selectedQuestionCount(), questionIds: selectedMode === "test" ? questions.map(q => q.id) : [] });
+      channel?.send({ type: "exhibition-control", action: "configure", mode: selectedMode, difficulty: selectedLevel(), questionCount: questions.length, questionIds: selectedMode === "test" ? questions.map(q => q.id) : [] });
     } else {
       session = new Session(questions, selectedMode); lastRender = ""; render(); sendState();
     }
@@ -523,7 +525,7 @@ export function runApp(role: Role): void {
   on("rewrite", async () => { await action("rewrite"); if (state()?.phase === "writing") { pad.clear(); releaseDraft(); } });
   on("confirm", () => action("confirm")); on("next", () => action("next"));
   on("retryTest", async () => { await action("retry-test"); pad.clear(); memoPad.clear(); activePaper = "answer"; releaseDraft(); lastPreview = ""; });
-  on("stop", () => { if (saveBusy) { $("notice").textContent = "保存処理が終わるまでお待ちください。"; return; } return action("stop"); });
+  on("stop", () => { if (saveBusy || reportBusy) { $("notice").textContent = "保存処理が終わるまでお待ちください。"; return; } return action("stop"); });
   on("backToSetup", () => {
     setupView = selectedMode === "test" ? "staff" : "difficulty";
     if (role === "controller") channel?.send({ type: "exhibition-control", action: "back-to-setup", runId: state()?.runId });
@@ -537,9 +539,9 @@ export function runApp(role: Role): void {
     else { session = null; releaseDraft(); lastRender = ""; render(); sendState(); }
   });
   on("restart", () => {
-    const questions = selectedMode === "test" ? catalog.selected(selected) : chooseExhibition(bank, selectedLevel(), Math.random, selectedQuestionCount());
+    const questions = selectedMode === "test" ? catalog.selected(selected) : chooseExhibition(bank, selectedLevel());
     if (!questions.length) return;
-    if (role === "controller") channel?.send({ type: "exhibition-control", action: "configure", mode: selectedMode, difficulty: selectedLevel(), questionCount: selectedMode === "test" ? questions.length : selectedQuestionCount(), questionIds: selectedMode === "test" ? questions.map(q => q.id) : [] });
+    if (role === "controller") channel?.send({ type: "exhibition-control", action: "configure", mode: selectedMode, difficulty: selectedLevel(), questionCount: questions.length, questionIds: selectedMode === "test" ? questions.map(q => q.id) : [] });
     else { session = new Session(questions, selectedMode); releaseDraft(); lastRender = ""; render(); sendState(true); }
   });
   on("fullscreen", async () => { try { if (document.fullscreenElement) await document.exitFullscreen(); else await document.documentElement.requestFullscreen(); } catch { $("modelStatus").textContent = "全画面にできませんでした。ブラウザーの全画面操作をお試しください。"; } });
@@ -558,6 +560,32 @@ export function runApp(role: Role): void {
     try { const result = await client.saveSample(form); savedRequest = savingDraft.response!.request_id; $("saveStatus").textContent = `保存しました：${result.sample_id}（学習候補・未学習）`; }
     catch (e) { $("saveStatus").textContent = `保存できませんでした。画像は残っています。${String(e)}`; }
     finally { saveBusy = false; for (const id of ["next", "retryTest", "rewrite", "confirm", "stop"]) $<HTMLButtonElement>(id).disabled = false; $<HTMLButtonElement>("saveSample").disabled = savedRequest === draft?.response?.request_id; lastRender = ""; render(); }
+  });
+  on("submitIssue", async () => {
+    const s = state();
+    const description = $<HTMLTextAreaElement>("issueDescription").value.trim();
+    if (!s?.question || s.mode !== "test" || s.phase !== "result" || role === "display" || reportBusy) return;
+    if (!description) { $("issueStatus").textContent = "問題点の説明を入力してください。"; return; }
+    reportBusy = true;
+    $<HTMLButtonElement>("submitIssue").disabled = true;
+    $("issueStatus").textContent = "問題と報告内容を保存しています。";
+    try {
+      const result = await client.reportQuestion({
+        question_id: s.question.id,
+        issue_type: $<HTMLSelectElement>("issueType").value,
+        description,
+        run_id: s.runId,
+        round: s.round,
+        recognized_latex: s.recognition?.raw_latex,
+      });
+      $("issueStatus").textContent = `${result.message} 管理番号：${result.report_id}`;
+      $<HTMLTextAreaElement>("issueDescription").value = "";
+    } catch (error) {
+      $("issueStatus").textContent = `保存できませんでした。入力内容は残っています。${error instanceof Error ? error.message : String(error)}`;
+    } finally {
+      reportBusy = false;
+      $<HTMLButtonElement>("submitIssue").disabled = false;
+    }
   });
   on("saveReview", async () => {
     const q = state()?.question; if (!q || role === "display") return;

@@ -16,7 +16,7 @@ from scripts.import_friend_questions import convert
 
 @pytest.fixture
 def client(tmp_path, monkeypatch):
-    monkeypatch.setattr(main, "paths", replace(main.paths, custom_eval=tmp_path / "custom", repo_root=tmp_path))
+    monkeypatch.setattr(main, "paths", replace(main.paths, custom_eval=tmp_path / "custom", results=tmp_path / "results", repo_root=tmp_path))
     with TestClient(main.app, base_url="http://127.0.0.1", client=("127.0.0.1", 50000)) as client:
         yield client
 
@@ -111,6 +111,36 @@ def test_review_endpoint_returns_updated_public_fields(client, monkeypatch):
     assert result.status_code == 200
     assert result.json()["exhibition_enabled"] is True
     assert "answer" not in result.json()
+
+
+def test_question_report_saves_problem_snapshot_and_description(client, tmp_path):
+    response = client.post("/api/v1/admin/question-reports", json={
+        "question_id": "d1-s1-r01-v01",
+        "issue_type": "answer",
+        "description": "正答候補に別表記も必要です。",
+        "run_id": "run-test",
+        "round": 4,
+        "recognized_latex": "03",
+    })
+    assert response.status_code == 201, response.text
+    report_id = response.json()["report_id"]
+    saved = json.loads((tmp_path / "results/question-reports" / f"{report_id}.json").read_text(encoding="utf-8"))
+    assert saved["question"]["id"] == "d1-s1-r01-v01"
+    assert saved["question"]["display"] == "1 + 2 = ?"
+    assert saved["description"] == "正答候補に別表記も必要です。"
+    assert saved["context"] == {"run_id": "run-test", "round": 4, "recognized_latex": "03"}
+    assert saved["status"] == "open"
+
+
+@pytest.mark.parametrize("payload,code", [
+    ({"question_id": "missing", "issue_type": "other", "description": "問題"}, 404),
+    ({"question_id": "d1-s1-r01-v01", "issue_type": "other", "description": "   "}, 400),
+    ({"question_id": "d1-s1-r01-v01", "issue_type": "unknown", "description": "問題"}, 422),
+])
+def test_invalid_question_report_is_not_saved(client, tmp_path, payload, code):
+    response = client.post("/api/v1/admin/question-reports", json=payload)
+    assert response.status_code == code
+    assert not list((tmp_path / "results/question-reports").glob("*.json"))
 
 
 def test_source_transform_fixes_ambiguous_notation():

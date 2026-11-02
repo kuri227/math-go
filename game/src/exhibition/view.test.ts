@@ -18,6 +18,8 @@ describe("solo game layout contract", () => {
     expect(markup).toContain('id="backHome"');
     expect(markup).toContain('<details id="collectionDetails">');
     expect(markup).toContain('<details id="reviewDetails">');
+    expect(markup).toContain('id="problemReport"');
+    expect(markup).toContain('id="issueDescription"');
     expect(markup).toContain('id="recognitionProgress"');
     expect(markup).toContain('id="activityTitle"');
     expect(markup).toContain('id="countdownTitle"');
@@ -47,9 +49,9 @@ describe("solo game layout contract", () => {
       expect(markup).not.toContain("2画面テストを開く");
     }
     expect(appMarkup("controller")).toContain(">ゲーム設定へ</button>");
-    expect(appMarkup("controller")).toContain('id="questionCount"');
-    expect(appMarkup("controller")).toContain('<option value="7" selected>7問</option>');
-    expect(appMarkup("controller")).toContain('<option value="15">15問</option>');
+    expect(appMarkup("controller")).not.toContain('id="questionCount"');
+    expect(appMarkup("controller")).toContain("全10");
+    expect(appMarkup("controller")).toContain("テスト・開発者用画面");
     expect(appMarkup("controller")).toContain("回答とメモはこの液タブ");
   });
 });

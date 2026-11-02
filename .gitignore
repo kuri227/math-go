@@ -37,6 +37,7 @@ results/logs/
 results/tmp/
 results/*.log
 results/failures/**/*.png
+results/question-reports/
 
 # Local inspection artifacts
 .codex-doc-review/

@@ -2,7 +2,12 @@ import type { Question, RecognitionResponse, JudgementResponse } from "../domain
 
 export type Mode = "exhibition" | "test";
 export type Phase = "setup" | "guide" | "countdown" | "writing" | "recognizing" | "preview" | "judging" | "result" | "finished";
-export const EXHIBITION = { questions: 7, maxQuestions: 15, seconds: 20, lives: 3 } as const;
+export const EXHIBITION = { questions: 10, lives: 3 } as const;
+export const QUESTION_SECONDS = { 1: 15, 2: 25, 3: 40, 4: 55, 5: 75, 6: 100, 7: 120 } as const;
+
+export function questionSeconds(question: Pick<Question, "difficulty">): number {
+  return QUESTION_SECONDS[question.difficulty as keyof typeof QUESTION_SECONDS] ?? QUESTION_SECONDS[1];
+}
 export interface Snapshot {
   runId: string;
   mode: Mode;
@@ -17,6 +22,7 @@ export interface Snapshot {
   lives: number | null;
   timedOut: boolean;
   remainingMs: number;
+  questionTimeMs: number;
   countdownRemainingMs: number;
   paused: boolean;
   endReason: "completed" | "timeout" | "stopped" | null;
@@ -30,15 +36,17 @@ export class Session {
   private index = 0;
   private lastTick = 0;
   private requestId: string | null = null;
-  private outcomes = new Map<string, boolean>();
+  private outcomes = new Map<number, boolean>();
   readonly snapshot: Snapshot;
   constructor(private questions: Question[], mode: Mode, private now = () => performance.now()) {
     if (!questions.length) throw new Error("出題できる問題がありません。");
     this.snapshot = {
       runId: crypto.randomUUID(), mode, phase: "guide", question: questions[0]!,
       round: 1, total: questions.length, correct: 0, streak: 0, attempts: 0, wrongAttempts: 0,
-      lives: mode === "exhibition" ? EXHIBITION.lives : null, timedOut: false,
-      remainingMs: EXHIBITION.seconds * 1000, paused: false, endReason: null,
+      lives: EXHIBITION.lives, timedOut: false,
+      remainingMs: questionSeconds(questions[0]!) * 1000,
+      questionTimeMs: questionSeconds(questions[0]!) * 1000,
+      paused: false, endReason: null,
       countdownRemainingMs: 0,
       recognition: null, judgement: null, notice: "",
     };
@@ -76,13 +84,18 @@ export class Session {
       this.lastTick = now;
       return false;
     }
-    if (s.mode === "exhibition" && !s.paused && s.phase === "writing") {
+    if (!s.paused && s.phase === "writing") {
       s.remainingMs = Math.max(0, s.remainingMs - Math.max(0, now - this.lastTick));
       if (s.remainingMs === 0) {
         s.lives = Math.max(0, (s.lives ?? EXHIBITION.lives) - 1); s.timedOut = true; s.streak = 0;
         this.requestId = null; s.recognition = null; s.judgement = null;
-        if (s.lives === 0) this.finish("timeout");
-        else { s.phase = "result"; s.notice = `時間切れで残機が1減りました。残り${s.lives}。正答を確認して次へ進んでください。`; }
+        if (s.lives === 0 && s.mode === "exhibition") this.finish("timeout");
+        else {
+          s.phase = "result";
+          s.notice = s.lives === 0
+            ? "残機が0になりました。最後の問題を確認・報告してからテスト結果へ進んでください。"
+            : `時間切れで残機が1減りました。残り${s.lives}。正答を確認して次へ進んでください。`;
+        }
         this.lastTick = now; return true;
       }
     }
@@ -129,8 +142,8 @@ export class Session {
     if (s.phase !== "judging" || id !== this.requestId || result.question_id !== s.question?.id) return false;
     this.requestId = null; s.attempts++; s.judgement = result;
     if (result.correct || s.mode === "test") {
-      const alreadyAnswered = this.outcomes.has(s.question!.id);
-      this.outcomes.set(s.question!.id, result.correct);
+      const alreadyAnswered = this.outcomes.has(s.round);
+      this.outcomes.set(s.round, result.correct);
       s.correct = [...this.outcomes.values()].filter(Boolean).length;
       if (result.correct) { s.streak = alreadyAnswered ? Math.max(1, s.streak) : s.streak + 1; } else { s.streak = 0; s.wrongAttempts++; }
       s.phase = "result"; s.notice = result.correct ? "正解です。" : "登録された正答候補とは一致しませんでした。";
@@ -144,16 +157,22 @@ export class Session {
   next(prepare = false): boolean {
     const s = this.snapshot;
     if (s.phase !== "result") return false;
-    if (this.index + 1 === this.questions.length) { this.finish("completed"); return true; }
-    s.question = this.questions[++this.index]!; s.round = this.index + 1;
+    if (s.mode === "test" && s.lives === 0) { this.finish("timeout"); return true; }
+    if (s.mode === "exhibition" && this.index + 1 === this.questions.length) { this.finish("completed"); return true; }
+    this.index = (this.index + 1) % this.questions.length;
+    s.question = this.questions[this.index]!;
+    s.round += 1;
     s.phase = prepare ? "countdown" : "writing"; s.recognition = null; s.judgement = null; s.notice = prepare ? "次の問題を準備しています。" : ""; s.timedOut = false;
     s.countdownRemainingMs = 0; s.paused = prepare;
-    s.remainingMs = EXHIBITION.seconds * 1000; this.lastTick = this.now(); return true;
+    s.questionTimeMs = questionSeconds(s.question) * 1000;
+    s.remainingMs = s.questionTimeMs; this.lastTick = this.now(); return true;
   }
   retryTest(prepare = false): boolean {
-    if (this.snapshot.mode !== "test" || this.snapshot.phase !== "result") return false;
+    if (this.snapshot.mode !== "test" || this.snapshot.phase !== "result" || this.snapshot.lives === 0) return false;
     this.snapshot.phase = prepare ? "countdown" : "writing"; this.snapshot.judgement = null; this.snapshot.recognition = null;
-    this.snapshot.countdownRemainingMs = 0; this.snapshot.paused = prepare; this.snapshot.notice = prepare ? "用紙を準備しています。" : ""; return true;
+    this.snapshot.countdownRemainingMs = 0; this.snapshot.paused = prepare; this.snapshot.timedOut = false;
+    this.snapshot.remainingMs = this.snapshot.questionTimeMs;
+    this.snapshot.notice = prepare ? "用紙を準備しています。" : ""; return true;
   }
   finish(reason: Snapshot["endReason"]): void {
     if (this.snapshot.phase === "finished") return;
@@ -172,8 +191,8 @@ export class Session {
 }
 
 export function chooseExhibition(bank: readonly Question[], difficulty: number, random = Math.random, questionCount: number = EXHIBITION.questions): Question[] {
-  if (!Number.isInteger(questionCount) || questionCount < 1 || questionCount > EXHIBITION.maxQuestions) {
-    throw new RangeError(`問題数は1〜${EXHIBITION.maxQuestions}問で指定してください。`);
+  if (questionCount !== EXHIBITION.questions) {
+    throw new RangeError(`通常ゲームは${EXHIBITION.questions}問で指定してください。`);
   }
   const pool = bank.filter(q => q.difficulty === difficulty && q.exhibition_enabled && q.review_status === "approved");
   // Randomize within groups, then round-robin categories to avoid runs of variants.

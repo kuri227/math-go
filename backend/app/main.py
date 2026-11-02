@@ -30,6 +30,7 @@ from backend.app.local_admin import LocalAdminMiddleware
 from backend.app.pairing import router as pairing_router
 from backend.app.build_assets import entry_styles
 from backend.app.game_questions import add_question, get_questions, get_solution, judge_answer, update_question_review
+from backend.app.question_reports import save_question_report
 from backend.app.latex import normalize_latex
 from backend.app.recognizers.registry import RecognizerRegistry
 from backend.app.recognizers.worker import WorkerError
@@ -48,6 +49,8 @@ from backend.app.schemas import (
     SavedSampleResponse,
     SolutionResponse,
     QuestionReviewRequest,
+    QuestionReportRequest,
+    QuestionReportResponse,
 )
 
 LOGGER = logging.getLogger("math_go_hmer")
@@ -178,6 +181,30 @@ def api_review_question(question_id: str, request: QuestionReviewRequest) -> dic
         raise HTTPException(status_code=404, detail="Unknown question_id") from exc
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@app.post("/api/v1/admin/question-reports", response_model=QuestionReportResponse, status_code=201)
+def api_create_question_report(request: QuestionReportRequest) -> dict[str, object]:
+    question = next((item for item in get_questions() if item.id == request.question_id), None)
+    if question is None:
+        raise HTTPException(status_code=404, detail="対象の問題が見つかりません。問題一覧を再読み込みしてください。")
+    try:
+        saved = save_question_report(
+            directory=paths.results / "question-reports",
+            question=question,
+            issue_type=request.issue_type,
+            description=request.description,
+            run_id=request.run_id,
+            round_number=request.round,
+            recognized_latex=request.recognized_latex,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    return {
+        "report_id": saved["report_id"],
+        "created_at": saved["created_at"],
+        "message": "問題と報告内容をこのPCへ保存しました。",
+    }
 
 
 @app.post("/api/v1/admin/questions", response_model=GameQuestionCreateResponse, status_code=201)
