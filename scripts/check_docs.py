@@ -10,6 +10,7 @@ CURRENT = ["README.md", "PRODUCT.md", "DESIGN.md", "THIRD_PARTY_NOTICES.md", "do
            "docs/model-evaluation-guide.md", "docs/recognition_service_requirements.md",
            "docs/development-history.md", "docs/product-and-roadmap.md", "docs/source-code-guide.md",
            "docs/dual-screen-controller-ux.md", "docs/ranking-system-proposal.md",
+           "docs/security-and-firebase-checklist.md",
            "docs/test-developer-workspace-design.md",
            "docs/adr/0004-current-stack-and-controller-direction.md"]
 
