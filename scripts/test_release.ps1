@@ -16,8 +16,9 @@ try {
 
     $Required = @(
         "README.md",
+        "LICENSE",
+        "NOTICE",
         "THIRD_PARTY_NOTICES.md",
-        "licenses\third-party\Apache-2.0.txt",
         "licenses\third-party\KaTeX-MIT.txt",
         "licenses\third-party\M-PLUS-1-OFL-1.1.txt",
         "VERSION",

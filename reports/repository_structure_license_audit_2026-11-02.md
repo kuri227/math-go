@@ -27,9 +27,9 @@
 - Node依存: MITを中心にApache-2.0、MPL-2.0、ISC、BSD-3-Clauseを含む
 - GPL系・AGPL系・非商用限定は、現行環境の全Python distribution、Node lockfile、公式モデル／データでは確認されなかった。
 
-直接配布するKaTeXとM PLUS 1のライセンス本文、およびApache-2.0参照本文を`licenses/third-party`へ追加し、配布ZIPの必須ファイルとして検査する。
+直接配布するKaTeXとM PLUS 1のライセンス本文を`licenses/third-party`へ、Apache-2.0本文をルート`LICENSE`へ追加し、配布ZIPの必須ファイルとして検査する。
 
-数学でGO自身はMITまたはApache-2.0を選択できる。第一候補は、主要な認識資産と揃い、明示的特許許諾があるApache-2.0。権利者名、公開年、商用利用・改変・再配布を許可する意思を確認してからルート`LICENSE`を追加する。
+数学でGO自身はApache-2.0、Copyright 2026 kuri227として確定した。ルート`LICENSE`と`NOTICE`、Python／Nodeメタデータ、README、配布ZIPを同じ宣言へ統一した。
 
 ## ソース可読性
 

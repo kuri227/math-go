@@ -24,7 +24,7 @@
 | Transformers | 4.47.0 | Apache-2.0 | [huggingface/transformers](https://github.com/huggingface/transformers) |
 | huggingface-hub | 0.36.2 | Apache-2.0 | [huggingface/huggingface_hub](https://github.com/huggingface/huggingface_hub) |
 
-TexTellerなどApache-2.0対象物を再配布する場合は、Apache-2.0本文、著作権・帰属表示、変更したファイルの変更表示、元配布物にNOTICEがある場合はそのNOTICEを保持します。参照用のApache-2.0本文は `licenses/third-party/Apache-2.0.txt` に同梱しています。
+TexTellerなどApache-2.0対象物を再配布する場合は、Apache-2.0本文、著作権・帰属表示、変更したファイルの変更表示、元配布物にNOTICEがある場合はそのNOTICEを保持します。Apache-2.0本文はリポジトリルートの`LICENSE`に同梱しています。
 
 ## アプリと開発環境の依存
 
@@ -59,6 +59,4 @@ Pythonパッケージは各wheel、Nodeパッケージは各npm packageにライ
 
 ## 数学でGO自身のライセンス
 
-外部要素はいずれも、数学でGOをMITまたはApache-2.0で公開することと両立します。第一候補はApache-2.0です。TexTeller・UniMERNet・モデル・評価データと揃い、明示的な特許許諾と特許訴訟時の終了条項があるためです。
-
-最終決定には、数学でGOの著作権者名、公開年、第三者による商用利用・改変・再配布を許可する意思の確認が必要です。決定前は、リポジトリが公開されていても数学でGO自身のコードを自由利用できるとは扱いません。
+数学でGOはApache License 2.0で公開します。Copyright 2026 kuri227。第三者は、ライセンス条件を守ることで商用利用、改変、再配布、特許利用ができます。配布時は`LICENSE`と`NOTICE`を保持し、変更したファイルには変更したことが分かる表示を残してください。外部要素にはこのプロジェクトのApache-2.0ではなく、それぞれ上記のライセンスが引き続き適用されます。

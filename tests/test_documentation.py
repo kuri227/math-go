@@ -28,3 +28,10 @@ def test_current_docs_include_installation_and_development_guides():
     assert "docs/source-code-guide.md" in CURRENT
     assert "THIRD_PARTY_NOTICES.md" in CURRENT
     assert "HANDOFF.md" not in CURRENT
+
+
+def test_project_license_and_notice_are_declared_consistently():
+    assert "Apache License" in (ROOT / "LICENSE").read_text(encoding="utf-8")
+    assert "Copyright 2026 kuri227" in (ROOT / "NOTICE").read_text(encoding="utf-8")
+    assert 'license = "Apache-2.0"' in (ROOT / "pyproject.toml").read_text(encoding="utf-8")
+    assert '"license": "Apache-2.0"' in (ROOT / "game" / "package.json").read_text(encoding="utf-8")

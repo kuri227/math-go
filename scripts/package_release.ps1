@@ -34,7 +34,7 @@ if (Test-Path $StageRoot) { Remove-Item -LiteralPath $StageRoot -Recurse -Force 
 if (Test-Path $ArchivePath) { Remove-Item -LiteralPath $ArchivePath -Force }
 New-Item -ItemType Directory -Force -Path $StageRoot | Out-Null
 
-$Files = @("README.md", "THIRD_PARTY_NOTICES.md", "VERSION", "pyproject.toml", "reports\exhibition_release_validation_2026-10-08.md", "reports\cpu_performance_validation_2026-10-08.md")
+$Files = @("README.md", "LICENSE", "NOTICE", "THIRD_PARTY_NOTICES.md", "VERSION", "pyproject.toml", "reports\exhibition_release_validation_2026-10-08.md", "reports\cpu_performance_validation_2026-10-08.md")
 $Directories = @("backend", "config", "frontend", "game\dist", "requirements", "docs", "licenses")
 $ScriptFiles = @(
     "build_game.ps1",
