@@ -21,6 +21,7 @@
 | 本番／テストのルール・保存・問題レビュー | [2モード仕様](two-mode-exhibition.md) |
 | 学習データの選び方・CPU/GPU追加学習・履歴保全 | [TexTeller再学習](texteller-training.md) |
 | 問題登録・正答候補・データ形式 | [問題作成ガイド](question-authoring-guide.md) |
+| 複数PCランキングの技術・スコア・管理設計 | [ランキングシステム技術選定](ranking-system-proposal.md) |
 | 開発起動・回帰テスト・変更時の確認範囲 | [開発者向けガイド](development.md) |
 | ソースの読む順番・各ファイルの責務 | [ソースコード案内](source-code-guide.md) |
 | clone後に導入手順が成立するかの検証結果 | [2026-11-02の導入文書検証](../reports/clone_installation_validation_2026-11-02.md) |
