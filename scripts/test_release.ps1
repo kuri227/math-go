@@ -16,6 +16,10 @@ try {
 
     $Required = @(
         "README.md",
+        "THIRD_PARTY_NOTICES.md",
+        "licenses\third-party\Apache-2.0.txt",
+        "licenses\third-party\KaTeX-MIT.txt",
+        "licenses\third-party\M-PLUS-1-OFL-1.1.txt",
         "VERSION",
         "pyproject.toml",
         "backend\app\main.py",
@@ -25,6 +29,9 @@ try {
         "game\dist\index.html",
         "game\dist\display.html",
         "game\dist\controller.html",
+        "game\dist\audio\tap.wav",
+        "game\dist\audio\correct.wav",
+        "game\dist\audio\timeout.wav",
         "config\game_questions.json",
         "requirements\festival.txt",
         "docs\festival-operation.md",
@@ -49,7 +56,9 @@ try {
 
     $Forbidden = @(Get-ChildItem -LiteralPath $PackageRoot.FullName -File -Recurse | Where-Object {
         $_.FullName -match '\\(\.venv[^\\]*|\.model-cache|node_modules|data\\custom\\.+|results\\logs)\\' -or
-        $_.Extension -in @(".pt", ".pth", ".safetensors", ".log", ".pyc")
+        $_.Extension -in @(".pt", ".pth", ".safetensors", ".log", ".pyc") -or
+        $_.Name -eq "agent-handoff-2026-10-08.md" -or
+        $_.Name -eq "architecture-before-2026-10-21.md"
     })
     if ($Forbidden.Count -gt 0) {
         throw "Private or generated artifacts were packaged: $($Forbidden.FullName -join ', ')"

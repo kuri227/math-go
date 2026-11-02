@@ -34,8 +34,8 @@ if (Test-Path $StageRoot) { Remove-Item -LiteralPath $StageRoot -Recurse -Force 
 if (Test-Path $ArchivePath) { Remove-Item -LiteralPath $ArchivePath -Force }
 New-Item -ItemType Directory -Force -Path $StageRoot | Out-Null
 
-$Files = @("README.md", "VERSION", "pyproject.toml", "reports\exhibition_release_validation_2026-10-08.md", "reports\cpu_performance_validation_2026-10-08.md")
-$Directories = @("backend", "config", "frontend", "game\dist", "requirements", "docs")
+$Files = @("README.md", "THIRD_PARTY_NOTICES.md", "VERSION", "pyproject.toml", "reports\exhibition_release_validation_2026-10-08.md", "reports\cpu_performance_validation_2026-10-08.md")
+$Directories = @("backend", "config", "frontend", "game\dist", "requirements", "docs", "licenses")
 $ScriptFiles = @(
     "build_game.ps1",
     "check_environment.ps1",
@@ -59,6 +59,16 @@ foreach ($Directory in $Directories) {
     $Destination = Join-Path $StageRoot $Directory
     New-Item -ItemType Directory -Force -Path (Split-Path -Parent $Destination) | Out-Null
     Copy-Item -LiteralPath (Join-Path $RepoRoot $Directory) -Destination $Destination -Recurse
+}
+# Local continuity notes can remain on a maintainer PC, but never belong in a
+# source release after they have been removed from Git.
+$LocalOnlyFiles = @(
+    "docs\agent-handoff-2026-10-08.md",
+    "docs\history\architecture-before-2026-10-21.md"
+)
+foreach ($RelativePath in $LocalOnlyFiles) {
+    $Candidate = Join-Path $StageRoot $RelativePath
+    if (Test-Path -LiteralPath $Candidate) { Remove-Item -LiteralPath $Candidate -Force }
 }
 # Never include interpreter caches copied from a developer's environment.
 $CacheDirectories = @(Get-ChildItem -LiteralPath $StageRoot -Directory -Recurse | Where-Object { $_.Name -eq "__pycache__" })

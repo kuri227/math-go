@@ -4,7 +4,6 @@
 
 ## プロジェクトを理解・議論する
 
-- [次のコーディングエージェントへの引き継ぎ](../HANDOFF.md)：着手順、確定事項、未決定、作業ツリー、検証コマンドとデータ保全。
 - [製品・要件・技術選定・ロードマップ](product-and-roadmap.md)：なぜ作るか、要件の状態、現行フロー、技術の意図と代償、残る課題の入口。
 - [2画面コントローラーUXと検証境界](dual-screen-controller-ux.md)：操作移管、開始待機、回答筆跡共有、液タブ限定メモ、実装・レビューの受入条件。自動検査とComputer Useによる両画面比較を実施済み。物理ペン、同期遅延、長時間運転は本番機での確認が必要。
 - [2026-10-23 2画面実装・検証記録](../reports/dual_screen_implementation_2026-10-23.md)：通信版v4の実装内容、実行した検査、U01〜U12の証拠境界と未検証項目。
@@ -23,6 +22,7 @@
 | 学習データの選び方・CPU/GPU追加学習・履歴保全 | [TexTeller再学習](texteller-training.md) |
 | 問題登録・正答候補・データ形式 | [問題作成ガイド](question-authoring-guide.md) |
 | 開発起動・回帰テスト・変更時の確認範囲 | [開発者向けガイド](development.md) |
+| ソースの読む順番・各ファイルの責務 | [ソースコード案内](source-code-guide.md) |
 | clone後に導入手順が成立するかの検証結果 | [2026-11-02の導入文書検証](../reports/clone_installation_validation_2026-11-02.md) |
 | コードの責務・通信・API・データ | [アーキテクチャ](architecture.md) |
 | モデル比較・公開HWE評価 | [モデル評価ガイド](model-evaluation-guide.md) |
@@ -36,7 +36,7 @@
 ## 開発の経緯・参考資料
 
 - [開発履歴](development-history.md) と [ADR](adr/)：なぜ構成を変えたかを追う入口。
-- [整理前の製品コンテキスト](history/product-context-before-2026-10-21.md)、[整理前のデザイン](history/design-before-2026-10-21.md)、[整理前の構成](history/architecture-before-2026-10-21.md)：原文を保全した履歴。
+- [整理前の製品コンテキスト](history/product-context-before-2026-10-21.md)、[整理前のデザイン](history/design-before-2026-10-21.md)：原文を保全した履歴。
 - [旧展示仕様](final-exhibition-game-spec.md)、[旧ゲーム方針](kanji-go-inspired-game-spec.md)、[旧2画面設計](dual-screen-game-design.md)、[旧コースガイド](course-guide-design.md)：現行実装の指示書ではなく設計過程。
 - [過去の検証](../reports/)：実施日・対象版・PCを確認して参照する。以前の件数・速度を現在の保証にしない。
 

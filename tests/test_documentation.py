@@ -25,3 +25,6 @@ def test_installation_guide_matches_single_and_dual_screen_startup_contract():
 def test_current_docs_include_installation_and_development_guides():
     assert "docs/installation.md" in CURRENT
     assert "docs/development.md" in CURRENT
+    assert "docs/source-code-guide.md" in CURRENT
+    assert "THIRD_PARTY_NOTICES.md" in CURRENT
+    assert "HANDOFF.md" not in CURRENT

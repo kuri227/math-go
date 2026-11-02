@@ -1,7 +1,7 @@
 # アーキテクチャ（現行）
 
 更新日：2026-10-22。ゲーム仕様は [2モード仕様](two-mode-exhibition.md)、運用手順は [展示運用](festival-operation.md) を正とする。
-以前のPhaser / GameCoordinator構成は [履歴資料](history/architecture-before-2026-10-21.md) に保全した。
+この文書は現行構成だけを扱います。廃止済みの構成資料は配布対象に含めません。
 
 ## 全体構成
 

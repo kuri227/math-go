@@ -1,5 +1,9 @@
 import { requestJson, katex } from "/game-assets/support.js";
 
+// Developer evaluation surface: capture one handwriting image, compare the
+// optional model workers, and save an explicitly labelled evaluation sample.
+
+// Canvas input and local stroke state.
 const canvas = document.querySelector("#canvas");
 const ctx = canvas.getContext("2d", { alpha: false });
 const emptyHint = document.querySelector("#emptyHint");
@@ -108,6 +112,7 @@ document.querySelector("#clear").addEventListener("click", () => {
   redraw();
 });
 
+// Export and optional local download.
 function cropCanvas(padding = 18) {
   if (strokes.length === 0) throw new Error("数式を入力してください");
   const points = strokes.flatMap((stroke) => stroke.points);
@@ -174,6 +179,7 @@ function setModelPending(elementId) {
   root.querySelector('[data-field="latency"]').textContent = "Latency: 計測中…";
 }
 
+// Model comparison request and rendering.
 recognizeButton.addEventListener("click", async () => {
   if (!modelsReady || recognitionInProgress) return;
   try {
@@ -231,6 +237,7 @@ function displayModelResult(elementId, result) {
   root.querySelector('[data-field="latency"]').textContent = `Latency: ${inference} / init ${initialization} / peak VRAM ${peak} / ${result.device}`;
 }
 
+// Human-labelled evaluation sample storage.
 document.querySelector("#saveSample").addEventListener("click", async () => {
   const button = document.querySelector("#saveSample");
   try {
@@ -263,6 +270,7 @@ function modelDisplayName(name) {
   return name === "texteller" ? "TexTeller" : name === "unimernet" ? "UniMERNet" : name;
 }
 
+// Optional TexTeller + UniMERNet preparation for this developer-only page.
 async function pollModelStatus() {
   try {
     if (performance.now() > modelPollDeadline) throw new Error("モデル準備が3分以内に完了しませんでした");

@@ -5,6 +5,16 @@ __pycache__/
 .ruff_cache/
 .coverage
 .env
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/
+
+# Local handoff and superseded architecture notes
+HANDOFF.md
+docs/agent-handoff-2026-10-08.md
+docs/history/architecture-before-2026-10-21.md
 
 # Downloaded datasets and model weights
 data/downloads/

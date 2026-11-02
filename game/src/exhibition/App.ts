@@ -28,10 +28,16 @@ import {
   type Paper,
 } from "./presentation";
 
+/**
+ * Connects the game domain, DOM, handwriting pads, API client, and optional
+ * dual-screen transport. Keep game rules in Session and display-only
+ * calculations in presentation helpers so this file remains orchestration.
+ */
 export function runApp(role: Role): void {
   document.body.dataset.role = role;
   $("app").innerHTML = appMarkup(role);
 
+  // Shared browser services and local UI state.
   const client = new RecognitionClient();
   const sound = new UrgencySound();
   const volume = $<HTMLInputElement>("volume");
@@ -78,6 +84,8 @@ export function runApp(role: Role): void {
   const controllerLink = $<HTMLAnchorElement>("openControllerWaiting");
   controllerLink.href = `/controller?session=${encodeURIComponent(sessionId)}`;
   controllerLink.hidden = role !== "display";
+  // Display owns the Session; Controller receives a safe snapshot and sends
+  // user actions. Single-screen mode bypasses transport and uses Session here.
   const channel = role === "single" ? null : new DualScreenChannel(new WebSocketTransport(sessionId, role), sessionId, role);
   const state = () => role === "controller" ? remote : session?.snapshot ?? null;
   const canInput = () => role !== "display" && modelReady && connected && !!state() && !state()!.paused;
@@ -105,6 +113,7 @@ export function runApp(role: Role): void {
     void Promise.resolve().then(action).catch(showError);
   });
   function showError(error: unknown): void { const text = error instanceof Error ? error.message : String(error); $(state() && !["guide", "finished"].includes(state()!.phase) ? "notice" : "setupStatus").textContent = text; }
+  // Title, rules, difficulty, and staff-test setup.
   function showSetupView(view: typeof setupView): void {
     setupView = view;
     selectedMode = view === "staff" ? "test" : "exhibition";
@@ -172,6 +181,8 @@ export function runApp(role: Role): void {
       channel?.send({ type: "exhibition-control", action: "controller-ready", runId: current.runId, questionId: current.question!.id });
     }));
   }
+  // Render the current snapshot. Session remains the source of game rules;
+  // this function only derives visibility, copy, focus, and presentation.
   function render(): void {
     const s = state();
     const phase = s?.phase ?? "setup";
@@ -333,6 +344,7 @@ export function runApp(role: Role): void {
     }
   }
 
+  // Apply one state transition locally, or relay it from Controller to Display.
   async function action(action: "recognize" | "confirm" | "rewrite" | "next" | "retry-test" | "stop", data: { requestId?: string; response?: RecognitionResponse; error?: string } = {}): Promise<void> {
     const s = state(); if (!s?.question) return;
     if (saveBusy && action !== "recognize") return;
@@ -391,6 +403,8 @@ export function runApp(role: Role): void {
     } catch (e) { if (activeRecognition === context) await action("recognize", { requestId: context.id, error: `読み取りに失敗しました。書いた内容は残っています。もう一度お試しください。${String(e)}` }); }
     finally { if (activeRecognition === context) { activeRecognition = null; busy = false; lastRender = ""; render(); } }
   }
+  // Dual-screen message handling. Validate session/question identity before
+  // accepting delayed actions or ink from another tab.
   channel?.subscribe(message => {
     if (role === "controller" && message.type === "exhibition-state") {
       const previous = remote; remote = message.snapshot;
@@ -467,6 +481,7 @@ export function runApp(role: Role): void {
     if (!connected) { activeRecognition = null; busy = false; pendingControllerReady = ""; }
     updateSetup(); lastRender = ""; render();
   });
+  // UI event bindings.
   channel?.start();
   window.addEventListener("pagehide", () => channel?.close());
   $("difficulty").addEventListener("change", drawPicker);
@@ -557,6 +572,7 @@ export function runApp(role: Role): void {
     if (state()?.phase === "writing") { event.preventDefault(); void recognize(); }
     else if (state()?.phase === "preview") { event.preventDefault(); void action("confirm"); }
   });
+  // Startup and the only game clock. Controller never advances time locally.
   setInterval(() => { if (role !== "controller" && session) { const expired = session.tick(); render(); sendState(); if (expired) void loadLastSolution(session.snapshot); } }, 100);
   render(); updateSetup();
   void client.fetchQuestions().then(questions => { setBank(questions); drawPicker(); }).catch(e => { $("setupStatus").textContent = `問題を取得できません。ページを更新してください。${String(e)}`; });

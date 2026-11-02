@@ -1,3 +1,10 @@
+"""FastAPI boundary for game, staff tools, recognition, and sample storage.
+
+Routes validate HTTP input and assemble responses. File operations, question
+rules, model lifecycle, and sample validation live in responsibility-specific
+modules imported below.
+"""
+
 from __future__ import annotations
 
 import asyncio
@@ -85,6 +92,7 @@ if (GAME_DIST_DIR / "audio").is_dir():
     )
 
 
+# Visitor and staff pages.
 @app.get("/", include_in_schema=False)
 def index() -> FileResponse:
     game_index = GAME_DIST_DIR / "index.html"
@@ -134,6 +142,7 @@ def question_editor() -> FileResponse:
     return FileResponse(FRONTEND_DIR / "question-editor.html")
 
 
+# Process and model readiness.
 @app.get("/health")
 def health() -> dict[str, str]:
     return {"status": "ok"}
@@ -154,6 +163,7 @@ def api_liveness() -> dict[str, str]:
     return {"status": "ok"}
 
 
+# Question catalog, review, judgement, and solution reveal.
 @app.get("/api/v1/questions", response_model=list[GameQuestionResponse])
 def api_game_questions() -> list[dict[str, object]]:
     """Return exhibition-game prompts without exposing accepted answers."""
@@ -229,6 +239,7 @@ def api_preload_model(model: str) -> dict[str, str]:
     return {"status": status, "model": name}
 
 
+# Game recognition endpoint and developer comparison endpoints.
 @app.post("/api/v1/recognitions", response_model=GameRecognitionResponse)
 async def api_recognize(
     image: UploadFile = File(...),
@@ -381,6 +392,8 @@ async def recognize_both(image: UploadFile = File(...)) -> ComparisonResponse:
         temp_path.unlink(missing_ok=True)
 
 
+# Opt-in handwriting collection. Test-sample storage performs stricter consent
+# and transcription checks than the developer evaluation endpoint.
 @app.post("/samples", response_model=SavedSampleResponse)
 async def save_sample(
     image: UploadFile = File(...),

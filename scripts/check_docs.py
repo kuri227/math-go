@@ -4,11 +4,12 @@ import re
 from urllib.parse import unquote, urlsplit
 
 ROOT = Path(__file__).resolve().parents[1]
-CURRENT = ["README.md", "PRODUCT.md", "DESIGN.md", "HANDOFF.md", "docs/README.md", "docs/installation.md",
+CURRENT = ["README.md", "PRODUCT.md", "DESIGN.md", "THIRD_PARTY_NOTICES.md", "docs/README.md", "docs/installation.md",
            "docs/development.md", "docs/architecture.md", "docs/festival-operation.md",
            "docs/two-mode-exhibition.md", "docs/texteller-training.md", "docs/question-authoring-guide.md",
            "docs/model-evaluation-guide.md", "docs/recognition_service_requirements.md",
-           "docs/development-history.md", "docs/product-and-roadmap.md", "docs/dual-screen-controller-ux.md",
+           "docs/development-history.md", "docs/product-and-roadmap.md", "docs/source-code-guide.md",
+           "docs/dual-screen-controller-ux.md",
            "docs/adr/0004-current-stack-and-controller-direction.md"]
 
 

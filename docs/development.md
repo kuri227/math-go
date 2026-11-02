@@ -76,4 +76,4 @@ GPUでは`--expected-device cuda`を指定します。APIの安定性確認と�
 - レイアウトを変えた場合：1280×720、1024×600、320×568、実際の展示モニター
 - 保存を変えた場合：同意、確認済み転記、メモ非保存、重複利用防止
 
-最新の責務分割は [アーキテクチャ](architecture.md)、ゲーム状態の正本は [2モード仕様](two-mode-exhibition.md)、作業ツリーの検証状況は [HANDOFF](../HANDOFF.md) を参照してください。
+最新の責務分割は [アーキテクチャ](architecture.md)、コードを読む順番は [ソースコード案内](source-code-guide.md)、ゲーム状態の正本は [2モード仕様](two-mode-exhibition.md) を参照してください。
