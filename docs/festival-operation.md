@@ -9,12 +9,12 @@
 
 取得・更新はgit clone / git pullに統一します。改修しない展示PCでもGit・64bit Python・Node.js・pnpm・ブラウザーが必要です。
 CPU/GPU別セットアップスクリプトが依存導入と画面ビルドまで行います。グローバルpnpmの手動導入の影響は [導入ガイド](installation.md) を確認してください。
-初回は依存関係と約1.2GBのモデル重みをインターネットから取得します。会場前に済ませてください。
+初回は依存関係と約1.2GBのモデル重みをインターネットから取得します。PyTorchなどを含む全体の通信量は数GBになるため、会場前に済ませてください。
 CPU版のモデル環境は `.venv-texteller-cpu`、GPU版は `.venv-texteller`。両方を導入しても重みの保存先は共通です。
 
 ## 対応範囲
 
-Windows 11 x64 / Python 3.10 / Node 22.17.1 / pnpm 11.25.0 / NVIDIA RTX 3050 Laptop 4GB / RAM 16GBで検証。
+Windows 11 x64 / Python 3.10.5 / Node 22.17.1 / pnpm 11.25.0 / NVIDIA RTX 3050 Laptop 4GB / RAM 16GBで検証。
 64bit Python 3.10–3.12を受け付けます。CPU版はRyzen 5 5600Hで実測済み（GPU無効・CPU専用wheel）。Linux x64向け手順は未実機検証です。
 空き20GB以上を目安に確保してください。モデルだけで約1.2GB、他にPyTorch・仮想環境・ダウンロードキャッシュが必要です。
 評価用UniMERNetやデータセットを入れる場合はさらに容量が必要です。
@@ -22,8 +22,8 @@ Windows 11 x64 / Python 3.10 / Node 22.17.1 / pnpm 11.25.0 / NVIDIA RTX 3050 Lap
 ## 初回設営
 
 1. [導入ガイド](installation.md)のclone・セットアップコマンドを実行する。モデルの取得は初回のみネット接続が必要。
-2. `check_environment.ps1 -RequireReady -Device cuda` のFAILがないことを確認する。
-3. `start_festival.ps1 -Device cuda` で起動する。準備完了まで待ち、Displayを開く。
+2. GPU版は`check_environment.ps1 -RequireReady -Device cuda`、CPU版は`check_environment.ps1 -RequireReady -Device cpu`のFAILがないことを確認する。
+3. GPU版は`start_festival_gpu.ps1`、CPU版は`start_festival_cpu.ps1`で起動する。準備完了まで待ち、自動で開くDisplayをモニターへ移す。
 4. 液タブ・モニターをWindowsの「拡張」で接続。Displayはモニター、Controllerは液タブへ移す。
 5. 同じブラウザー・プロファイルで開く。`localhost` と `127.0.0.1`、ポート番号の違いも別Originとなる。URLのsessionをそろえる。
 6. 初めはテストプレイで任意の問題を選ぶ。ペン入力→戻す→全消去→読み取り確認→画像・数式の確認→回答送信→判定→結果を確認する。
@@ -38,7 +38,7 @@ Windows 11 x64 / Python 3.10 / Node 22.17.1 / pnpm 11.25.0 / NVIDIA RTX 3050 Lap
 ## 当日のチェックリスト
 
 - 電源接続、スリープ・通知・OS更新による中断を避ける設定を担当者が確認する。
-- PC再起動後、上記起動コマンドを再実行する。PowerShellを閉じるとサーバーも停止する。
+- PC再起動後、上記起動コマンドを再実行する。終了時は起動したPowerShellで`Ctrl+C`を押し、停止を確認してから閉じる。
 - `http://127.0.0.1:8000/api/v1/health/ready?model=texteller` が `ready` であることを確認する。`/health` はモデル準備を保証しない。
 - 両画面の接続表示を確認。時間制限なしの1問を実際のペンで提出する。
 - 2画面は1人用。問題表示と入力の両方を同じlocalhost・同じsessionで開く。更新時は必ず両方を再読み込みする（旧BroadcastChannel版とは通信できない）。

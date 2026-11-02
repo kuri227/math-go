@@ -13,15 +13,20 @@
 
 GPUは必須ではありません。NVIDIA製GPUがあるPCはGPU版を、分からない場合やNVIDIA製GPUがない場合はCPU版を選んでください。CPU版は認識に少し時間がかかることがありますが、ゲームの機能は同じです。
 
+初回セットアップでは、モデルだけでなくPyTorchなども取得するため、通信量は合計で数GBになります。回線やPCによって数十分かかることがあります。処理中はPowerShellを閉じたり、同じセットアップを重ねて実行したりしないでください。
+
 ## 2. 必要なアプリを入れる
 
-次の3つを公式サイトから入れます。すでに入っている場合は、次の「正しく入ったか確認する」へ進んでください。
+次の3つを公式サイトからダウンロードし、インストールしてください。すでに入っている場合は、次の「正しく入ったか確認する」へ進んでください。
+
+このプロジェクトを実際に検証したPythonは **3.10.5（64bit）** です。導入用には、同じPython 3.10系でWindows向け64bitインストーラーを取得できる **3.10.11（64bit）** を案内しています。セットアップは64bit版Python 3.10～3.12を受け付けますが、迷った場合は下記の3.10.11を使用してください。
 
 1. [Git for Windows](https://git-scm.com/download/win)
    - 通常は表示された初期設定のまま進めて構いません。
-2. [Python 3.10.11（64bit）](https://www.python.org/downloads/release/python-31011/)
+2. [Python 3.10.11の64bitインストーラーをダウンロード](https://www.python.org/ftp/python/3.10.11/python-3.10.11-amd64.exe)
    - インストール開始画面で **Add python.exe to PATH** にチェックを入れてください。
-   - ページの「Windows installer (64-bit)」を選びます。
+   - リンクを押すと公式インストーラーのダウンロードが始まります。
+   - ダウンロードページを確認したい場合は、[Python公式の3.10.11ページ](https://www.python.org/downloads/release/python-31011/)を開き、「Windows installer (64-bit)」を選びます。
 3. [Node.js 22.17.1（64bit）](https://nodejs.org/dist/v22.17.1/node-v22.17.1-x64.msi)
    - 通常は表示された初期設定のまま進めて構いません。
 
@@ -88,23 +93,27 @@ NVIDIA製GPUと、正常に動作しているNVIDIAドライバーが必要で�
 - ゲーム画面を準備する
 - 必要なファイルとCPU／GPUの状態を確認する
 
+最後に`Setup complete.`と表示され、続けて実行した環境確認に`[FAIL]`がなければ完了です。`[WARN]`が出た場合は、その行の内容を確認してください。
+
 赤い文字で止まった場合は、後続のコマンドを続けず、最初に表示されたエラーを確認してください。既存のPythonや他のプロジェクトへライブラリを直接追加する処理ではありません。
 
-## 5. 初めて起動する
+## 5. 初めて起動する（まず1画面で確認）
 
 CPU版を入れた場合：
 
 ```powershell
-.\scripts\start_festival_cpu.ps1
+.\scripts\start_festival_cpu.ps1 -SingleScreen
 ```
 
 GPU版を入れた場合：
 
 ```powershell
-.\scripts\start_festival_gpu.ps1
+.\scripts\start_festival_gpu.ps1 -SingleScreen
 ```
 
-「Loading TexTeller」と表示されたら、そのまま待ちます。検証したGPU PCでは約20秒でしたが、PCや初回の状態によって長くなることがあります。準備が終わるとブラウザーが開きます。
+`-SingleScreen`は、タイトル画面から1画面プレイを確認するための指定です。「Loading TexTeller」と表示されたら、そのまま待ちます。検証したGPU PCでは約20秒でしたが、PCや初回の状態によって長くなることがあります。準備が終わると既定のブラウザーでタイトル画面が開きます。
+
+ChromeまたはEdge以外が開いた場合や、自動で開かなかった場合は、PowerShellを閉じずにChromeまたはEdgeを開き、アドレス欄へ`http://127.0.0.1:8000`と入力してください。
 
 3分以上待っても開かない場合は、同じ起動スクリプトを重ねて実行しないでください。PowerShellに表示された内容と`results/logs/texteller.log`を確認し、[トラブル対処](festival-operation.md#トラブル対処)へ進みます。
 
@@ -122,27 +131,33 @@ GPU版を入れた場合：
 ## 7. 2画面を準備する
 
 1. Windowsのディスプレイ設定で、表示方法を「表示画面を拡張する」にします。
-2. タイトル画面で「2画面でスタート」を選びます。
-3. モニター用画面にある「液タブ用画面を開く」を押します。
-4. 新しく開いた入力画面を液タブへ移動します。
-5. 問題がモニター、回答用紙とメモ用紙が液タブに表示されることを確認します。
-6. 両方の画面で「2画面接続済み」と表示されることを確認します。
+2. 起動中のPowerShellで`Ctrl+C`を押し、入力できる状態へ戻るまで待ちます。
+3. CPU版は`.\scripts\start_festival_cpu.ps1`、GPU版は`.\scripts\start_festival_gpu.ps1`を実行します。今度は`-SingleScreen`を付けません。
+4. 自動で開いたモニター用画面を外部モニターへ移動します。
+5. モニター用画面にある「液タブ用画面を開く」を押します。
+6. 新しく開いた入力画面を液タブへ移動します。
+7. 問題がモニター、回答用紙とメモ用紙が液タブに表示されることを確認します。
+8. 両方の画面で「2画面接続済み」と表示されることを確認します。
 
 ブラウザーが新しい画面を開かなかった場合は、アドレスバー付近に表示されるポップアップ許可を確認してください。2画面は同じPC・同じブラウザーで使用します。
 
 ## 8. 2回目以降の起動
 
-毎回セットアップする必要はありません。`math-go`フォルダーでPowerShellを開き、使用する方の起動コマンドだけを実行します。
+毎回セットアップする必要はありません。`math-go`フォルダーでPowerShellを開き、使用する方の起動コマンドだけを実行します。指定なしでは2画面用のモニター画面、`-SingleScreen`付きではタイトル画面が開きます。
 
 ```powershell
 Set-ExecutionPolicy -Scope Process Bypass
-# CPU版
+# CPU版・2画面（通常の展示はこちら）
 .\scripts\start_festival_cpu.ps1
-# GPU版を使う場合は、上の代わりにこちら
+# GPU版・2画面を使う場合は、上の代わりにこちら
 # .\scripts\start_festival_gpu.ps1
+
+# 1画面またはタイトルから確認する場合は -SingleScreen を付ける
+# .\scripts\start_festival_cpu.ps1 -SingleScreen
+# .\scripts\start_festival_gpu.ps1 -SingleScreen
 ```
 
-停止するときは、起動に使ったPowerShellを選び、`Ctrl+C`を押します。PowerShellを閉じるとゲームも停止します。
+停止するときは、起動に使ったPowerShellを選び、`Ctrl+C`を押します。コマンドを入力できる表示へ戻ったことを確認してからPowerShellを閉じます。
 
 ## 9. 最新版へ更新する
 
@@ -173,7 +188,7 @@ git pull --ff-only
 - 一度インターネット接続を切り、起動と1問の認識を確認する
 - 実際のモニターと液タブで2画面プレイを確認する
 - Windowsのスリープ、通知、更新による中断を担当者が確認する
-- 起動用PowerShellを閉じない
+- プレイ中は起動用PowerShellを閉じない。終了時はPowerShellで`Ctrl+C`を押す
 
 当日のチェックリスト、ログの場所、詳しい復旧方法は [展示PCの運用マニュアル](festival-operation.md) にあります。
 
@@ -194,7 +209,8 @@ NVIDIAドライバーやWindowsのCUDA Toolkitは、導入スクリプトでは�
 
 ## 12. 対応環境と未検証環境
 
-- 検証済みの中心環境：Windows 11 x64、Python 3.10、Node.js 22、pnpm 11.25.0
+- 検証済みの中心環境：Windows 11 x64、Python 3.10.5、Node.js 22.17.1、pnpm 11.25.0
+- 導入ガイドで案内するPython：3.10.11（64bit。検証済みと同じ3.10系でWindowsインストーラーを取得可能）
 - セットアップが受け付けるPython：64bit版3.10～3.12
 - GPU版の検証機：NVIDIA RTX 3050 Laptop（VRAM 4GB）
 - CPU版の検証機：AMD Ryzen 5 5600H、RAM 16GB

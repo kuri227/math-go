@@ -23,6 +23,7 @@
 | 学習データの選び方・CPU/GPU追加学習・履歴保全 | [TexTeller再学習](texteller-training.md) |
 | 問題登録・正答候補・データ形式 | [問題作成ガイド](question-authoring-guide.md) |
 | 開発起動・回帰テスト・変更時の確認範囲 | [開発者向けガイド](development.md) |
+| clone後に導入手順が成立するかの検証結果 | [2026-11-02の導入文書検証](../reports/clone_installation_validation_2026-11-02.md) |
 | コードの責務・通信・API・データ | [アーキテクチャ](architecture.md) |
 | モデル比較・公開HWE評価 | [モデル評価ガイド](model-evaluation-guide.md) |
 | 外部プログラムからの認識API | [認識API要件](recognition_service_requirements.md) |
