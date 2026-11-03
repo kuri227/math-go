@@ -18,7 +18,7 @@ import { activity, clockRunning } from "./activity";
 import { byId as $, text } from "./dom";
 
 import { appMarkup, type Role } from "./view";
-import { DIFFICULTY_LABELS as difficultyLabels, REVIEW_LABELS as reviewLabels, QuestionCatalog } from "./catalog";
+import { DIFFICULTY_LABELS as difficultyLabels, REVIEW_LABELS as reviewLabels, QuestionCatalog, visibleSelectionState, type CandidateFilter, type ReviewFilter } from "./catalog";
 import {
   answerReplicaVisible,
   playNotice,
@@ -75,6 +75,7 @@ export function runApp(role: Role): void {
   let imageUrl: string | null = null;
   let activeRecognition: { id: string; runId: string; questionId: string } | null = null;
   const selected = new Set<string>();
+  let visibleQuestions: Question[] = [];
   const params = new URLSearchParams(location.search);
   const sessionId = params.get("session") || crypto.randomUUID();
   if (role !== "single" && !params.has("session")) { params.set("session", sessionId); history.replaceState(null, "", `${location.pathname}?${params}`); }
@@ -128,28 +129,39 @@ export function runApp(role: Role): void {
   }
   function releaseDraft(): void { draft = null; savedRequest = ""; if (imageUrl) URL.revokeObjectURL(imageUrl); imageUrl = null; $<HTMLImageElement>("inkImage").removeAttribute("src"); }
   function updateSetup(): void {
+    const staff = setupView === "staff";
     const pool = bank.filter(q => q.difficulty === selectedLevel());
     const eligible = pool.filter(q => q.exhibition_enabled && q.review_status === "approved");
     const availableCount = eligible.length;
     $("staffTools").hidden = setupView !== "staff";
+    $("settings").classList.toggle("staff-mode", staff);
+    $("difficultyStage").hidden = staff;
+    $("gameSettingsFields").hidden = staff;
+    $("poolSummary").hidden = staff;
     $("setupEyebrow").textContent = setupView === "staff" ? "DEVELOPER TOOLS" : "GAME SETTINGS";
     $("setupTitle").textContent = setupView === "staff" ? "テスト・開発者用画面" : "難易度を選ぶ";
     $("setupDescription").textContent = setupView === "staff" ? "確認する問題を選び、残機がなくなるまで順番に繰り返しテストします。" : "選んだ難易度の10問に挑戦しよう。";
     $("difficultyNumber").textContent = String(selectedLevel());
     $("difficultyName").textContent = difficultyLabels[selectedLevel() - 1] ?? "";
     $("poolSummary").textContent = selectedMode === "test" ? `${pool.length}問あります。選んだ問題は残機がなくなるまで繰り返し出題されます。` : eligible.length >= EXHIBITION.questions ? `1問${questionSeconds({ difficulty: selectedLevel() })}秒・全${EXHIBITION.questions}問です。` : `このレベルは本番用の問題が${EXHIBITION.questions}問そろっていません。`;
-    $("selectAllQuestions").textContent = `全${bank.length}問を選択`;
-    $<HTMLButtonElement>("selectAllQuestions").disabled = bank.length === 0 || selected.size === bank.length;
+    const visibleIds = visibleQuestions.map(question => question.id);
+    const visibleState = visibleSelectionState(visibleIds, selected);
+    $("selectAllQuestions").textContent = visibleState.allSelected ? `表示中${visibleIds.length}問の選択を解除` : `表示中の${visibleIds.length}問を選択`;
+    $<HTMLButtonElement>("selectAllQuestions").disabled = visibleIds.length === 0;
     const ready = modelReady && bank.length > 0 && connected && (selectedMode === "test" ? selected.size > 0 : eligible.length >= EXHIBITION.questions);
     $<HTMLButtonElement>("showGuide").disabled = !ready;
     $("setupStatus").textContent = !bank.length || !modelReady ? "ゲームを準備しています。少しお待ちください。" : !connected ? "もう一方の画面を準備しています。" : selectedMode === "test" && !selected.size ? "テストする問題にチェックを入れてください。" : selectedMode === "exhibition" && eligible.length < EXHIBITION.questions ? "この難易度の本番用問題を10問準備してください。" : "準備OK！";
-    $("selectionCount").textContent = `${selected.size}問選択中（選んだ順に出題）`;
+    $("selectionCount").textContent = `${selected.size}問選択中（表示中${visibleState.selectedVisible}問）`;
     $("showGuide").textContent = selectedMode === "test" ? "エンドレステストを始める" : "この難易度で進む";
   }
   function drawPicker(): void {
     const search = $<HTMLInputElement>("search").value.toLocaleLowerCase();
-    const all = $<HTMLInputElement>("allLevels").checked, pending = $<HTMLInputElement>("onlyPending").checked;
-    const matches = catalog.search(search, selectedLevel(), all, pending);
+    const difficulty = Number($<HTMLSelectElement>("staffDifficulty").value);
+    const review = $<HTMLSelectElement>("reviewFilter").value as ReviewFilter;
+    const candidate = $<HTMLSelectElement>("candidateFilter").value as CandidateFilter;
+    const matches = catalog.filter(search, difficulty, review, candidate);
+    visibleQuestions = matches;
+    $("matchCount").textContent = `${matches.length}問を表示`;
     const list = $("questionList"); list.replaceChildren();
     if (!matches.length) { list.textContent = "該当する問題がありません。検索条件を変更してください。"; }
     for (const q of matches) {
@@ -158,9 +170,26 @@ export function runApp(role: Role): void {
       const content = document.createElement("span"), meta = document.createElement("small"), prompt = document.createElement("span");
       meta.textContent = `${q.id} · ${q.category} · ${reviewLabels[q.review_status ?? "pending"]}${q.exhibition_enabled ? " · 通常ゲーム候補" : ""}`;
       richText(q.prompt ?? q.display, prompt); content.append(meta, prompt); row.append(check, content); list.append(row);
-      check.addEventListener("change", () => { if (check.checked) selected.add(q.id); else selected.delete(q.id); updateSetup(); });
+      check.addEventListener("change", () => { if (check.checked) selected.add(q.id); else selected.delete(q.id); drawSelectedQuestions(); updateSetup(); });
     }
+    drawSelectedQuestions();
     updateSetup();
+  }
+  function drawSelectedQuestions(): void {
+    const list = $("selectedQuestionList"); list.replaceChildren();
+    const questions = catalog.selected(selected);
+    if (!questions.length) {
+      const empty = document.createElement("p"); empty.className = "empty-selection";
+      empty.textContent = "中央の一覧から問題を選択してください。"; list.append(empty); return;
+    }
+    questions.forEach((question, index) => {
+      const row = document.createElement("div"); row.className = "selected-question";
+      const label = document.createElement("span"); label.textContent = `${index + 1}. ${question.id}`;
+      const remove = document.createElement("button"); remove.type = "button"; remove.textContent = "解除";
+      remove.setAttribute("aria-label", `${question.id} の選択を解除`);
+      remove.addEventListener("click", () => { selected.delete(question.id); drawPicker(); });
+      row.append(label, remove); list.append(row);
+    });
   }
   function scheduleControllerReady(s: Snapshot): void {
     if (role !== "controller" || s.phase !== "countdown" || !s.paused || !connected || !modelReady || !s.question) return;
@@ -487,10 +516,11 @@ export function runApp(role: Role): void {
   // UI event bindings.
   channel?.start();
   window.addEventListener("pagehide", () => channel?.close());
-  $("difficulty").addEventListener("change", drawPicker);
-  for (const id of ["search", "allLevels", "onlyPending"]) $(id).addEventListener(id === "search" ? "input" : "change", drawPicker);
+  $("difficulty").addEventListener("change", () => { if (setupView === "staff") drawPicker(); else updateSetup(); });
+  for (const id of ["search", "staffDifficulty", "reviewFilter", "candidateFilter"]) $(id).addEventListener(id === "search" ? "input" : "change", drawPicker);
+  on("resetFilters", () => { $<HTMLInputElement>("search").value = ""; $<HTMLSelectElement>("staffDifficulty").value = "0"; $<HTMLSelectElement>("reviewFilter").value = "all"; $<HTMLSelectElement>("candidateFilter").value = "all"; drawPicker(); });
   on("clearSelection", () => { selected.clear(); drawPicker(); });
-  on("selectAllQuestions", () => { selected.clear(); for (const question of bank) selected.add(question.id); drawPicker(); });
+  on("selectAllQuestions", () => { const ids = visibleQuestions.map(question => question.id); const { allSelected } = visibleSelectionState(ids, selected); for (const id of ids) { if (allSelected) selected.delete(id); else selected.add(id); } drawPicker(); });
   on("startGame", () => showSetupView("difficulty"));
   on("showRules", () => showSetupView("rules"));
   on("rulesHome", () => showSetupView("home"));
