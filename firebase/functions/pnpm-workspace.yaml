@@ -1,0 +1,17 @@
+allowBuilds:
+  '@firebase/util': true
+  protobufjs: true
+  re2: true
+overrides:
+  glob: 14.0.3
+  minimatch: 11.0.4
+minimumReleaseAgeExclude:
+  - '@firebase/app-compat@0.5.21'
+  - '@firebase/app@0.16.5'
+  - '@firebase/auth-compat@0.6.14'
+  - '@firebase/auth@1.13.9'
+  - '@firebase/crashlytics@0.1.0'
+  - '@firebase/firestore-compat@0.4.17'
+  - '@firebase/firestore@4.19.1'
+  - firebase@13.2.0
+  - minimatch@11.0.4

@@ -36,6 +36,7 @@
 | ゲームのルール、テスト、データ保存を知る | [ゲームとデータ収集の操作仕様](docs/two-mode-exhibition.md) |
 | 問題を追加・確認する | [問題作成ガイド](docs/question-authoring-guide.md) |
 | ランキングの技術・スコア設計を確認する | [ランキングシステム技術選定](docs/ranking-system-proposal.md) |
+| Firebaseランキングを安全に準備・検証する | [Firebaseランキングの安全な準備](docs/firebase-ranking-setup.md) |
 | 開発・テスト・コード構成を知る | [開発者向けガイド](docs/development.md) |
 | ソースコードを読む・変更箇所を探す | [ソースコード案内](docs/source-code-guide.md) |
 | 学習候補からTexTellerを追加学習する | [再学習マニュアル](docs/texteller-training.md) |

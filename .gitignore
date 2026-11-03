@@ -5,6 +5,15 @@ __pycache__/
 .ruff_cache/
 .coverage
 .env
+.env.local
+.env.*.local
+.firebase/
+.firebaserc
+firebase-debug.log*
+firebase/functions/lib/
+firebase/functions/node_modules/
+service-account*.json
+*-firebase-adminsdk-*.json
 .DS_Store
 Thumbs.db
 desktop.ini
@@ -44,6 +53,7 @@ results/question-reports/
 .impeccable/review/
 game/node_modules/
 game/dist/
+game/node-compile-cache/
 .runtime/
 release-build/
 
