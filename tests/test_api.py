@@ -1,8 +1,11 @@
 from io import BytesIO
 import mimetypes
+import struct
+import zlib
 
 from fastapi.testclient import TestClient
 from PIL import Image
+import pytest
 
 from backend.app.config import Paths
 from backend.app.main import GAME_DIST_DIR, app
@@ -13,6 +16,19 @@ def png_bytes() -> bytes:
     output = BytesIO()
     Image.new("RGB", (20, 10), "white").save(output, format="PNG")
     return output.getvalue()
+
+
+def bmp_bytes() -> bytes:
+    output = BytesIO()
+    Image.new("RGB", (20, 10), "white").save(output, format="BMP")
+    return output.getvalue()
+
+
+def png_with_chunk(chunk_type: bytes, data: bytes) -> bytes:
+    payload = png_bytes()
+    chunk = struct.pack(">I", len(data)) + chunk_type + data
+    chunk += struct.pack(">I", zlib.crc32(chunk_type + data) & 0xFFFFFFFF)
+    return payload[:33] + chunk + payload[33:]
 
 
 def test_health():
@@ -95,7 +111,28 @@ def test_invalid_image_rejected():
             data={"model": "texteller"},
             files={"image": ("test.png", b"not an image", "image/png")},
         )
-    assert response.status_code == 400
+    assert response.status_code == 415
+
+
+def test_disallowed_image_decoder_is_not_selected_by_spoofed_filename():
+    with TestClient(app, base_url="http://127.0.0.1", client=("127.0.0.1", 50000)) as client:
+        response = client.post(
+            "/recognize",
+            data={"model": "texteller"},
+            files={"image": ("pretend.png", bmp_bytes(), "image/png")},
+        )
+    assert response.status_code == 415
+
+
+@pytest.mark.parametrize("chunk_type,data", [(b"acTL", struct.pack(">II", 2, 0)), (b"eXIf", b"Exif\x00\x00bad"), (b"iCCP", b"profile\x00\x00bad")])
+def test_unsafe_png_animation_and_metadata_are_rejected(chunk_type, data):
+    with TestClient(app, base_url="http://127.0.0.1", client=("127.0.0.1", 50000)) as client:
+        response = client.post(
+            "/recognize",
+            data={"model": "texteller"},
+            files={"image": ("test.png", png_with_chunk(chunk_type, data), "image/png")},
+        )
+    assert response.status_code == 415
 
 
 def test_compare_passes_the_exact_same_png_to_both_models(monkeypatch):
@@ -237,6 +274,15 @@ def test_game_judgement_rejects_unknown_question():
             json={"question_id": "missing", "recognized_latex": "x"},
         )
     assert response.status_code == 404
+
+
+def test_game_judgement_rejects_oversized_latex_before_processing():
+    with TestClient(app, base_url="http://127.0.0.1", client=("127.0.0.1", 50000)) as client:
+        response = client.post(
+            "/api/v1/judgements",
+            json={"question_id": "d1-s1-r01-v01", "recognized_latex": "x" * 4001},
+        )
+    assert response.status_code == 422
 
 
 def test_custom_sample_is_saved(monkeypatch, tmp_path):

@@ -8,9 +8,11 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
+$LanMessage = "LAN hosting is disabled. Start the game locally on each PC and use HTTPS only for ranking synchronization."
+if ($Lan) { throw $LanMessage }
 $RepoRoot = Split-Path -Parent $PSScriptRoot
 $Python = Join-Path $RepoRoot ".venv\Scripts\python.exe"
-$BindHost = if ($Lan) { "0.0.0.0" } else { "127.0.0.1" }
+$BindHost = "127.0.0.1"
 $LocalUrl = "http://127.0.0.1:$Port"
 $RuntimeDir = Join-Path $RepoRoot ".runtime"
 $StdoutLog = Join-Path $RuntimeDir "server.stdout.log"
@@ -23,7 +25,7 @@ $env:HMER_EAGER_MODELS = "texteller"
 $env:TEXTELLER_DEVICE = $Device
 $StartupWatch = [Diagnostics.Stopwatch]::StartNew()
 $Server = Start-Process -FilePath $Python `
-    -ArgumentList "-m", "uvicorn", "backend.app.main:app", "--host", $BindHost, "--port", "$Port" `
+    -ArgumentList "-m", "uvicorn", "backend.app.main:app", "--host", $BindHost, "--port", "$Port", "--no-server-header" `
     -WorkingDirectory $RepoRoot -WindowStyle Hidden -PassThru `
     -RedirectStandardOutput $StdoutLog -RedirectStandardError $StderrLog
 
@@ -68,15 +70,6 @@ try {
     $StartupWatch.Stop()
     Write-Host "Ready in $([Math]::Round($StartupWatch.Elapsed.TotalSeconds, 2)) seconds."
     Write-Host "Math GO: $GameUrl"
-    if ($Lan) {
-        $Addresses = Get-NetIPAddress -AddressFamily IPv4 -ErrorAction SilentlyContinue |
-            Where-Object { $_.IPAddress -notmatch '^(127\.|169\.254\.)' } |
-            Select-Object -ExpandProperty IPAddress -Unique
-        foreach ($Address in $Addresses) {
-            Write-Host "LAN access: http://${Address}:$Port"
-        }
-        Write-Warning "LAN access may require a Windows Firewall inbound rule for TCP $Port."
-    }
     if (-not $NoBrowser) {
         Start-Process $GameUrl
     }

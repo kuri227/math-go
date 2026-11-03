@@ -68,6 +68,15 @@ paths = load_paths()
 inference_locks = {"texteller": asyncio.Lock(), "unimernet": asyncio.Lock()}
 
 
+def _bounded_text(name: str, value: str, maximum: int, *, required: bool = False) -> str:
+    normalized = value.strip()
+    if required and not normalized:
+        raise HTTPException(status_code=400, detail=f"{name} is required")
+    if len(value) > maximum:
+        raise HTTPException(status_code=400, detail=f"{name} must be {maximum} characters or fewer")
+    return normalized
+
+
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     registry.start_all()
@@ -275,6 +284,9 @@ async def api_recognize(
 ) -> GameRecognitionResponse:
     """Recognize one cropped handwriting image and return end-to-end timing."""
     total_started = time.perf_counter()
+    _bounded_text("model", model, 64, required=True)
+    if request_id is not None:
+        _bounded_text("request_id", request_id, 128, required=True)
     name = model.lower()
     try:
         recognizer = registry.get(name)
@@ -313,7 +325,7 @@ async def api_recognize(
         )
     except WorkerError as exc:
         LOGGER.exception("Game recognition failed for %s", name)
-        raise HTTPException(status_code=503, detail=str(exc)) from exc
+        raise HTTPException(status_code=503, detail="認識処理に失敗しました。スタッフへお知らせください。") from exc
     finally:
         temp_path.unlink(missing_ok=True)
 
@@ -323,6 +335,7 @@ async def recognize(
     model: str = Form(...),
     image: UploadFile = File(...),
 ) -> RecognitionResponse:
+    _bounded_text("model", model, 64, required=True)
     try:
         recognizer = registry.get(model.lower())
     except KeyError as exc:
@@ -365,7 +378,7 @@ async def recognize(
             initialization_ms=recognizer.initialization_ms,
             peak_vram_mb=recognizer.peak_vram_mb,
             device=recognizer.device,
-            error=str(exc),
+            error="認識処理に失敗しました。サーバーログを確認してください。",
         )
     finally:
         temp_path.unlink(missing_ok=True)
@@ -398,7 +411,7 @@ def _run_recognizer(model: str, image_path: Path) -> RecognitionResponse:
             initialization_ms=recognizer.initialization_ms,
             peak_vram_mb=recognizer.peak_vram_mb,
             device=recognizer.device,
-            error=f"{type(exc).__name__}: {exc}",
+            error="認識処理に失敗しました。サーバーログを確認してください。",
         )
 
 
@@ -430,6 +443,14 @@ async def save_sample(
     difficulty: str = Form("unclassified"),
     writer_id: str = Form("anonymous"),
 ) -> SavedSampleResponse:
+    _bounded_text("ground_truth_latex", ground_truth_latex, 4000, required=True)
+    for name, value in (("category", category), ("difficulty", difficulty), ("writer_id", writer_id)):
+        _bounded_text(name, value, 64)
+    try:
+        validate_strokes(strokes_json)
+    except (ValueError, json.JSONDecodeError) as exc:
+        status = 413 if "exceeds" in str(exc) or "Too many" in str(exc) else 400
+        raise HTTPException(status_code=status, detail=str(exc)) from exc
     try:
         temp_path, _, _ = await _validated_temp_image(image)
     except (UnidentifiedImageError, OSError) as exc:
@@ -474,8 +495,9 @@ async def api_save_test_sample(
         raise HTTPException(status_code=400, detail="保存への同意と、書いた内容の確認が必要です。")
     if not ground_truth_latex.strip() or len(ground_truth_latex) > 4000 or len(recognized_latex) > 4000:
         raise HTTPException(status_code=400, detail="書いた内容を4000文字以内のLaTeXで入力してください。")
-    if len(strokes_json) > 2_000_000:
-        raise HTTPException(status_code=413, detail="Stroke data exceeds 2 MB")
+    _bounded_text("question_id", question_id, 100, required=True)
+    _bounded_text("recognition_request_id", recognition_request_id, 128, required=True)
+    _bounded_text("writer_id", writer_id, 64)
     try:
         uuid.UUID(recognition_request_id)
         validate_strokes(strokes_json)

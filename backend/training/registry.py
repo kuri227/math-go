@@ -56,7 +56,7 @@ def canonical_image(path: Path) -> tuple[Image.Image, str, str]:
     if sum(count for value, count in enumerate(pixels.histogram()) if value < 200) < 10:
         raise ValueError("Insufficient visible handwriting")
     identity = hashlib.sha256(f"{image.width}x{image.height}:".encode() + image.tobytes()).hexdigest()
-    small = list(pixels.resize((9, 8)).getdata())
+    small = list(pixels.resize((9, 8)).get_flattened_data())
     dhash = sum((small[y * 9 + x] > small[y * 9 + x + 1]) << (y * 8 + x) for y in range(8) for x in range(8))
     return image, identity, f"{dhash:016x}"
 

@@ -1,6 +1,11 @@
 from __future__ import annotations
 
+from typing import Annotated
+
 from pydantic import BaseModel, Field
+
+
+QuestionAnswer = Annotated[str, Field(min_length=1, max_length=4000)]
 
 
 class RecognitionResponse(BaseModel):
@@ -86,14 +91,14 @@ class QuestionReviewRequest(BaseModel):
 
 
 class GameQuestionCreateRequest(BaseModel):
-    id: str = Field(pattern=r"^[a-z0-9][a-z0-9-]*$")
-    question: str = Field(min_length=1)
-    question_latex: str = Field(min_length=1)
-    instruction: str = Field(min_length=1)
-    answer: list[str] = Field(min_length=1)
-    description: str = Field(min_length=1)
+    id: str = Field(min_length=1, max_length=100, pattern=r"^[a-z0-9][a-z0-9-]*$")
+    question: str = Field(min_length=1, max_length=1000)
+    question_latex: str = Field(min_length=1, max_length=4000)
+    instruction: str = Field(min_length=1, max_length=500)
+    answer: list[QuestionAnswer] = Field(min_length=1, max_length=20)
+    description: str = Field(min_length=1, max_length=4000)
     difficulty: int = Field(ge=1, le=7)
-    category: str = Field(min_length=1)
+    category: str = Field(min_length=1, max_length=100)
 
 
 class GameQuestionCreateResponse(BaseModel):
@@ -103,7 +108,7 @@ class GameQuestionCreateResponse(BaseModel):
 
 
 class QuestionReportRequest(BaseModel):
-    question_id: str = Field(min_length=1)
+    question_id: str = Field(min_length=1, max_length=100)
     issue_type: str = Field(pattern=r"^(question|answer|explanation|display|difficulty_time|other)$")
     description: str = Field(min_length=1, max_length=2000)
     run_id: str | None = Field(default=None, max_length=100)
@@ -118,8 +123,8 @@ class QuestionReportResponse(BaseModel):
 
 
 class JudgementRequest(BaseModel):
-    question_id: str
-    recognized_latex: str
+    question_id: str = Field(min_length=1, max_length=100)
+    recognized_latex: str = Field(max_length=4000)
 
 
 class JudgementResponse(BaseModel):

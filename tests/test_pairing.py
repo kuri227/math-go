@@ -2,7 +2,7 @@ import math
 
 import pytest
 
-from backend.app.pairing import PairHub
+from backend.app.pairing import MAX_SELECTED_QUESTIONS, PairHub
 
 
 def hello(role, connection="connection", sequence=1):
@@ -34,10 +34,24 @@ def test_each_role_can_send_only_its_protocol_messages():
     display = {**hello("display"), "type": "exhibition-state", "snapshot": None}
     assert PairHub.valid_message(display, "test", "display", "connection")
     assert not PairHub.valid_message(display, "test", "controller", "connection")
-    controller = {**hello("controller"), "type": "exhibition-control", "action": "stop"}
+    controller = {**hello("controller"), "type": "exhibition-control", "action": "begin-countdown"}
     assert PairHub.valid_message(controller, "test", "controller", "connection")
     assert not PairHub.valid_message({**controller, "connectionId": "forged"}, "test", "controller", "connection")
     assert not PairHub.valid_message({**controller, "sequence": 0}, "test", "controller", "connection")
+    assert not PairHub.valid_message({**controller, "action": "stop"}, "test", "controller", "connection")
+
+
+def test_control_configuration_has_bounded_question_ids():
+    message = {
+        **hello("controller"), "type": "exhibition-control", "action": "configure",
+        "mode": "test", "difficulty": 7, "questionCount": 516,
+        "questionIds": [f"q-{index}" for index in range(516)],
+    }
+    assert PairHub.valid_message(message, "test", "controller", "connection")
+    assert not PairHub.valid_message({**message, "questionIds": message["questionIds"] + ["extra"]}, "test", "controller", "connection")
+    oversized = [f"q-{index}" for index in range(MAX_SELECTED_QUESTIONS + 1)]
+    assert not PairHub.valid_message({**message, "questionCount": len(oversized), "questionIds": oversized}, "test", "controller", "connection")
+    assert not PairHub.valid_message({**message, "difficulty": 8}, "test", "controller", "connection")
 
 
 def test_valid_ink_snapshot_is_accepted_only_from_controller():

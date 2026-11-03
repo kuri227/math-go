@@ -13,6 +13,8 @@ from pathlib import Path
 from PIL import Image
 
 from backend.app.config import Paths
+from backend.app.sample_validation import validate_strokes
+from backend.app.uploads import open_allowed_image
 
 MANIFEST_FIELDS = [
     "sample_id",
@@ -47,7 +49,7 @@ def _safe_metadata_value(name: str, value: str) -> str:
 
 
 def _image_identity(path: Path) -> str:
-    with Image.open(path) as opened:
+    with open_allowed_image(path) as opened:
         image = opened.convert("RGB")
         return hashlib.sha256(f"{image.width}x{image.height}:".encode() + image.tobytes()).hexdigest()
 
@@ -71,9 +73,9 @@ def save_custom_sample(
     category = _safe_metadata_value("category", category)
     difficulty = _safe_metadata_value("difficulty", difficulty)
     writer_id = _safe_metadata_value("writer_id", writer_id)
-    strokes = json.loads(strokes_json)
-    if not isinstance(strokes, dict) or not isinstance(strokes.get("strokes"), list):
-        raise ValueError("Invalid stroke JSON")
+    if len(ground_truth_latex) > 4000:
+        raise ValueError("Ground Truth LaTeX must be 4000 characters or fewer")
+    strokes = validate_strokes(strokes_json)
     pointer_types = strokes.get("pointer_types") or sorted(
         {
             str(stroke.get("pointerType", "unknown"))
@@ -110,7 +112,7 @@ def save_custom_sample(
         return {**previous, "manifest_path": manifest_string}
 
     saved_image = images_dir / f"{sample_id}.png"
-    with Image.open(image_path) as image:
+    with open_allowed_image(image_path) as image:
         image.convert("RGB").save(saved_image, format="PNG")
     saved_strokes = strokes_dir / f"{sample_id}.json"
     saved_strokes.write_text(json.dumps(strokes, ensure_ascii=False, indent=2), encoding="utf-8")

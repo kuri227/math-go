@@ -63,7 +63,7 @@ def test_invalid_samples_do_not_write_files(client, tmp_path, override, code):
 
 
 def test_corrupt_sample_image_rejected(client):
-    assert client.post("/api/v1/test-samples", data=payload(), files={"image": ("bad.png", b"bad", "image/png")}).status_code == 400
+    assert client.post("/api/v1/test-samples", data=payload(), files={"image": ("bad.png", b"bad", "image/png")}).status_code == 415
 
 
 def test_save_retry_does_not_duplicate_or_overwrite_labels(client, tmp_path):

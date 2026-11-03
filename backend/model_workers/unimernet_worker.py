@@ -90,7 +90,7 @@ def main() -> None:
                 request = json.loads(line)
                 if request.get("command") == "shutdown":
                     return
-                raw_image = Image.open(request["image_path"]).convert("RGB")
+                raw_image = Image.open(request["image_path"], formats=("PNG",)).convert("RGB")
                 image = vis_processor(raw_image).unsqueeze(0).to(device)
                 if device.type == "cuda":
                     torch.cuda.synchronize()

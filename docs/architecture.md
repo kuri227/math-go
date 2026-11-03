@@ -49,7 +49,7 @@ Displayが採点・タイマー・残機を確定し、Controllerは受信状態
 
 - `GET /api/v1/questions` は正答を含めない。採点と正答公開は別API。
 - `POST /api/v1/recognitions` は選択モデル1つの認識・前処理・待ち行列・推論時間を返す。
-- `uploads.py` でPNG/JPEG/WebP、10MiB、1600万画素を共通検証。一時ファイルは処理後に削除する。
+- `uploads.py` でPNG、10MiB、1600万画素を共通検証する。ブラウザーの手書きcanvasが生成する最小限のPNGチャンクだけをPillowより前に検査し、一時ファイルは処理後に削除する。
 - モデルごとのasync lockで同時推論を直列化し、推論・比較・保存の重い同期処理はthreadpoolへ逃がす。
 - 比較用の `/recognize/compare` は同一PNGをモデルへ順番に渡す。イベントループは塞がないが、同一モデルの待ち行列は発生する。
 - `recognizers/protocol.py` がプロセスごとの受信箱と読取スレッドを担当。準備180秒・推論25秒を上限とし、`worker.py` は単一の再入可能lockで起動・要求・破棄を直列化する。

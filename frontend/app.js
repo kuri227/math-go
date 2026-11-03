@@ -229,7 +229,7 @@ function displayModelResult(elementId, result) {
     .replace(/^\\\[([\s\S]*)\\\]$/, "$1")
     .replace(/^\\\(([\s\S]*)\\\)$/, "$1")
     .replace(/^\$\$([\s\S]*)\$\$$/, "$1");
-  if (renderableLatex) katex.render(renderableLatex, rendered, { throwOnError: false, displayMode: true });
+  if (renderableLatex) katex.render(renderableLatex, rendered, { throwOnError: false, displayMode: true, trust: false });
   else rendered.textContent = result.latex || "-";
   const inference = result.inference_ms == null ? "-" : `${result.inference_ms.toFixed(1)} ms`;
   const initialization = result.initialization_ms == null ? "-" : `${result.initialization_ms.toFixed(0)} ms`;

@@ -37,8 +37,7 @@ def test_every_solution_is_available_and_empty_answer_is_not_correct(question):
         assert invalid.json()["correct"] is False
 
 
-@pytest.mark.parametrize("format", ["PNG", "JPEG", "WEBP"])
-def test_supported_image_formats_reach_recognizer(format, monkeypatch):
+def test_canvas_png_reaches_recognizer(monkeypatch):
     import backend.app.main as main
     from backend.app.recognizers.base import Recognition
 
@@ -49,11 +48,20 @@ def test_supported_image_formats_reach_recognizer(format, monkeypatch):
 
     monkeypatch.setattr(main.registry, "get", lambda _: Recognizer())
     image = BytesIO()
-    Image.new("RGB", (32, 32), "white").save(image, format=format)
+    Image.new("RGB", (32, 32), "white").save(image, format="PNG")
     with TestClient(app, base_url="http://127.0.0.1", client=("127.0.0.1", 50000)) as client:
-        response = client.post("/api/v1/recognitions", data={"request_id": "format-test"}, files={"image": (f"test.{format.lower()}", image.getvalue(), f"image/{format.lower()}")})
+        response = client.post("/api/v1/recognitions", data={"request_id": "format-test"}, files={"image": ("test.png", image.getvalue(), "image/png")})
     assert response.status_code == 200
     assert response.json()["request_id"] == "format-test"
+
+
+@pytest.mark.parametrize("format", ["JPEG", "WEBP", "BMP"])
+def test_non_canvas_image_formats_are_rejected(format):
+    image = BytesIO()
+    Image.new("RGB", (32, 32), "white").save(image, format=format)
+    with TestClient(app, base_url="http://127.0.0.1", client=("127.0.0.1", 50000)) as client:
+        response = client.post("/api/v1/recognitions", files={"image": ("pretend.png", image.getvalue(), "image/png")})
+    assert response.status_code == 415
 
 
 def test_oversized_image_is_rejected_before_inference():

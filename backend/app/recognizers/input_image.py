@@ -4,9 +4,11 @@ from pathlib import Path
 
 from PIL import Image, ImageChops
 
+from backend.app.uploads import open_allowed_image
+
 
 def require_visible_content(path: Path) -> None:
-    with Image.open(path) as source:
+    with open_allowed_image(path) as source:
         rgba = source.convert("RGBA")
         paper = Image.new("RGBA", rgba.size, "white")
         paper.alpha_composite(rgba)

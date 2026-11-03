@@ -31,19 +31,19 @@
           <div class="field-grid">
             <label class="field field-wide">
               <span>問題の数式（LaTeX）</span>
-              <input id="questionLatex" name="question_latex" required placeholder="例: \frac{1}{2}+\frac{1}{4}" />
+              <input id="questionLatex" name="question_latex" required maxlength="4000" placeholder="例: \frac{1}{2}+\frac{1}{4}" />
             </label>
             <label class="field field-wide">
               <span>読み上げ・予備表示用テキスト</span>
-              <input id="questionText" name="question" required placeholder="例: 1/2 + 1/4" />
+              <input id="questionText" name="question" required maxlength="1000" placeholder="例: 1/2 + 1/4" />
             </label>
             <label class="field">
               <span>プレイヤーへの指示</span>
-              <input name="instruction" required value="計算しなさい" />
+              <input name="instruction" required maxlength="500" value="計算しなさい" />
             </label>
             <label class="field">
               <span>カテゴリ</span>
-              <input name="category" required placeholder="例: 分数" />
+              <input name="category" required maxlength="100" placeholder="例: 分数" />
             </label>
             <label class="field">
               <span>難易度</span>
@@ -59,7 +59,7 @@
             </label>
             <label class="field">
               <span>管理ID（省略可）</span>
-              <input name="id" pattern="[a-z0-9][a-z0-9-]*" placeholder="自動で作成します" />
+              <input name="id" maxlength="100" pattern="[a-z0-9][a-z0-9-]*" placeholder="自動で作成します" />
               <small>半角小文字・数字・ハイフンのみ</small>
             </label>
           </div>
@@ -73,11 +73,11 @@
           <div class="field-grid">
             <label class="field field-wide">
               <span>正答候補（1行に1つ）</span>
-              <textarea name="answer" rows="4" required placeholder="\frac{3}{4}&#10;3/4"></textarea>
+              <textarea name="answer" rows="4" required maxlength="80019" placeholder="\frac{3}{4}&#10;3/4"></textarea>
             </label>
             <label class="field field-wide">
               <span>解説</span>
-              <textarea name="description" rows="3" required placeholder="例: 通分すると2/4+1/4=3/4です。"></textarea>
+              <textarea name="description" rows="3" required maxlength="4000" placeholder="例: 通分すると2/4+1/4=3/4です。"></textarea>
             </label>
           </div>
         </section>

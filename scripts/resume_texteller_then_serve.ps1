@@ -16,7 +16,7 @@ try {
     Write-Host "[phase] Start Web collection server on http://127.0.0.1:8000"
     $env:TEXTELLER_DEVICE = "cuda"
     $env:UNIMERNET_DEVICE = "cuda"
-    & $BasePython -m uvicorn backend.app.main:app --host 127.0.0.1 --port 8000
+    & $BasePython -m uvicorn backend.app.main:app --host 127.0.0.1 --port 8000 --no-server-header
 }
 finally {
     Pop-Location

@@ -58,6 +58,11 @@ form.addEventListener("submit", async (event) => {
     formStatus.textContent = "正答を1つ以上入力してください。";
     return;
   }
+  if (acceptedAnswers.length > 20 || acceptedAnswers.some((answer) => answer.length > 4000)) {
+    formStatus.dataset.state = "error";
+    formStatus.textContent = "正答候補は20件まで、1件4000文字以内で入力してください。";
+    return;
+  }
 
   saveButton.disabled = true;
   saveButton.textContent = "保存中…";

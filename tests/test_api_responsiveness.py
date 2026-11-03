@@ -26,7 +26,7 @@ async def test_legacy_recognition_does_not_block_health_requests(monkeypatch, ro
             return Recognition("1", 1, self.name, "test", "cpu", 0, None)
     monkeypatch.setattr(main.registry, "get", lambda name: SlowRecognizer(name))
     image = BytesIO(); Image.new("RGB", (20, 10), "white").save(image, format="PNG")
-    async with httpx.AsyncClient(transport=httpx.ASGITransport(app=main.app), base_url="http://test") as client:
+    async with httpx.AsyncClient(transport=httpx.ASGITransport(app=main.app, client=("127.0.0.1", 50000)), base_url="http://127.0.0.1") as client:
         began = time.perf_counter()
         task = asyncio.create_task(client.post(route, data={"model": "texteller"}, files={"image": ("test.png", image.getvalue(), "image/png")}))
         try:
@@ -46,6 +46,6 @@ def test_pixel_limit_is_shared_by_all_recognition_routes(monkeypatch, route):
     import backend.app.uploads as uploads
     monkeypatch.setattr(uploads, "MAX_IMAGE_PIXELS", 100)
     image = BytesIO(); Image.new("RGB", (20, 10), "white").save(image, format="PNG")
-    with TestClient(main.app) as client:
+    with TestClient(main.app, base_url="http://127.0.0.1", client=("127.0.0.1", 50000)) as client:
         response = client.post(route, data={"model": "texteller"}, files={"image": ("test.png", image.getvalue(), "image/png")})
     assert response.status_code == 413
