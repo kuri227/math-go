@@ -7,28 +7,40 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const output = resolve(root, "game/public/audio");
 mkdirSync(output, { recursive: true });
 
-const note = (start, duration, frequency, volume = 0.3, wave = "square", slide = 0, attack = 0.06, release = 0.22) =>
+const note = (start, duration, frequency, volume = 0.3, wave = "sine", slide = 0, attack = 0.08, release = 0.5) =>
   ({ start, duration, frequency, volume, wave, slide, attack, release });
 
+// A quiet, rounded palette for repeated use in a classroom or exhibition.
+// Sine/triangle partials avoid the sharp high-frequency edges of square/saw waves.
 const sounds = {
-  tap: [note(0, 0.095, 390, 0.12, "sine", -55, 0.18, 0.55)],
-  start: [note(0, 0.09, 440, 0.2), note(0.1, 0.09, 660, 0.22), note(0.2, 0.18, 880, 0.24)],
-  correct: [note(0, 0.14, 523.25, 0.25, "triangle"), note(0.09, 0.17, 659.25, 0.26, "triangle"), note(0.18, 0.3, 783.99, 0.28, "triangle")],
-  wrong: [note(0, 0.16, 261.63, 0.22, "saw", -80), note(0.13, 0.25, 196, 0.2, "saw", -55)],
-  timeout: [note(0, 0.16, 330, 0.2, "square", -90), note(0.15, 0.28, 246.94, 0.2, "square", -70)],
-  finish: [note(0, 0.14, 392, 0.22, "triangle"), note(0.11, 0.14, 523.25, 0.23, "triangle"), note(0.22, 0.14, 659.25, 0.24, "triangle"), note(0.33, 0.38, 783.99, 0.27, "triangle")],
-  tick: [note(0, 0.095, 660, 0.19, "sine")],
-  "tick-urgent": [note(0, 0.11, 880, 0.22, "square")],
+  tap: [note(0, 0.105, 330, 0.2, "sine", -28, 0.12, 0.72), note(0, 0.07, 660, 0.035, "sine", -45, 0.08, 0.8)],
+  start: [note(0, 0.15, 392, 0.2), note(0.11, 0.19, 493.88, 0.21), note(0.23, 0.29, 587.33, 0.22, "triangle")],
+  correct: [note(0, 0.22, 523.25, 0.22), note(0.1, 0.25, 659.25, 0.21), note(0.21, 0.38, 783.99, 0.2, "triangle")],
+  wrong: [note(0, 0.25, 293.66, 0.2, "sine", -28), note(0.16, 0.34, 246.94, 0.18, "sine", -18)],
+  timeout: [note(0, 0.3, 261.63, 0.2, "sine", -16), note(0.23, 0.42, 220, 0.18, "sine", -12)],
+  finish: [note(0, 0.21, 392, 0.19), note(0.12, 0.24, 523.25, 0.2), note(0.24, 0.27, 659.25, 0.2), note(0.38, 0.46, 783.99, 0.21, "triangle")],
+  tick: [note(0, 0.12, 320, 0.2, "sine", -24, 0.1, 0.76), note(0, 0.075, 640, 0.035, "sine", -40, 0.08, 0.82)],
+  "tick-urgent": [note(0, 0.13, 392, 0.21, "sine", -28, 0.1, 0.74), note(0, 0.08, 784, 0.04, "sine", -48, 0.08, 0.82)],
+};
+
+const peakLevels = {
+  tap: 0.24,
+  start: 0.46,
+  correct: 0.54,
+  wrong: 0.4,
+  timeout: 0.4,
+  finish: 0.54,
+  tick: 0.22,
+  "tick-urgent": 0.27,
 };
 
 function oscillator(phase, wave) {
   if (wave === "sine") return Math.sin(phase);
   if (wave === "triangle") return 2 * Math.asin(Math.sin(phase)) / Math.PI;
-  if (wave === "saw") return 2 * (phase / (2 * Math.PI) - Math.floor(phase / (2 * Math.PI) + 0.5));
-  return Math.sin(phase) >= 0 ? 1 : -1;
+  throw new Error(`Unsupported waveform: ${wave}`);
 }
 
-function render(events, peakLevel = 0.82) {
+function render(events, peakLevel) {
   const duration = Math.max(...events.map(event => event.start + event.duration)) + 0.035;
   const samples = new Float64Array(Math.ceil(duration * sampleRate));
   for (const event of events) {
@@ -62,8 +74,9 @@ function wav(pcm) {
 }
 
 for (const [name, events] of Object.entries(sounds)) {
-  const peakLevel = name === "tap" ? 0.36 : 0.82;
+  const peakLevel = peakLevels[name];
+  if (!Number.isFinite(peakLevel)) throw new Error(`Missing peak level for sound: ${name}`);
   writeFileSync(resolve(output, `${name}.wav`), wav(render(events, peakLevel)));
 }
-writeFileSync(resolve(output, "README.md"), "# 数学でGO 効果音\n\n`scripts/audio/generate_game_sfx.mjs`で生成したプロジェクト専用のモノラルWAVです。外部素材・生成AIモデル・第三者ライセンスは使用していません。\n\nクリック音は、展示会場で繰り返し聞いても驚きにくいよう、低めの正弦波と緩い包絡、控えめなピークで生成します。\n");
+writeFileSync(resolve(output, "README.md"), "# 数学でGO 効果音\n\n`scripts/audio/generate_game_sfx.mjs`で事前生成した、プロジェクト専用のモノラルWAVです。ゲーム中に音を合成する処理はありません。外部素材・生成AIモデル・第三者ライセンスも使用していません。\n\n全8音を、展示会場で繰り返し聞いても驚きにくい柔らかなマレット音として統一しています。角の立つ矩形波・のこぎり波は使わず、正弦波と控えめな三角波、緩やかな減衰、用途ごとの低いピーク値で生成します。残り5秒の`tick.wav`と残り2秒の`tick-urgent.wav`も同じ音色に揃え、緊急音だけが急に鋭くならない設計です。\n");
 console.log(`Generated ${Object.keys(sounds).length} sound effects in ${output}`);

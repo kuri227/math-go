@@ -3,13 +3,14 @@ export const GAME_VOLUME_STORAGE_KEY = "math-go-volume";
 const DEFAULT_VOLUME = 70;
 
 export type GameSoundEffect = "tap" | "start" | "correct" | "wrong" | "timeout" | "finish";
+const CLIP_NAMES = ["tap", "start", "correct", "wrong", "timeout", "finish", "tick", "tick-urgent"] as const;
 const EFFECT_VOLUME: Readonly<Record<GameSoundEffect, number>> = {
-  tap: 0.28,
-  start: 0.78,
-  correct: 0.78,
-  wrong: 0.78,
-  timeout: 0.78,
-  finish: 0.78,
+  tap: 0.24,
+  start: 0.58,
+  correct: 0.62,
+  wrong: 0.54,
+  timeout: 0.52,
+  finish: 0.62,
 };
 const source = (name: string) => `/audio/${name}.wav`;
 
@@ -18,7 +19,7 @@ export class UrgencySound {
   private readonly clips = new Map<string, HTMLAudioElement>();
 
   constructor() {
-    for (const name of ["tap", "start", "correct", "wrong", "timeout", "finish", "tick", "tick-urgent"]) {
+    for (const name of CLIP_NAMES) {
       const clip = new Audio(source(name));
       clip.preload = "auto";
       this.clips.set(name, clip);
@@ -47,7 +48,7 @@ export class UrgencySound {
   }
 
   playUrgency(second: number): void {
-    this.play(second <= 2 ? "tick-urgent" : "tick", 0.72);
+    this.play(second <= 2 ? "tick-urgent" : "tick", 0.46);
   }
 
   playEffect(effect: GameSoundEffect): void {
