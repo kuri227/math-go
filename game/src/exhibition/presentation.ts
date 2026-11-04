@@ -18,7 +18,7 @@ export function answerReplicaVisible(role: Role, phase: Phase): boolean {
 
 /** The result card owns result messaging wherever the problem and solution share one screen. */
 export function playNoticeVisible(role: Role, phase: Phase): boolean {
-  return role === "controller" || phase !== "result";
+  return phase !== "result";
 }
 
 /** Keep problem content and solutions on the Display while preserving progress state. */

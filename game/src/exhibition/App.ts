@@ -29,6 +29,7 @@ import {
 } from "./presentation";
 import { displaySetupPresentation } from "./setupPresentation";
 import { configuredQuestions } from "./configuration";
+import { resultFeedback, retryFeedback, type JudgementFeedback } from "./feedback";
 import {
   requiresRecognitionModel,
   resourceStatusCopy,
@@ -80,6 +81,7 @@ export function runApp(role: Role): void {
   let lastRender = "", lastQuestion = "", lastPreview = "", busy = false, saveBusy = false, reportBusy = false, savedRequest = "";
   let lastFocusedPreview = "", controllerConnectionId: string | null = null;
   let activePaper: Paper = "answer", inkGeneration = 0, inkTimer: ReturnType<typeof setTimeout> | null = null;
+  let feedbackTimer: ReturnType<typeof setTimeout> | null = null, lastFeedbackKey = "";
   let pendingInk: InkSnapshot | null = null;
   let pendingControllerReady = "";
   let replicaGeneration = -1;
@@ -161,6 +163,20 @@ export function runApp(role: Role): void {
       recognition: recognitionState,
       connected,
       remoteRecognitionReady: remoteSetup.recognitionReady,
+    });
+  }
+  function showJudgementFeedback(feedback: JudgementFeedback): void {
+    const flash = $("judgementFlash");
+    if (feedbackTimer) clearTimeout(feedbackTimer);
+    flash.hidden = true;
+    flash.dataset.tone = feedback.tone;
+    $("judgementFlashIcon").textContent = feedback.icon;
+    $("judgementFlashLabel").textContent = feedback.label;
+    $("judgementFlashTitle").textContent = feedback.title;
+    $("judgementFlashMessage").textContent = feedback.message;
+    requestAnimationFrame(() => {
+      flash.hidden = false;
+      feedbackTimer = setTimeout(() => { flash.hidden = true; }, 1300);
     });
   }
   function releaseDraft(): void { draft = null; savedRequest = ""; if (imageUrl) URL.revokeObjectURL(imageUrl); imageUrl = null; $<HTMLImageElement>("inkImage").removeAttribute("src"); }
@@ -304,6 +320,7 @@ export function runApp(role: Role): void {
     if (phase === "countdown") {
       const seconds = Math.ceil(s.countdownRemainingMs / 1000);
       $("countdownTitle").textContent = s.paused ? "入力画面を準備中" : seconds > 0 ? String(seconds) : "スタート";
+      $("countdownTitle").classList.toggle("is-waiting", s.paused);
       $("countdownDescription").textContent = s.paused ? "用紙の準備が整うまで、問題と時計は開始しません。" : "モニターを見て、ペンを構えてください。";
       scheduleControllerReady(s);
     }
@@ -332,7 +349,7 @@ export function runApp(role: Role): void {
     } else { $("questionMeta").textContent = ""; $("prompt").replaceChildren(); }
     $("problemPane").hidden = role === "controller" || phase === "countdown" || phase === "result";
     $("answerReplica").hidden = !answerReplicaVisible(role, phase);
-    $("inputPane").hidden = role === "display" || phase === "result" && !draft?.response;
+    $("inputPane").hidden = role === "display" || phase === "result";
     $("notice").hidden = !playNoticeVisible(role, phase);
     $("notice").textContent = playNotice(s, role, connected, activePaper);
     const writing = phase === "writing", preview = phase === "preview";
@@ -363,13 +380,11 @@ export function runApp(role: Role): void {
     $("resultQuestion").hidden = role === "controller";
     $("resultAnswer").hidden = role === "controller" || s.timedOut || !s.recognition;
     $("solution").hidden = role === "controller";
-    $("controllerResultHint").hidden = role !== "controller";
     if (phase === "result" && role !== "controller") {
       richText(q.prompt ?? `${q.instruction}\n$${q.display_latex}$`, $("resultPrompt"));
       if (!s.timedOut && s.recognition) renderMath(s.recognition.raw_latex, $("resultRecognized"));
     }
     if (phase === "result" && s.timedOut) {
-      $("resultTitle").textContent = role === "controller" ? "モニターで結果を確認" : "時間切れ · 残機 −1";
       $("expected").textContent = "正答を読み込んでいます。"; $("explanation").textContent = "";
       if (role !== "controller") void loadTimeoutSolution(s);
     }
@@ -395,9 +410,22 @@ export function runApp(role: Role): void {
     $("collection").hidden = !canCollect;
     $("review").hidden = s.mode !== "test" || phase !== "result" || role === "display";
     if (phase === "result" && s.judgement) {
-      $("resultTitle").textContent = role === "controller" ? "モニターで結果を確認" : s.judgement.correct ? "正解！" : "正答候補とは一致しませんでした";
       if (role !== "controller") { renderMath(s.judgement.expected_latex, $("expected")); richText(s.judgement.explanation, $("explanation")); }
       if (role !== "display") { $<HTMLSelectElement>("reviewStatus").value = q.review_status ?? "pending"; $<HTMLInputElement>("exhibitionEnabled").checked = !!q.exhibition_enabled; }
+    }
+    const feedback = resultFeedback(s, role);
+    if (feedback) {
+      $("resultVerdict").dataset.tone = feedback.tone;
+      $("resultVerdictIcon").textContent = feedback.icon;
+      $("resultVerdictLabel").textContent = feedback.label;
+      $("resultTitle").textContent = feedback.title;
+      $("resultVerdictMessage").textContent = feedback.message;
+    }
+    const transientFeedback = feedback ?? (phase === "writing" && s.notice.startsWith("不正解です") ? retryFeedback() : null);
+    const feedbackKey = transientFeedback ? `${s.runId}:${s.round}:${s.attempts}:${transientFeedback.tone}` : "";
+    if (transientFeedback && feedbackKey !== lastFeedbackKey) {
+      lastFeedbackKey = feedbackKey;
+      showJudgementFeedback(transientFeedback);
     }
     if (phase === "finished") {
       releaseDraft(); $("endTitle").textContent = s.endReason === "completed" ? "全問完了！" : s.endReason === "timeout" ? "残機0 · プレイ終了" : "プレイ終了";

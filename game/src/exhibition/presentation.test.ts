@@ -78,6 +78,6 @@ describe("time and result presentation", () => {
     expect(playNoticeVisible("display", "result")).toBe(false);
     expect(playNoticeVisible("single", "result")).toBe(false);
     expect(playNoticeVisible("display", "writing")).toBe(true);
-    expect(playNoticeVisible("controller", "result")).toBe(true);
+    expect(playNoticeVisible("controller", "result")).toBe(false);
   });
 });
