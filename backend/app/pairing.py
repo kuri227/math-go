@@ -12,14 +12,14 @@ from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from .local_admin import loopback_host
 
 router = APIRouter()
-PROTOCOL_VERSION = 5
+PROTOCOL_VERSION = 6
 MAX_MESSAGE_BYTES = 1_000_000
 MAX_SESSIONS = 32
 MAX_MESSAGES_PER_MINUTE = 1_200
 MAX_SELECTED_QUESTIONS = 5_000
 ALLOWED_TYPES = {
     "display": {"hello", "exhibition-state", "setup-error"},
-    "controller": {"hello", "exhibition-action", "exhibition-control", "ink-snapshot"},
+    "controller": {"hello", "exhibition-action", "exhibition-control", "setup-view", "ink-snapshot"},
 }
 
 
@@ -140,6 +140,11 @@ class PairHub:
         message_type = message.get("type")
         if not cls.bounded_json(message):
             return False
+        # Each browser acknowledges the peer's initial hello after pairing.
+        # It uses the ordinary message path and must not be mistaken for a new
+        # socket handshake, otherwise both screens reconnect forever.
+        if message_type == "hello":
+            return message.get("role") == role
         if message_type == "setup-error":
             return cls.valid_short_text(message.get("message"), 500)
         if message_type == "exhibition-state":
@@ -174,6 +179,14 @@ class PairHub:
                 action in {"back-to-setup", "begin-countdown", "controller-ready"}
                 and (message.get("runId") is None or cls.valid_token(message.get("runId")))
                 and (message.get("questionId") is None or cls.valid_token(message.get("questionId")))
+            )
+        if message_type == "setup-view":
+            difficulty = message.get("difficulty")
+            return (
+                message.get("view") in {"home", "rules", "difficulty", "staff"}
+                and isinstance(difficulty, int)
+                and not isinstance(difficulty, bool)
+                and 1 <= difficulty <= 7
             )
         if message_type != "ink-snapshot":
             return False

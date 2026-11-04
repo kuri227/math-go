@@ -54,4 +54,11 @@ describe("solo game layout contract", () => {
     expect(appMarkup("controller")).toContain("テスト・開発者用画面");
     expect(appMarkup("controller")).toContain("回答とメモはこの液タブ");
   });
+
+  it("provides a synchronized pre-game stage on the display", () => {
+    const markup = appMarkup("display");
+    expect(markup).toContain('id="waitingRules"');
+    expect(markup).toContain('id="waitingDifficulty"');
+    expect(markup).toContain('id="waitingDifficultyNumber"');
+  });
 });

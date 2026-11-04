@@ -2,12 +2,12 @@ import math
 
 import pytest
 
-from backend.app.pairing import MAX_SELECTED_QUESTIONS, PairHub
+from backend.app.pairing import MAX_SELECTED_QUESTIONS, PROTOCOL_VERSION, PairHub
 
 
 def hello(role, connection="connection", sequence=1):
     return {"type": "hello", "sessionId": "test", "connectionId": connection,
-            "protocolVersion": 5, "sequence": sequence, "sender": role,
+            "protocolVersion": PROTOCOL_VERSION, "sequence": sequence, "sender": role,
             "role": role, "sentAt": 1}
 
 
@@ -24,13 +24,16 @@ def test_hello_requires_bound_role_session_protocol_and_identity():
     assert PairHub.valid_hello(hello("display"), "test", "display")
     assert not PairHub.valid_hello(hello("controller"), "test", "display")
     assert not PairHub.valid_hello({**hello("display"), "sessionId": "other"}, "test", "display")
-    assert not PairHub.valid_hello({**hello("display"), "protocolVersion": 4}, "test", "display")
+    assert not PairHub.valid_hello({**hello("display"), "protocolVersion": PROTOCOL_VERSION - 1}, "test", "display")
     assert not PairHub.valid_hello(hello("display", ""), "test", "display")
     assert not PairHub.valid_hello({**hello("display"), "sequence": True}, "test", "display")
     assert not PairHub.valid_hello({**hello("display"), "sentAt": math.inf}, "test", "display")
 
 
 def test_each_role_can_send_only_its_protocol_messages():
+    assert PairHub.valid_message(hello("display", sequence=2), "test", "display", "connection")
+    assert PairHub.valid_message(hello("controller", sequence=2), "test", "controller", "connection")
+    assert not PairHub.valid_message({**hello("controller", sequence=2), "role": "display"}, "test", "controller", "connection")
     display = {**hello("display"), "type": "exhibition-state", "snapshot": None}
     assert PairHub.valid_message(display, "test", "display", "connection")
     assert not PairHub.valid_message(display, "test", "controller", "connection")
@@ -39,6 +42,15 @@ def test_each_role_can_send_only_its_protocol_messages():
     assert not PairHub.valid_message({**controller, "connectionId": "forged"}, "test", "controller", "connection")
     assert not PairHub.valid_message({**controller, "sequence": 0}, "test", "controller", "connection")
     assert not PairHub.valid_message({**controller, "action": "stop"}, "test", "controller", "connection")
+
+
+def test_setup_view_requires_a_known_view_and_bounded_difficulty():
+    message = {**hello("controller"), "type": "setup-view", "view": "difficulty", "difficulty": 7}
+    assert PairHub.valid_message(message, "test", "controller", "connection")
+    assert not PairHub.valid_message({**message, "view": "unknown"}, "test", "controller", "connection")
+    assert not PairHub.valid_message({**message, "difficulty": 0}, "test", "controller", "connection")
+    assert not PairHub.valid_message({**message, "difficulty": True}, "test", "controller", "connection")
+    assert not PairHub.valid_message({**message, "sender": "display"}, "test", "display", "connection")
 
 
 def test_control_configuration_has_bounded_question_ids():

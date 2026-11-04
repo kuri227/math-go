@@ -34,6 +34,7 @@
 |---|---|
 | `Session.ts` | phase、残り時間、残機、正解数、遷移条件。ゲームルールの正本 |
 | `App.ts` | Session、画面、API、2画面通信、Canvasを接続する調停役。新しい計算規則はここへ増やさず、責務別モジュールへ置く |
+| `setupPresentation.ts` | 液タブの開始前状態をモニター向けの見出し・説明・難易度表示へ変換する純粋関数 |
 | `view.ts` | 画面のHTML構造。表示条件や状態計算は置かない |
 | `presentation.ts` | Snapshotから表示値を作る純粋な処理 |
 | `catalog.ts` | 難易度、検索、選択問題の整理 |

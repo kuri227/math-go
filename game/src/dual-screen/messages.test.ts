@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { isSafeInkSnapshot, MAX_INK_POINTS } from "./messages";
+import { DUAL_SCREEN_PROTOCOL_VERSION, isSafeInkSnapshot, MAX_INK_POINTS } from "./messages";
+
+it("bumps the protocol for synchronized setup views", () => {
+  expect(DUAL_SCREEN_PROTOCOL_VERSION).toBe(6);
+});
 
 describe("ink relay validation", () => {
   const point = { x: 0.5, y: 0.25, pressure: 0.7 };

@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { DualScreenChannel } from "./DualScreenChannel";
 import { InMemoryTransport } from "./InMemoryTransport";
-import type { DualScreenMessage } from "./messages";
+import { DUAL_SCREEN_PROTOCOL_VERSION, type DualScreenMessage } from "./messages";
 
 afterEach(() => vi.useRealTimers());
 
@@ -29,7 +29,7 @@ describe("DualScreenChannel", () => {
       type: "heartbeat",
       sessionId: "session",
       connectionId: "controller-instance",
-      protocolVersion: 5,
+      protocolVersion: DUAL_SCREEN_PROTOCOL_VERSION,
       sequence: 4,
       sender: "controller",
       sentAt: 1,
@@ -95,7 +95,7 @@ describe("DualScreenChannel", () => {
       role: "controller",
       sessionId: "session",
       connectionId,
-      protocolVersion: 5,
+      protocolVersion: DUAL_SCREEN_PROTOCOL_VERSION,
       sequence: 1,
       sender: "controller",
       sentAt: 1,
@@ -125,7 +125,7 @@ describe("DualScreenChannel", () => {
       reason: "role-already-connected",
       sessionId: "session",
       connectionId: "display-instance",
-      protocolVersion: 5,
+      protocolVersion: DUAL_SCREEN_PROTOCOL_VERSION,
       sequence: 1,
       sender: "display",
       sentAt: 1,
@@ -138,7 +138,7 @@ describe("DualScreenChannel", () => {
       role: "display",
       sessionId: "session",
       connectionId: "display-instance",
-      protocolVersion: 5,
+      protocolVersion: DUAL_SCREEN_PROTOCOL_VERSION,
       sequence: 2,
       sender: "display",
       sentAt: 1,
@@ -164,7 +164,7 @@ describe("DualScreenChannel", () => {
       role: "controller",
       sessionId: "session",
       connectionId,
-      protocolVersion: 5,
+      protocolVersion: DUAL_SCREEN_PROTOCOL_VERSION,
       sequence,
       sender: "controller",
       sentAt: now,

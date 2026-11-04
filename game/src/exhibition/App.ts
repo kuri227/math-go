@@ -13,7 +13,7 @@ import { formulaScale } from "../game/formulaLayout";
 import { GAME_VOLUME_STORAGE_KEY, UrgencySound } from "../ui/UrgencySound";
 import { StatePublisher } from "../dual-screen/StatePublisher";
 import { connectionCopy } from "../dual-screen/connectionCopy";
-import { isSafeInkSnapshot } from "../dual-screen/messages";
+import { isSafeInkSnapshot, type SetupView } from "../dual-screen/messages";
 import { activity, clockRunning } from "./activity";
 import { byId as $, text } from "./dom";
 
@@ -27,6 +27,7 @@ import {
   toControllerSnapshot,
   type Paper,
 } from "./presentation";
+import { displaySetupPresentation } from "./setupPresentation";
 
 /**
  * Connects the game domain, DOM, handwriting pads, API client, and optional
@@ -64,7 +65,8 @@ export function runApp(role: Role): void {
   let catalog = new QuestionCatalog(bank);
   const setBank = (questions: Question[]) => { bank = questions; catalog = new QuestionCatalog(bank); };
   let selectedMode: Mode = "exhibition", session: Session | null = null, remote: Snapshot | null = null;
-  let setupView: "home" | "difficulty" | "rules" | "staff" = "home";
+  let setupView: SetupView = "home";
+  let remoteSetup: { view: SetupView; difficulty: number } = { view: "home", difficulty: 1 };
   let lastRender = "", lastQuestion = "", lastPreview = "", busy = false, saveBusy = false, reportBusy = false, savedRequest = "";
   let lastFocusedPreview = "", controllerConnectionId: string | null = null;
   let activePaper: Paper = "answer", inkGeneration = 0, inkTimer: ReturnType<typeof setTimeout> | null = null;
@@ -91,6 +93,7 @@ export function runApp(role: Role): void {
   const state = () => role === "controller" ? remote : session?.snapshot ?? null;
   const canInput = () => role !== "display" && modelReady && connected && !!state() && !state()!.paused;
   const publisher = new StatePublisher<Snapshot | null>(snapshot => channel?.send({ type: "exhibition-state", snapshot }));
+  const setupPublisher = new StatePublisher<{ view: SetupView; difficulty: number }>(value => channel?.send({ type: "setup-view", ...value }));
   const controllerSnapshot = (): Snapshot | null => session ? toControllerSnapshot(session.snapshot) : null;
   const sendState = (force = false) => { if (role === "display") publisher.publish(controllerSnapshot(), force); };
   publishAnswerInk = (snapshot = pad.exportInkSnapshot(), force = false) => {
@@ -108,6 +111,7 @@ export function runApp(role: Role): void {
     else if (!inkTimer) inkTimer = setTimeout(send, 40);
   };
   const selectedLevel = () => Number($<HTMLSelectElement>("difficulty").value);
+  const sendSetupView = (force = false) => { if (role === "controller") setupPublisher.publish({ view: setupView, difficulty: selectedLevel() }, force); };
   const on = (id: string, action: () => void | Promise<void>) => $(id).addEventListener("click", () => {
     if (role !== "display") sound.playEffect("tap");
     void Promise.resolve().then(action).catch(showError);
@@ -120,12 +124,25 @@ export function runApp(role: Role): void {
     lastRender = "";
     render();
     updateSetup();
+    sendSetupView();
     requestAnimationFrame(() => {
       const target = view === "home" ? "homeTitle" : view === "rules" ? "rulesTitle" : "setupTitle";
       $(target).tabIndex = -1;
       $(target).focus();
       window.scrollTo({ top: 0 });
     });
+  }
+  function renderDisplaySetup(): void {
+    if (role !== "display") return;
+    const content = displaySetupPresentation(connected, remoteSetup);
+    $("waitingEyebrow").textContent = content.eyebrow;
+    $("waitingTitle").textContent = content.title;
+    $("waitingLead").textContent = content.lead;
+    $("waitingRules").hidden = !content.showRules;
+    $("waitingDifficulty").hidden = !content.showDifficulty;
+    $("waitingDifficultyNumber").textContent = String(content.difficulty);
+    $("waitingDifficultyName").textContent = content.difficultyName;
+    $("waitingActions").hidden = !content.showActions;
   }
   function releaseDraft(): void { draft = null; savedRequest = ""; if (imageUrl) URL.revokeObjectURL(imageUrl); imageUrl = null; $<HTMLImageElement>("inkImage").removeAttribute("src"); }
   function updateSetup(): void {
@@ -228,6 +245,7 @@ export function runApp(role: Role): void {
     $("rules").hidden = role === "display" || phase !== "setup" || setupView !== "rules";
     $("setup").hidden = role === "display" || phase !== "setup" || !["difficulty", "staff"].includes(setupView);
     $("waiting").hidden = role !== "display" || phase !== "setup";
+    if (phase === "setup") renderDisplaySetup();
     $("guide").hidden = phase !== "guide";
     $("guideBack").hidden = role === "display";
     $("begin").hidden = role === "display";
@@ -448,6 +466,9 @@ export function runApp(role: Role): void {
       const s = session?.snapshot;
       if (!s || message.runId !== s.runId || message.questionId !== s.question?.id || !connected) return;
       void action(message.action, message);
+    } else if (role === "display" && message.type === "setup-view") {
+      remoteSetup = { view: message.view, difficulty: message.difficulty };
+      render();
     } else if (role === "display" && message.type === "exhibition-control") {
       if (message.action === "configure") {
         try {
@@ -492,6 +513,7 @@ export function runApp(role: Role): void {
       controllerConnectionId = message.connectionId; sendState(true);
     } else if (role === "controller" && message.type === "hello") {
       publishAnswerInk(undefined, true);
+      sendSetupView(true);
     }
   });
   channel?.subscribeConnection(connection => {
@@ -511,12 +533,13 @@ export function runApp(role: Role): void {
     }
     $("replicaStatus").textContent = connected ? "入力画面の回答を同期中" : "同期停止中 · 再接続すると回答全体を取り直します";
     if (!connected) { activeRecognition = null; busy = false; pendingControllerReady = ""; }
+    else sendSetupView(true);
     updateSetup(); lastRender = ""; render();
   });
   // UI event bindings.
   channel?.start();
   window.addEventListener("pagehide", () => channel?.close());
-  $("difficulty").addEventListener("change", () => { if (setupView === "staff") drawPicker(); else updateSetup(); });
+  $("difficulty").addEventListener("change", () => { if (setupView === "staff") drawPicker(); else updateSetup(); sendSetupView(); });
   for (const id of ["search", "staffDifficulty", "reviewFilter", "candidateFilter"]) $(id).addEventListener(id === "search" ? "input" : "change", drawPicker);
   on("resetFilters", () => { $<HTMLInputElement>("search").value = ""; $<HTMLSelectElement>("staffDifficulty").value = "0"; $<HTMLSelectElement>("reviewFilter").value = "all"; $<HTMLSelectElement>("candidateFilter").value = "all"; drawPicker(); });
   on("clearSelection", () => { selected.clear(); drawPicker(); });
