@@ -28,6 +28,13 @@ import {
   type Paper,
 } from "./presentation";
 import { displaySetupPresentation } from "./setupPresentation";
+import { configuredQuestions } from "./configuration";
+import {
+  requiresRecognitionModel,
+  resourceStatusCopy,
+  setupAvailability,
+  type ResourceState,
+} from "./readiness";
 
 /**
  * Connects the game domain, DOM, handwriting pads, API client, and optional
@@ -61,12 +68,15 @@ export function runApp(role: Role): void {
   const memoPad = new HandwritingPad($<HTMLCanvasElement>("memoPad"), $("memoHint"), $("memoPointer"));
   const replicaPad = new HandwritingPad($<HTMLCanvasElement>("replicaPad"), $("replicaHint"), $("replicaPointer"));
   replicaPad.setDisabled(true);
-  let bank: Question[] = [], modelReady = false, connected = role === "single";
+  const recognitionRequired = requiresRecognitionModel(role);
+  let bank: Question[] = [], modelReady = !recognitionRequired, connected = role === "single";
+  let questionsState: ResourceState = "pending";
+  let recognitionState: ResourceState = recognitionRequired ? "pending" : "skipped";
   let catalog = new QuestionCatalog(bank);
   const setBank = (questions: Question[]) => { bank = questions; catalog = new QuestionCatalog(bank); };
   let selectedMode: Mode = "exhibition", session: Session | null = null, remote: Snapshot | null = null;
   let setupView: SetupView = "home";
-  let remoteSetup: { view: SetupView; difficulty: number } = { view: "home", difficulty: 1 };
+  let remoteSetup: { view: SetupView; difficulty: number; recognitionReady: boolean } = { view: "home", difficulty: 1, recognitionReady: false };
   let lastRender = "", lastQuestion = "", lastPreview = "", busy = false, saveBusy = false, reportBusy = false, savedRequest = "";
   let lastFocusedPreview = "", controllerConnectionId: string | null = null;
   let activePaper: Paper = "answer", inkGeneration = 0, inkTimer: ReturnType<typeof setTimeout> | null = null;
@@ -93,7 +103,7 @@ export function runApp(role: Role): void {
   const state = () => role === "controller" ? remote : session?.snapshot ?? null;
   const canInput = () => role !== "display" && modelReady && connected && !!state() && !state()!.paused;
   const publisher = new StatePublisher<Snapshot | null>(snapshot => channel?.send({ type: "exhibition-state", snapshot }));
-  const setupPublisher = new StatePublisher<{ view: SetupView; difficulty: number }>(value => channel?.send({ type: "setup-view", ...value }));
+  const setupPublisher = new StatePublisher<{ view: SetupView; difficulty: number; recognitionReady: boolean }>(value => channel?.send({ type: "setup-view", ...value }));
   const controllerSnapshot = (): Snapshot | null => session ? toControllerSnapshot(session.snapshot) : null;
   const sendState = (force = false) => { if (role === "display") publisher.publish(controllerSnapshot(), force); };
   publishAnswerInk = (snapshot = pad.exportInkSnapshot(), force = false) => {
@@ -111,7 +121,7 @@ export function runApp(role: Role): void {
     else if (!inkTimer) inkTimer = setTimeout(send, 40);
   };
   const selectedLevel = () => Number($<HTMLSelectElement>("difficulty").value);
-  const sendSetupView = (force = false) => { if (role === "controller") setupPublisher.publish({ view: setupView, difficulty: selectedLevel() }, force); };
+  const sendSetupView = (force = false) => { if (role === "controller") setupPublisher.publish({ view: setupView, difficulty: selectedLevel(), recognitionReady: modelReady }, force); };
   const on = (id: string, action: () => void | Promise<void>) => $(id).addEventListener("click", () => {
     if (role !== "display") sound.playEffect("tap");
     void Promise.resolve().then(action).catch(showError);
@@ -144,6 +154,15 @@ export function runApp(role: Role): void {
     $("waitingDifficultyName").textContent = content.difficultyName;
     $("waitingActions").hidden = !content.showActions;
   }
+  function updateResourceStatus(): void {
+    $("modelStatus").textContent = resourceStatusCopy({
+      role,
+      questions: questionsState,
+      recognition: recognitionState,
+      connected,
+      remoteRecognitionReady: remoteSetup.recognitionReady,
+    });
+  }
   function releaseDraft(): void { draft = null; savedRequest = ""; if (imageUrl) URL.revokeObjectURL(imageUrl); imageUrl = null; $<HTMLImageElement>("inkImage").removeAttribute("src"); }
   function updateSetup(): void {
     const staff = setupView === "staff";
@@ -165,9 +184,17 @@ export function runApp(role: Role): void {
     const visibleState = visibleSelectionState(visibleIds, selected);
     $("selectAllQuestions").textContent = visibleState.allSelected ? `表示中${visibleIds.length}問の選択を解除` : `表示中の${visibleIds.length}問を選択`;
     $<HTMLButtonElement>("selectAllQuestions").disabled = visibleIds.length === 0;
-    const ready = modelReady && bank.length > 0 && connected && (selectedMode === "test" ? selected.size > 0 : eligible.length >= EXHIBITION.questions);
-    $<HTMLButtonElement>("showGuide").disabled = !ready;
-    $("setupStatus").textContent = !bank.length || !modelReady ? "ゲームを準備しています。少しお待ちください。" : !connected ? "もう一方の画面を準備しています。" : selectedMode === "test" && !selected.size ? "テストする問題にチェックを入れてください。" : selectedMode === "exhibition" && eligible.length < EXHIBITION.questions ? "この難易度の本番用問題を10問準備してください。" : "準備OK！";
+    const availability = setupAvailability({
+      questions: questionsState,
+      recognition: recognitionState,
+      connected,
+      mode: selectedMode,
+      selectedCount: selected.size,
+      eligibleCount: eligible.length,
+      requiredQuestions: EXHIBITION.questions,
+    });
+    $<HTMLButtonElement>("showGuide").disabled = !availability.ready;
+    $("setupStatus").textContent = availability.message;
     $("selectionCount").textContent = `${selected.size}問選択中（表示中${visibleState.selectedVisible}問）`;
     $("showGuide").textContent = selectedMode === "test" ? "エンドレステストを始める" : "この難易度で進む";
   }
@@ -467,22 +494,14 @@ export function runApp(role: Role): void {
       if (!s || message.runId !== s.runId || message.questionId !== s.question?.id || !connected) return;
       void action(message.action, message);
     } else if (role === "display" && message.type === "setup-view") {
-      remoteSetup = { view: message.view, difficulty: message.difficulty };
+      remoteSetup = { view: message.view, difficulty: message.difficulty, recognitionReady: message.recognitionReady };
+      updateResourceStatus();
       render();
     } else if (role === "display" && message.type === "exhibition-control") {
       if (message.action === "configure") {
         try {
-          if (!modelReady) throw new Error("認識モデルの準備が終わるまでお待ちください。");
-          if (!(["exhibition", "test"] as unknown[]).includes(message.mode) || !Number.isInteger(message.difficulty) || message.difficulty < 1 || message.difficulty > 7 || !Array.isArray(message.questionIds) || message.questionIds.length > bank.length || message.questionIds.some(id => typeof id !== "string")) throw new Error("設定内容が正しくありません。入力画面を再読み込みしてください。");
-          const difficulty = Math.trunc(message.difficulty);
-          const maximumQuestions = message.mode === "test" ? bank.length : EXHIBITION.questions;
-          if (!Number.isInteger(message.questionCount) || message.questionCount < 1 || message.questionCount > maximumQuestions || message.mode === "exhibition" && message.questionCount !== EXHIBITION.questions) throw new Error(message.mode === "exhibition" ? `通常ゲームは${EXHIBITION.questions}問です。` : `問題数は1〜${maximumQuestions}問で選んでください。`);
-          const questions = message.mode === "test"
-            ? message.questionIds.map(id => bank.find(q => q.id === id)).filter((q): q is Question => Boolean(q))
-            : chooseExhibition(bank, difficulty, Math.random, message.questionCount);
-          if (message.mode === "test" && (questions.length !== message.questionIds.length || questions.length !== message.questionCount)) throw new Error("選択した問題を確認できませんでした。問題データを再読み込みしてください。");
-          if (message.mode === "exhibition" && questions.length !== message.questionCount) throw new Error(`レベル${difficulty}の通常ゲーム候補が${message.questionCount}問必要です。`);
-          if (!questions.length) throw new Error("出題する問題を選んでください。");
+          if (questionsState !== "ready") throw new Error("モニター側で問題を準備しています。少し待ってからもう一度お試しください。");
+          const questions = configuredQuestions(bank, message);
           session = new Session(questions, message.mode); lastRender = ""; render(); sendState(true);
         } catch (error) {
           channel.send({ type: "setup-error", message: error instanceof Error ? error.message : String(error) });
@@ -490,7 +509,7 @@ export function runApp(role: Role): void {
       } else if (message.action === "back-to-setup") {
         session = null; releaseDraft(); lastRender = ""; render(); sendState(true);
       } else if (message.action === "begin-countdown") {
-        if (!session || message.runId !== session.snapshot.runId || !connected || !modelReady) return;
+        if (!session || message.runId !== session.snapshot.runId || !connected) return;
         if (session.beginCountdown(3_000)) { render(); sendState(true); }
       } else if (message.action === "controller-ready") {
         if (!session || message.runId !== session.snapshot.runId || message.questionId !== session.snapshot.question?.id || !connected) return;
@@ -534,6 +553,7 @@ export function runApp(role: Role): void {
     $("replicaStatus").textContent = connected ? "入力画面の回答を同期中" : "同期停止中 · 再接続すると回答全体を取り直します";
     if (!connected) { activeRecognition = null; busy = false; pendingControllerReady = ""; }
     else sendSetupView(true);
+    updateResourceStatus();
     updateSetup(); lastRender = ""; render();
   });
   // UI event bindings.
@@ -655,7 +675,32 @@ export function runApp(role: Role): void {
   });
   // Startup and the only game clock. Controller never advances time locally.
   setInterval(() => { if (role !== "controller" && session) { const expired = session.tick(); render(); sendState(); if (expired) void loadLastSolution(session.snapshot); } }, 100);
-  render(); updateSetup();
-  void client.fetchQuestions().then(questions => { setBank(questions); drawPicker(); }).catch(e => { $("setupStatus").textContent = `問題を取得できません。ページを更新してください。${String(e)}`; });
-  void client.beginPreload().then(() => client.waitUntilReady(() => {})).then(() => { modelReady = true; $("modelStatus").textContent = "準備OK"; updateSetup(); lastRender = ""; render(); }).catch(() => { $("modelStatus").textContent = "準備できませんでした。スタッフへお知らせください。"; });
+  render(); updateResourceStatus(); updateSetup();
+  void client.fetchQuestions().then(questions => {
+    setBank(questions);
+    questionsState = "ready";
+    updateResourceStatus();
+    drawPicker();
+  }).catch(() => {
+    questionsState = "error";
+    updateResourceStatus();
+    updateSetup();
+  });
+  if (recognitionRequired) {
+    void client.beginPreload().then(() => client.waitUntilReady(() => {})).then(() => {
+      modelReady = true;
+      recognitionState = "ready";
+      updateResourceStatus();
+      updateSetup();
+      sendSetupView(true);
+      lastRender = "";
+      render();
+    }).catch(() => {
+      modelReady = false;
+      recognitionState = "error";
+      updateResourceStatus();
+      updateSetup();
+      sendSetupView(true);
+    });
+  }
 }

@@ -45,11 +45,12 @@ def test_each_role_can_send_only_its_protocol_messages():
 
 
 def test_setup_view_requires_a_known_view_and_bounded_difficulty():
-    message = {**hello("controller"), "type": "setup-view", "view": "difficulty", "difficulty": 7}
+    message = {**hello("controller"), "type": "setup-view", "view": "difficulty", "difficulty": 7, "recognitionReady": True}
     assert PairHub.valid_message(message, "test", "controller", "connection")
     assert not PairHub.valid_message({**message, "view": "unknown"}, "test", "controller", "connection")
     assert not PairHub.valid_message({**message, "difficulty": 0}, "test", "controller", "connection")
     assert not PairHub.valid_message({**message, "difficulty": True}, "test", "controller", "connection")
+    assert not PairHub.valid_message({**message, "recognitionReady": 1}, "test", "controller", "connection")
     assert not PairHub.valid_message({**message, "sender": "display"}, "test", "display", "connection")
 
 

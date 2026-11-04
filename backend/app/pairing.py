@@ -12,7 +12,7 @@ from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from .local_admin import loopback_host
 
 router = APIRouter()
-PROTOCOL_VERSION = 6
+PROTOCOL_VERSION = 7
 MAX_MESSAGE_BYTES = 1_000_000
 MAX_SESSIONS = 32
 MAX_MESSAGES_PER_MINUTE = 1_200
@@ -187,6 +187,7 @@ class PairHub:
                 and isinstance(difficulty, int)
                 and not isinstance(difficulty, bool)
                 and 1 <= difficulty <= 7
+                and isinstance(message.get("recognitionReady"), bool)
             )
         if message_type != "ink-snapshot":
             return False

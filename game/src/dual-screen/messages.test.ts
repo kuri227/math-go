@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { DUAL_SCREEN_PROTOCOL_VERSION, isSafeInkSnapshot, MAX_INK_POINTS } from "./messages";
 
-it("bumps the protocol for synchronized setup views", () => {
-  expect(DUAL_SCREEN_PROTOCOL_VERSION).toBe(6);
+it("bumps the protocol for role-owned readiness", () => {
+  expect(DUAL_SCREEN_PROTOCOL_VERSION).toBe(7);
 });
 
 describe("ink relay validation", () => {
