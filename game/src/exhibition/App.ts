@@ -160,7 +160,6 @@ export function runApp(role: Role): void {
   function renderDisplaySetup(): void {
     if (role !== "display") return;
     const content = displaySetupPresentation(connected, remoteSetup);
-    $("waitingEyebrow").textContent = content.eyebrow;
     $("waitingTitle").textContent = content.title;
     $("waitingLead").textContent = content.lead;
     $("waitingRules").hidden = !content.showRules;
@@ -183,8 +182,6 @@ export function runApp(role: Role): void {
     if (feedbackTimer) clearTimeout(feedbackTimer);
     flash.hidden = true;
     flash.dataset.tone = feedback.tone;
-    $("judgementFlashIcon").textContent = feedback.icon;
-    $("judgementFlashLabel").textContent = feedback.label;
     $("judgementFlashTitle").textContent = feedback.title;
     $("judgementFlashMessage").textContent = feedback.message;
     requestAnimationFrame(() => {
@@ -203,7 +200,6 @@ export function runApp(role: Role): void {
     $("difficultyStage").hidden = staff;
     $("gameSettingsFields").hidden = staff;
     $("poolSummary").hidden = staff;
-    $("setupEyebrow").textContent = setupView === "staff" ? "DEVELOPER TOOLS" : "GAME SETTINGS";
     $("setupTitle").textContent = setupView === "staff" ? "テスト・開発者用画面" : "難易度を選ぶ";
     $("setupDescription").textContent = setupView === "staff" ? "確認する問題を選び、残機がなくなるまで順番に繰り返しテストします。" : "選んだ難易度の10問に挑戦しよう。";
     $("difficultyNumber").textContent = String(selectedLevel());
@@ -429,8 +425,6 @@ export function runApp(role: Role): void {
     const feedback = resultFeedback(s, role);
     if (feedback) {
       $("resultVerdict").dataset.tone = feedback.tone;
-      $("resultVerdictIcon").textContent = feedback.icon;
-      $("resultVerdictLabel").textContent = feedback.label;
       $("resultTitle").textContent = feedback.title;
       $("resultVerdictMessage").textContent = feedback.message;
     }

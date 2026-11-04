@@ -3,7 +3,6 @@ import { DIFFICULTY_LABELS } from "./catalog";
 import { questionSeconds } from "./Session";
 
 export type DisplaySetupPresentation = {
-  eyebrow: string;
   title: string;
   lead: string;
   difficulty: number;
@@ -29,31 +28,26 @@ export function displaySetupPresentation(
 
   if (!connected) return {
     ...shared,
-    eyebrow: "DISPLAY READY",
     title: "モニター画面の準備完了",
     lead: "次に液タブ用の操作画面を開き、液タブへ移動してください。",
     showRules: false,
     showDifficulty: false,
   };
 
-  const copy: Record<SetupView, Pick<DisplaySetupPresentation, "eyebrow" | "title" | "lead">> = {
+  const copy: Record<SetupView, Pick<DisplaySetupPresentation, "title" | "lead">> = {
     home: {
-      eyebrow: "NEXT CHALLENGER",
       title: "数学でGO",
       lead: "液タブでゲームを始める準備をしています。",
     },
     rules: {
-      eyebrow: "HOW TO PLAY",
       title: "あそびかた",
       lead: "液タブと一緒に、ゲームの流れを確認しています。",
     },
     difficulty: {
-      eyebrow: "CHOOSE YOUR LEVEL",
       title: "難易度を選択中",
       lead: `LEVEL ${difficulty}は1問${questionSeconds({ difficulty })}秒。液タブで挑戦するレベルを選んでいます。`,
     },
     staff: {
-      eyebrow: "TEST MODE",
       title: "問題を選択中",
       lead: "スタッフがテストする問題を液タブで選んでいます。",
     },
