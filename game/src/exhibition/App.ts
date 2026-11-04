@@ -30,6 +30,7 @@ import {
 import { displaySetupPresentation } from "./setupPresentation";
 import { configuredQuestions } from "./configuration";
 import { resultFeedback, retryFeedback, type JudgementFeedback } from "./feedback";
+import { renderJudgementIcon } from "./judgementIcons";
 import {
   requiresRecognitionModel,
   resourceStatusCopy,
@@ -182,6 +183,7 @@ export function runApp(role: Role): void {
     if (feedbackTimer) clearTimeout(feedbackTimer);
     flash.hidden = true;
     flash.dataset.tone = feedback.tone;
+    renderJudgementIcon($("judgementFlashIcon"), feedback.tone);
     $("judgementFlashTitle").textContent = feedback.title;
     $("judgementFlashMessage").textContent = feedback.message;
     requestAnimationFrame(() => {
@@ -202,8 +204,8 @@ export function runApp(role: Role): void {
     $("poolSummary").hidden = staff;
     $("setupTitle").textContent = setupView === "staff" ? "テスト・開発者用画面" : "難易度を選ぶ";
     $("setupDescription").textContent = setupView === "staff" ? "確認する問題を選び、残機がなくなるまで順番に繰り返しテストします。" : "選んだ難易度の10問に挑戦しよう。";
-    $("difficultyNumber").textContent = String(selectedLevel());
-    $("difficultyName").textContent = difficultyLabels[selectedLevel() - 1] ?? "";
+    setAnimatedText("difficultyNumber", String(selectedLevel()), "is-level-changing");
+    setAnimatedText("difficultyName", difficultyLabels[selectedLevel() - 1] ?? "", "is-level-changing");
     $("poolSummary").textContent = selectedMode === "test" ? `${pool.length}問あります。選んだ問題は残機がなくなるまで繰り返し出題されます。` : eligible.length >= EXHIBITION.questions ? `1問${questionSeconds({ difficulty: selectedLevel() })}秒・全${EXHIBITION.questions}問です。` : `このレベルは本番用の問題が${EXHIBITION.questions}問そろっていません。`;
     const visibleIds = visibleQuestions.map(question => question.id);
     const visibleState = visibleSelectionState(visibleIds, selected);
@@ -305,7 +307,8 @@ export function runApp(role: Role): void {
     $("finished").hidden = phase !== "finished";
     if (!s) return;
     const key = `${s.runId}:${s.question?.id}`;
-    if (key !== lastQuestion) {
+    const questionChanged = key !== lastQuestion;
+    if (questionChanged) {
       lastQuestion = key; inkGeneration++;
       if (role !== "display") { pad.clear(); memoPad.clear(); activePaper = "answer"; }
       replicaGeneration = -1; replicaPad.clear(); releaseDraft(); lastPreview = ""; $("saveStatus").textContent = ""; $("reviewNotice").textContent = "";
@@ -355,6 +358,10 @@ export function runApp(role: Role): void {
       $("questionMeta").textContent = `${q.difficulty_label} · ${q.category}${s.mode === "test" ? ` · ${q.id}` : ""}`;
       richText(q.prompt ?? `${q.instruction}\n$${q.display_latex}$`, $("prompt"));
       $("prompt").classList.toggle("short-prompt", (q.prompt ?? q.display).length < 48);
+      if (questionChanged && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        $("problemPane").classList.remove("question-arrive");
+        requestAnimationFrame(() => $("problemPane").classList.add("question-arrive"));
+      }
     } else { $("questionMeta").textContent = ""; $("prompt").replaceChildren(); }
     $("problemPane").hidden = role === "controller" || phase === "countdown" || phase === "result";
     $("answerReplica").hidden = !answerReplicaVisible(role, phase);
@@ -425,6 +432,7 @@ export function runApp(role: Role): void {
     const feedback = resultFeedback(s, role);
     if (feedback) {
       $("resultVerdict").dataset.tone = feedback.tone;
+      renderJudgementIcon($("resultVerdictIcon"), feedback.tone);
       $("resultTitle").textContent = feedback.title;
       $("resultVerdictMessage").textContent = feedback.message;
     }

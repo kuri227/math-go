@@ -8,6 +8,7 @@
 |---|---:|---|---|---|
 | [KaTeX](https://github.com/KaTeX/KaTeX) | 0.19.0 | MIT | ブラウザー内の数式表示 | 著作権表示とMIT本文を `licenses/third-party/KaTeX-MIT.txt` に同梱 |
 | [M PLUS 1](https://github.com/coz-m/MPLUS_FONTS)（Fontsource経由） | Fontsource 5.3.0 / font v16 | SIL OFL 1.1 | 画面の日本語フォント | 著作権表示とOFL本文を `licenses/third-party/M-PLUS-1-OFL-1.1.txt` に同梱。フォント単体販売や予約名を使った改変版配布は行わない |
+| [Lucide](https://github.com/lucide-icons/lucide) | 1.41.0 | ISC（一部Feather由来アイコンはMIT） | 判定表示の時計・正解・不正解アイコン | 著作権表示とISC／MIT本文を `licenses/third-party/Lucide-ISC-MIT.txt` に同梱 |
 
 `game/public/audio`のWAVはリポジトリ内の生成スクリプトで作成した独自素材で、外部音源・生成AIモデルは使用していません。
 
