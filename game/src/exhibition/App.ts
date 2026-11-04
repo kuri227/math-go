@@ -82,6 +82,19 @@ export function runApp(role: Role): void {
   let lastFocusedPreview = "", controllerConnectionId: string | null = null;
   let activePaper: Paper = "answer", inkGeneration = 0, inkTimer: ReturnType<typeof setTimeout> | null = null;
   let feedbackTimer: ReturnType<typeof setTimeout> | null = null, lastFeedbackKey = "";
+  const motionValues = new Map<string, string>();
+  const setAnimatedText = (id: string, value: string, animationClass = "is-changing") => {
+    const element = $(id), previous = motionValues.get(id);
+    text(id, value);
+    motionValues.set(id, value);
+    if (previous === undefined || previous === value || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    element.classList.remove(animationClass);
+    requestAnimationFrame(() => {
+      if (motionValues.get(id) !== value) return;
+      element.classList.add(animationClass);
+      element.addEventListener("animationend", () => element.classList.remove(animationClass), { once: true });
+    });
+  };
   let pendingInk: InkSnapshot | null = null;
   let pendingControllerReady = "";
   let replicaGeneration = -1;
@@ -305,8 +318,8 @@ export function runApp(role: Role): void {
     }
     $("modeName").textContent = s.mode === "test" ? "問題検証・エンドレス" : "10問チャレンジ";
     text("round", s.mode === "test" ? `第${s.round}問` : `${s.round} / ${s.total}問`);
-    text("correct", `正解 ${s.correct}`); text("streak", `連続 ${s.streak}`);
-    $("lives").hidden = false; text("lives", `残機 ${s.lives ?? 3} / 3`);
+    setAnimatedText("correct", `正解 ${s.correct}`); setAnimatedText("streak", `連続 ${s.streak}`);
+    $("lives").hidden = false; setAnimatedText("lives", `残機 ${s.lives ?? 3} / 3`);
     $("time").hidden = false; text("time", `${remainingSeconds(s.remainingMs)}秒${clockRunning(s) ? "" : " · 時計停止中"}`);
     $("time").dataset.paused = String(!clockRunning(s));
     const status = activity(s);
@@ -315,11 +328,11 @@ export function runApp(role: Role): void {
     $("recognitionProgress").hidden = !status?.busy;
     $("timerTrack").hidden = false;
     $("timerFill").style.width = `${Math.max(0, s.remainingMs / s.questionTimeMs * 100)}%`;
-    $("timerTrack").dataset.urgent = String(s.remainingMs <= 5000);
+    $("timerTrack").dataset.urgent = String(clockRunning(s) && s.remainingMs <= 5000);
     $("countdown").hidden = phase !== "countdown";
     if (phase === "countdown") {
       const seconds = Math.ceil(s.countdownRemainingMs / 1000);
-      $("countdownTitle").textContent = s.paused ? "入力画面を準備中" : seconds > 0 ? String(seconds) : "スタート";
+      setAnimatedText("countdownTitle", s.paused ? "入力画面を準備中" : seconds > 0 ? String(seconds) : "スタート", "is-counting");
       $("countdownTitle").classList.toggle("is-waiting", s.paused);
       $("countdownDescription").textContent = s.paused ? "用紙の準備が整うまで、問題と時計は開始しません。" : "モニターを見て、ペンを構えてください。";
       scheduleControllerReady(s);
