@@ -3,8 +3,8 @@
 ## 目的別入口
 
 - 初めて使う展示PC: [はじめての導入ガイド](installation.md)を上から順に進める。
-- GPUあり: `setup_festival_gpu.ps1`（初回）→`start_festival_gpu.ps1`（毎回）。
-- GPUなし・GPUを使わない: `setup_festival_cpu.ps1`（初回）→`start_festival_cpu.ps1`（毎回）。
+- GPUあり: `.\scripts\setup_festival_gpu.ps1 -Python python`（初回）→`.\scripts\start_festival_gpu.ps1`（毎回）。
+- GPUなし・GPUを使わない: `.\scripts\setup_festival_cpu.ps1 -Python python`（初回）→`.\scripts\start_festival_cpu.ps1`（毎回）。
 - 問題がある: 下の「トラブル対処」へ。
 
 取得・更新はgit clone / git pullに統一します。改修しない展示PCでもGit・64bit Python・Node.js・pnpm・ブラウザーが必要です。
@@ -22,8 +22,23 @@ Windows 11 x64 / Python 3.10.5 / Node 22.17.1 / pnpm 11.25.0 / NVIDIA RTX 3050 L
 ## 初回設営
 
 1. [導入ガイド](installation.md)のclone・セットアップコマンドを実行する。モデルの取得は初回のみネット接続が必要。
-2. GPU版は`check_environment.ps1 -RequireReady -Device cuda`、CPU版は`check_environment.ps1 -RequireReady -Device cpu`のFAILがないことを確認する。
-3. GPU版は`start_festival_gpu.ps1`、CPU版は`start_festival_cpu.ps1`で起動する。準備完了まで待ち、自動で開くDisplayをモニターへ移す。
+2. 導入した環境に合う次のコードブロックを1つだけ実行し、環境確認に`[FAIL]`がないことを確認する。
+
+GPU版：
+
+```powershell
+.\scripts\check_environment.ps1 -RequireReady -Device cuda
+.\scripts\start_festival_gpu.ps1
+```
+
+CPU版：
+
+```powershell
+.\scripts\check_environment.ps1 -RequireReady -Device cpu
+.\scripts\start_festival_cpu.ps1
+```
+
+3. 準備完了まで待ち、自動で開くDisplayをモニターへ移す。
 4. 液タブ・モニターをWindowsの「拡張」で接続。Displayはモニター、Controllerは液タブへ移す。
 5. 同じブラウザー・プロファイルで開く。`localhost` と `127.0.0.1`、ポート番号の違いも別Originとなる。URLのsessionをそろえる。
 6. 初めはテスト・開発者用画面で任意の問題を選ぶ。ペン入力→戻す→全消去→読み取り確認→画像・数式の確認→回答送信→判定→結果→問題点報告を確認する。
@@ -48,12 +63,44 @@ Windows 11 x64 / Python 3.10.5 / Node 22.17.1 / pnpm 11.25.0 / NVIDIA RTX 3050 L
 
 ## 起動オプション
 
+次のコードブロックはすべて、`README.md`があるリポジトリ直下から単独でコピーして実行できます。
+
+### GPU版・2画面
+
 ```powershell
-.\scripts\start_festival.ps1 -SingleScreen -Device cuda
-.\scripts\start_festival.ps1 -Port 8001 -NoBrowser -Device cuda
-# NVIDIA GPUなし: セットアップもCPU版にする
-.\scripts\setup_festival.ps1 -Device cpu
-.\scripts\start_festival.ps1 -Device cpu
+.\scripts\start_festival_gpu.ps1
+```
+
+### CPU版・2画面
+
+```powershell
+.\scripts\start_festival_cpu.ps1
+```
+
+### GPU版・1画面
+
+```powershell
+.\scripts\start_festival_gpu.ps1 -SingleScreen
+```
+
+### CPU版・1画面
+
+```powershell
+.\scripts\start_festival_cpu.ps1 -SingleScreen
+```
+
+### GPU版・別ポート・ブラウザーを自動で開かない
+
+```powershell
+.\scripts\start_festival_gpu.ps1 -Port 8001 -NoBrowser
+```
+
+### CPU版を初回セットアップして起動
+
+```powershell
+.\scripts\setup_festival_cpu.ps1 -Python python
+.\scripts\check_environment.ps1 -RequireReady -Device cpu
+.\scripts\start_festival_cpu.ps1
 ```
 
 CPU/GPUの必要な環境を初回にセットアップした後は、それぞれの起動スクリプトだけで切り替えられます。

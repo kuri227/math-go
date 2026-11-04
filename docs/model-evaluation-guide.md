@@ -23,7 +23,13 @@ CPU評価なら `setup_models.ps1` に `-Device cpu` を付けます。TexTeller
 
 ## 比較画面と独自手書きデータ
 
-モデル環境準備後に `scripts/run_server.ps1` で起動し、`http://127.0.0.1:8000/evaluation` を開きます。
+モデル環境準備後、リポジトリ直下で次を実行します。
+
+```powershell
+.\scripts\run_server.ps1
+```
+
+起動したまま`http://127.0.0.1:8000/evaluation`を開きます。
 
 - 同一のcrop済みPNGをTexTellerとUniMERNetへ渡し、LaTeXと推論時間を比較する。
 - Canvasに入力し、1画戻す・全消去・PNGとstroke JSONの保存を行う。

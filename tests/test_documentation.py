@@ -1,4 +1,4 @@
-from scripts.check_docs import CURRENT, ROOT, broken_links
+from scripts.check_docs import CURRENT, ROOT, broken_links, command_block_issues
 
 
 def test_current_documentation_has_no_broken_local_links():
@@ -9,6 +9,21 @@ def test_doc_checker_reports_missing_relative_files_but_ignores_web_links(tmp_pa
     doc = tmp_path / "readme.md"
     doc.write_text("[missing](missing.md) [web](https://example.com/a) [section](#title)")
     assert len(broken_links([doc])) == 1
+
+
+def test_current_documentation_has_copy_ready_powershell_commands():
+    assert command_block_issues(ROOT / name for name in CURRENT) == []
+
+
+def test_doc_checker_rejects_commented_commands_and_replaceable_placeholders(tmp_path):
+    doc = tmp_path / "commands.md"
+    doc.write_text(
+        "```powershell\n# .\\scripts\\start_festival_gpu.ps1\ncommand --run-id <RUN_ID>\n```",
+        encoding="utf-8",
+    )
+    issues = command_block_issues([doc])
+    assert any("commented command" in issue for issue in issues)
+    assert any("replaceable placeholder" in issue for issue in issues)
 
 
 def test_installation_guide_matches_single_and_dual_screen_startup_contract():

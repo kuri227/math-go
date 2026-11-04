@@ -25,11 +25,10 @@
 PowerShellで次を実行します。
 
 ```powershell
-cd firebase/functions
-pnpm install
-pnpm run build
-pnpm test
-pnpm run test:rules
+pnpm --dir firebase/functions install
+pnpm --dir firebase/functions run build
+pnpm --dir firebase/functions test
+pnpm --dir firebase/functions run test:rules
 ```
 
 `pnpm test`は、余分なフィールド、重複問題、実現不可能な時間、制御文字を拒否し、サーバー側で得点を再計算することを確認します。`test:rules`はFirestoreへのブラウザーからの直接読取・書込が、認証の有無にかかわらず拒否されることをEmulatorで確認します。

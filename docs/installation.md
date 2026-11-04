@@ -132,7 +132,20 @@ ChromeまたはEdge以外が開いた場合や、自動で開かなかった場�
 
 1. Windowsのディスプレイ設定で、表示方法を「表示画面を拡張する」にします。
 2. 起動中のPowerShellで`Ctrl+C`を押し、入力できる状態へ戻るまで待ちます。
-3. CPU版は`.\scripts\start_festival_cpu.ps1`、GPU版は`.\scripts\start_festival_gpu.ps1`を実行します。今度は`-SingleScreen`を付けません。
+3. CPU版またはGPU版のうち、導入した方のコマンドを次から1つだけ実行します。今度は`-SingleScreen`を付けません。
+
+CPU版：
+
+```powershell
+.\scripts\start_festival_cpu.ps1
+```
+
+GPU版：
+
+```powershell
+.\scripts\start_festival_gpu.ps1
+```
+
 4. 自動で開いたモニター用画面を外部モニターへ移動します。
 5. モニター用画面にある「液タブ用画面を開く」を押します。
 6. 新しく開いた入力画面を液タブへ移動します。
@@ -145,16 +158,32 @@ ChromeまたはEdge以外が開いた場合や、自動で開かなかった場�
 
 毎回セットアップする必要はありません。`math-go`フォルダーでPowerShellを開き、使用する方の起動コマンドだけを実行します。指定なしでは2画面用のモニター画面、`-SingleScreen`付きではタイトル画面が開きます。
 
+### CPU版・2画面（通常の展示）
+
 ```powershell
 Set-ExecutionPolicy -Scope Process Bypass
-# CPU版・2画面（通常の展示はこちら）
 .\scripts\start_festival_cpu.ps1
-# GPU版・2画面を使う場合は、上の代わりにこちら
-# .\scripts\start_festival_gpu.ps1
+```
 
-# 1画面またはタイトルから確認する場合は -SingleScreen を付ける
-# .\scripts\start_festival_cpu.ps1 -SingleScreen
-# .\scripts\start_festival_gpu.ps1 -SingleScreen
+### GPU版・2画面（通常の展示）
+
+```powershell
+Set-ExecutionPolicy -Scope Process Bypass
+.\scripts\start_festival_gpu.ps1
+```
+
+### CPU版・1画面
+
+```powershell
+Set-ExecutionPolicy -Scope Process Bypass
+.\scripts\start_festival_cpu.ps1 -SingleScreen
+```
+
+### GPU版・1画面
+
+```powershell
+Set-ExecutionPolicy -Scope Process Bypass
+.\scripts\start_festival_gpu.ps1 -SingleScreen
 ```
 
 停止するときは、起動に使ったPowerShellを選び、`Ctrl+C`を押します。コマンドを入力できる表示へ戻ったことを確認してからPowerShellを閉じます。
@@ -172,14 +201,18 @@ git pull --ff-only
 
 更新後は、使用している方の初回セットアップをもう一度実行します。更新されたライブラリと画面だけが準備されます。
 
+CPU版を更新する場合：
+
 ```powershell
-# CPU版
 .\scripts\setup_festival_cpu.ps1 -Python python
 .\scripts\check_environment.ps1 -RequireReady -Device cpu
+```
 
-# GPU版の場合は上の2行ではなくこちら
-# .\scripts\setup_festival_gpu.ps1 -Python python
-# .\scripts\check_environment.ps1 -RequireReady -Device cuda
+GPU版を更新する場合：
+
+```powershell
+.\scripts\setup_festival_gpu.ps1 -Python python
+.\scripts\check_environment.ps1 -RequireReady -Device cuda
 ```
 
 ## 10. オフライン会場へ持っていく前の確認

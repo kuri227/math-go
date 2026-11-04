@@ -75,20 +75,31 @@ Linuxでは下記pythonパスの `Scripts/python.exe` を `bin/python` に読み
 
 ## CPU / GPUで実行
 
-`plan` の内容を確認し、サーバーを停止してからどちらか一方を使う。引数は失敗時にも対象画像を再投入できなくなることの確認。
+`plan` の内容を確認し、サーバーを停止してからCPU版またはGPU版のどちらか一方を使う。引数は失敗時にも対象画像を再投入できなくなることの確認。
+
+CPU版：
 
 ```powershell
-# GPUを使わない
 .\scripts\train_texteller_cpu.ps1 -ConfirmSingleUse
+```
 
-# または NVIDIA GPUを使う
+GPU版：
+
+```powershell
 .\scripts\train_texteller_gpu.ps1 -ConfirmSingleUse
 ```
 
-直接指定する場合（ラッパーと同じ処理）：
+直接指定する場合も、次のどちらか一方を使う（ラッパーと同じ処理）。
+
+CPU版：
 
 ```powershell
 .\.venv-texteller-cpu\Scripts\python.exe scripts/train_texteller.py run --device cpu --confirm-single-use
+```
+
+GPU版：
+
+```powershell
 .\.venv-texteller\Scripts\python.exe scripts/train_texteller.py run --device cuda --confirm-single-use
 ```
 
@@ -126,20 +137,38 @@ data/training/
 
 `completed` は学習処理と保存の完了であり、精度改善や展示採用の承認ではない。`metrics.json` のvalidation損失だけで採用しない。学習に未使用のtest筆者と既存の公開評価セットで元モデルと比較し、正答一致率・認識失敗・処理時間・以前の分野の劣化を確認する。test画像は学習処理では使用しない。
 
-採用する場合だけ、現在のサーバーを止め、新しいPowerShellで指定する（RUN_IDは成功runのID）。通常のモデルディレクトリは上書きしない。
+採用する場合だけ、現在のサーバーを止め、新しいPowerShellで次のCPU版またはGPU版を実行する。貼り付け後に成功runのIDを尋ねられるため、その値を入力する。通常のモデルディレクトリは上書きしない。
+
+CPU版：
 
 ```powershell
-$env:TEXTELLER_MODEL_DIR = (Resolve-Path ".\data\training\runs\RUN_ID\model").Path
-# セットアップし直さず、CPUならこちら
+$RunId = Read-Host "採用するRUN ID"
+$env:TEXTELLER_MODEL_DIR = (Resolve-Path ".\data\training\runs\$RunId\model").Path
 .\scripts\start_festival_cpu.ps1
-# GPUなら start_festival_gpu.ps1
 ```
 
-元モデルへ戻すにはそのサーバーを止め、新しいシェルで通常起動するか、この環境変数を解除して再起動する。
+GPU版：
+
+```powershell
+$RunId = Read-Host "採用するRUN ID"
+$env:TEXTELLER_MODEL_DIR = (Resolve-Path ".\data\training\runs\$RunId\model").Path
+.\scripts\start_festival_gpu.ps1
+```
+
+元モデルへ戻すにはそのサーバーを止め、新しいPowerShellでCPU版またはGPU版を実行する。
+
+CPU版：
 
 ```powershell
 Remove-Item Env:TEXTELLER_MODEL_DIR -ErrorAction SilentlyContinue
 .\scripts\start_festival_cpu.ps1
+```
+
+GPU版：
+
+```powershell
+Remove-Item Env:TEXTELLER_MODEL_DIR -ErrorAction SilentlyContinue
+.\scripts\start_festival_gpu.ps1
 ```
 
 本学習CLIの次回実行は「直近の成功学習モデル」を引き継ぐ。展示で元モデルへ戻しても学習履歴は消さず、同じデータを初めから再利用しない。
@@ -153,7 +182,9 @@ Remove-Item Env:TEXTELLER_MODEL_DIR -ErrorAction SilentlyContinue
 
 ```powershell
 .\.venv\Scripts\python.exe scripts/train_texteller.py status
-.\.venv\Scripts\python.exe scripts/train_texteller.py abandon-interrupted --run-id <中断runのID> --operator <担当者コード> --reason "停電後に学習プロセス停止とバックアップを確認" --confirmed-process-stopped
+$RunId = Read-Host "中断したRUN ID"
+$Operator = Read-Host "担当者コード"
+.\.venv\Scripts\python.exe scripts/train_texteller.py abandon-interrupted --run-id $RunId --operator $Operator --reason "停電後に学習プロセス停止とバックアップを確認" --confirmed-process-stopped
 .\.venv\Scripts\python.exe scripts/train_texteller.py plan
 ```
 

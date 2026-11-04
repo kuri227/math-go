@@ -85,10 +85,8 @@
 
 ```powershell
 .\.venv\Scripts\python.exe -m pytest -q
-cd game
-pnpm test
-pnpm build
-cd ..
+pnpm --dir game test
+pnpm --dir game build
 .\.venv\Scripts\python.exe scripts/check_docs.py
 git diff --check
 ```

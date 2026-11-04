@@ -44,7 +44,39 @@
 
 導入するだけなら、技術資料を読む必要はありません。[はじめての導入ガイド](docs/installation.md)を上から順に進めてください。
 
-展示用の起動スクリプトは、指定なしでは2画面用のモニター画面を開きます。タイトル画面から1画面で確認するときは`-SingleScreen`を付けます。詳しいコマンドは導入ガイドに記載しています。
+## セットアップ済みPCですぐ起動する
+
+`README.md`がある`math-go`フォルダーでPowerShellを開き、使うものを1つだけ、そのまま貼り付けてください。
+
+### GPU版・2画面（通常の展示）
+
+```powershell
+Set-ExecutionPolicy -Scope Process Bypass
+.\scripts\start_festival_gpu.ps1
+```
+
+### CPU版・2画面（通常の展示）
+
+```powershell
+Set-ExecutionPolicy -Scope Process Bypass
+.\scripts\start_festival_cpu.ps1
+```
+
+### GPU版・1画面
+
+```powershell
+Set-ExecutionPolicy -Scope Process Bypass
+.\scripts\start_festival_gpu.ps1 -SingleScreen
+```
+
+### CPU版・1画面
+
+```powershell
+Set-ExecutionPolicy -Scope Process Bypass
+.\scripts\start_festival_cpu.ps1 -SingleScreen
+```
+
+起動スクリプトは、指定なしでは2画面用のモニター画面を開きます。停止は同じPowerShellで`Ctrl+C`です。初回導入と詳しい説明は導入ガイドを参照してください。
 
 ## 現在の状態
 
