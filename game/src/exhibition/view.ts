@@ -6,7 +6,7 @@ const actionLink = (id: string, href: string, text: string) => `<a id="${id}" cl
 
 /** Static semantic structure, separate from session state and side effects. */
 export function appMarkup(role: Role): string {
-  const homeStart = button("startGame", role === "single" ? "1画面でスタート" : "ゲーム設定へ", true);
+  const homeStart = button("startGame", role === "single" ? "1画面でスタート" : "難易度を選ぶ", true);
   const dualScreenStart = role === "single" ? actionLink("startDualScreen", "/display", "2画面でスタート") : "";
   const screenGuide = role === "controller"
     ? "<div class=\"rule-note\"><strong>画面の使い分け</strong><p>問題はモニターに表示されます。回答とメモはこの液タブに書きます。</p></div>"
@@ -42,7 +42,7 @@ export function appMarkup(role: Role): string {
           ${button("showGuide", "この設定で進む", true)}
         </div>
       </section>
-      <section id="guide" class="reading-surface ready-screen" hidden aria-labelledby="guideTitle"><h1 id="guideTitle"></h1><div id="guideDifficulty" class="guide-difficulty" aria-label="選択した難易度"><span>選択した難易度</span><strong><span id="guideDifficultyLevel"></span><span id="guideDifficultyName"></span></strong><p id="guideDifficultyTime"></p></div><p id="guideDescription"></p><div class="ready-check"><span>問題を見る</span><span>白い用紙に答えを書く</span><span>読み取りを確認</span></div><p id="guideRules"></p><p id="guidePrivacy"></p><div class="actions">${button("guideBack", "ゲーム設定に戻る")}${button("begin", "ゲームスタート！", true)}</div></section>
+      <section id="guide" class="reading-surface ready-screen" hidden aria-labelledby="guideTitle"><h1 id="guideTitle"></h1><div id="guideDifficulty" class="guide-difficulty" aria-label="選択した難易度"><span>選択した難易度</span><strong><span id="guideDifficultyLevel"></span><span id="guideDifficultyName"></span></strong><p id="guideDifficultyTime"></p></div><p id="guideDescription"></p><div class="ready-check"><span>問題を見る</span><span>白い用紙に答えを書く</span><span>読み取りを確認</span></div><p id="guideRules"></p><p id="guidePrivacy"></p><div class="actions">${button("guideBack", "難易度選択に戻る")}${button("begin", "ゲームスタート！", true)}</div></section>
       <section id="waiting" class="reading-surface waiting setup-display" hidden aria-labelledby="waitingTitle"><div class="setup-display-copy"><h1 id="waitingTitle">モニター画面の準備完了</h1><p id="waitingLead">次に液タブ用の操作画面を開き、液タブへ移動してください。</p><div id="waitingRules" class="ready-check" hidden aria-label="ゲームの遊び方"><span>問題を見る</span><span>白い用紙に答えを書く</span><span>読み取りを確認</span></div><div id="waitingDifficulty" class="difficulty-stage waiting-difficulty" hidden aria-label="選択中の難易度"><span>LEVEL</span><strong id="waitingDifficultyNumber">1</strong><p id="waitingDifficultyName">${labels[0]}</p></div><p id="waitingMessage" role="status">液タブ用画面の接続を待っています。</p><div id="waitingActions" class="actions"><a id="openControllerWaiting" class="action-link" href="/controller" target="_blank" rel="noopener">液タブ用画面を開く</a><a id="displayLink" href="/display">問題表示画面を開く</a></div></div></section>
       <section id="play" hidden aria-label="プレイ画面">
         <div id="judgementFlash" class="judgement-flash" hidden role="status" aria-live="assertive" aria-atomic="true"><div class="judgement-flash-card"><span id="judgementFlashIcon" class="judgement-icon" aria-hidden="true"></span><div><strong id="judgementFlashTitle"></strong><p id="judgementFlashMessage"></p></div></div></div>

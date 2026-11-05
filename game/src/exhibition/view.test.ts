@@ -56,7 +56,8 @@ describe("solo game layout contract", () => {
       expect(markup).not.toContain("2画面でスタート");
       expect(markup).not.toContain("2画面テストを開く");
     }
-    expect(appMarkup("controller")).toContain(">ゲーム設定へ</button>");
+    expect(appMarkup("controller")).toContain(">難易度を選ぶ</button>");
+    expect(appMarkup("controller")).not.toContain("ゲーム設定へ");
     expect(appMarkup("controller")).not.toContain('id="questionCount"');
     expect(appMarkup("controller")).toContain("全10");
     expect(appMarkup("controller")).toContain("テスト・開発者用画面");
