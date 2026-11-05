@@ -1,6 +1,6 @@
 # 第三者ライセンス一覧
 
-確認日：2026-11-02。この文書は、数学でGOが使用・取得・任意評価する外部要素と、配布時に残すべき表示をまとめたものです。数学でGO自身のライセンスを定める文書ではありません。
+確認日：2026-11-06。この文書は、数学でGOが使用・取得・任意評価する外部要素と、配布時に残すべき表示をまとめたものです。数学でGO自身のライセンスを定める文書ではありません。
 
 ## 配布ZIPへ直接含まれるもの
 
@@ -10,7 +10,17 @@
 | [M PLUS 1](https://github.com/coz-m/MPLUS_FONTS)（Fontsource経由） | Fontsource 5.3.0 / font v16 | SIL OFL 1.1 | 画面の日本語フォント | 著作権表示とOFL本文を `licenses/third-party/M-PLUS-1-OFL-1.1.txt` に同梱。フォント単体販売や予約名を使った改変版配布は行わない |
 | [Lucide](https://github.com/lucide-icons/lucide) | 1.41.0 | ISC（一部Feather由来アイコンはMIT） | 判定表示の時計・正解・不正解アイコン | 著作権表示とISC／MIT本文を `licenses/third-party/Lucide-ISC-MIT.txt` に同梱 |
 
-`game/public/audio`のWAVはリポジトリ内の生成スクリプトで作成した独自素材で、外部音源・生成AIモデルは使用していません。
+`game/public/audio`直下の効果音WAVは、リポジトリ内の生成スクリプトで作成した独自素材で、外部音源・生成AIモデルは使用していません。
+
+### 本番採用前のBGM試聴候補
+
+`assets/audio-candidates/`は比較試聴用で、ゲームからも本番ビルドからも読み込みません。以下は各配布ページでCC0 1.0と明示されており、利用・改変・再配布にクレジットは必須ではありません。採用後も出典記録は保持します。
+
+| 音源 | 作者 | ライセンス | 入手元 |
+|---|---|---|---|
+| The Arplands | LordZintick | CC0 1.0 | [OpenGameArt](https://opengameart.org/content/the-arplands) |
+| Overworld Theme（original / alternate） | Louswan | CC0 1.0 | [OpenGameArt](https://opengameart.org/content/overworld-theme-0) |
+| Chiptune Chops（loop） | Eldritch Grim | CC0 1.0 | [OpenGameArt](https://opengameart.org/content/chiptune-chops) |
 
 ## セットアップ時に公式配布元から取得するもの
 
