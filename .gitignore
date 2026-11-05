@@ -51,6 +51,7 @@ results/question-reports/
 # Local inspection artifacts
 .codex-doc-review/
 .impeccable/review/
+.impeccable/critique/
 game/node_modules/
 game/dist/
 game/node-compile-cache/
