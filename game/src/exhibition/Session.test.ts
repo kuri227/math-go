@@ -83,25 +83,26 @@ describe("two-mode game rules", () => {
   });
   it("cycles selected questions in test mode, and retesting cannot inflate a round's correct count", () => {
     let now = 0; const session = new Session(questions.slice(0, 1), "test", () => now); session.start();
+    expect(session.snapshot.lives).toBeNull();
     for (let i = 0; i < 5; i++) { submit(session, true); if (i < 4) session.retryTest(); }
     expect(session.snapshot.correct).toBe(1); expect(session.snapshot.attempts).toBe(5);
     session.next(); expect(session.snapshot.endReason).toBeNull(); expect(session.snapshot.round).toBe(2);
     submit(session, true); expect(session.snapshot.correct).toBe(2);
     session.next(); expect(session.snapshot.round).toBe(3);
-    now += 15001; expect(session.tick()).toBe(true); expect(session.snapshot.lives).toBe(2);
+    now += 15001; expect(session.tick()).toBe(true); expect(session.snapshot.lives).toBeNull();
   });
-  it("keeps the final timed-out test question reportable before showing the summary", () => {
+  it("never consumes lives or ends an endless test after timeouts", () => {
     let now = 0; const session = new Session(questions.slice(0, 1), "test", () => now); session.start();
-    for (let loss = 1; loss <= 3; loss++) {
+    for (let timeout = 1; timeout <= 5; timeout++) {
       now += 15001; expect(session.tick()).toBe(true); expect(session.snapshot.phase).toBe("result");
-      expect(session.snapshot.lives).toBe(3 - loss);
-      if (loss < 3) session.next();
+      expect(session.snapshot.lives).toBeNull();
+      expect(session.snapshot.endReason).toBeNull();
+      expect(session.retryTest()).toBe(true);
     }
-    expect(session.retryTest()).toBe(false);
-    expect(session.snapshot.endReason).toBeNull();
+    now += 15001; session.tick();
     expect(session.next()).toBe(true);
-    expect(session.snapshot.phase).toBe("finished");
-    expect(session.snapshot.endReason).toBe("timeout");
+    expect(session.snapshot.phase).toBe("writing");
+    expect(session.snapshot.endReason).toBeNull();
   });
   it("requires confirmation, rejects duplicate and out-of-order responses", () => {
     const s = new Session(questions.slice(0, 1), "test"); s.start();

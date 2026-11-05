@@ -225,10 +225,10 @@ export function runApp(role: Role): void {
     $("gameSettingsFields").hidden = staff;
     $("poolSummary").hidden = staff;
     $("setupTitle").textContent = setupView === "staff" ? "テスト・開発者用画面" : "難易度を選ぶ";
-    $("setupDescription").textContent = setupView === "staff" ? "確認する問題を選び、残機がなくなるまで順番に繰り返しテストします。" : "選んだ難易度の10問に挑戦しよう。";
+    $("setupDescription").textContent = setupView === "staff" ? "確認する問題を選び、終了するまで順番に繰り返しテストします。" : "選んだ難易度の10問に挑戦しよう。";
     setAnimatedText("difficultyNumber", String(selectedLevel()), "is-level-changing");
     setAnimatedText("difficultyName", difficultyLabels[selectedLevel() - 1] ?? "", "is-level-changing");
-    $("poolSummary").textContent = selectedMode === "test" ? `${pool.length}問あります。選んだ問題は残機がなくなるまで繰り返し出題されます。` : eligible.length >= EXHIBITION.questions ? `1問${questionSeconds({ difficulty: selectedLevel() })}秒・全${EXHIBITION.questions}問です。` : `このレベルは問題が${EXHIBITION.questions}問そろっていません。スタッフへお知らせください。`;
+    $("poolSummary").textContent = selectedMode === "test" ? `${pool.length}問あります。選んだ問題は手動で終了するまで繰り返し出題されます。` : eligible.length >= EXHIBITION.questions ? `1問${questionSeconds({ difficulty: selectedLevel() })}秒・全${EXHIBITION.questions}問です。` : `このレベルは問題が${EXHIBITION.questions}問そろっていません。スタッフへお知らせください。`;
     const visibleIds = visibleQuestions.map(question => question.id);
     const visibleState = visibleSelectionState(visibleIds, selected);
     $("selectAllQuestions").textContent = visibleState.allSelected ? `表示中${visibleIds.length}問の選択を解除` : `表示中の${visibleIds.length}問を選択`;
@@ -341,7 +341,8 @@ export function runApp(role: Role): void {
     $("modeName").textContent = s.mode === "test" ? "問題検証・エンドレス" : "10問チャレンジ";
     text("round", s.mode === "test" ? `第${s.round}問` : `${s.round} / ${s.total}問`);
     setAnimatedText("correct", `正解 ${s.correct}`); setAnimatedText("streak", `連続 ${s.streak}`);
-    $("lives").hidden = false; setAnimatedText("lives", `残機 ${s.lives ?? 3} / 3`);
+    $("lives").hidden = s.mode === "test";
+    if (s.mode === "exhibition") setAnimatedText("lives", `残機 ${s.lives ?? EXHIBITION.lives} / ${EXHIBITION.lives}`);
     $("time").hidden = false; text("time", `${remainingSeconds(s.remainingMs)}秒${clockRunning(s) ? "" : " · 時計停止中"}`);
     $("time").dataset.paused = String(!clockRunning(s));
     const status = activity(s);
@@ -366,7 +367,7 @@ export function runApp(role: Role): void {
       $("guideDifficultyName").textContent = s.question?.difficulty_label ?? difficultyLabels[selectedLevel() - 1] ?? "";
       $("guideDifficultyTime").textContent = `1問 ${questionSeconds(s.question!)}秒 · 全${s.total}問`;
       $("guideDescription").textContent = s.mode === "test" ? `選択した${s.total}問を順番に繰り返します。` : `${s.question?.difficulty_label ?? "選んだ難易度"}の問題から${s.total}問に挑戦します。`;
-      $("guideRules").textContent = s.mode === "test" ? "問題ごとの制限時間内に回答します。時間切れで残機が1つ減り、残機0か手動終了まで続きます。" : `1問${questionSeconds(s.question!)}秒。時間切れになると残機が1つ減ります。`;
+      $("guideRules").textContent = s.mode === "test" ? "時間切れでも終了しません。正答を確認しながら、手動で終了するまで検証を続けられます。" : `1問${questionSeconds(s.question!)}秒。時間切れになると残機が1つ減ります。`;
       $("guidePrivacy").textContent = s.mode === "test" ? "データは自動保存しません。同意して確認した回答だけ、このPCへ保存できます。メモは保存されません。" : "";
       $("guidePrivacy").hidden = s.mode !== "test";
     }
@@ -431,11 +432,9 @@ export function runApp(role: Role): void {
       $("expected").textContent = "正答を読み込んでいます。"; $("explanation").textContent = "";
       if (role !== "controller") void loadTimeoutSolution(s);
     }
-    $("retryTest").hidden = s.mode !== "test" || role === "display" || s.lives === 0;
+    $("retryTest").hidden = s.mode !== "test" || role === "display";
     $("next").hidden = role === "display";
-    $("next").textContent = s.mode === "test"
-      ? s.lives === 0 ? "テスト結果を見る" : "次の問題へ"
-      : s.round === s.total ? "結果を見る" : "次の問題へ";
+    $("next").textContent = s.mode === "test" ? "次の問題へ" : s.round === s.total ? "結果を見る" : "次の問題へ";
     if (s.recognition && s.recognition.request_id !== lastPreview) {
       lastPreview = s.recognition.request_id; renderMath(s.recognition.raw_latex, $("recognized"));
       $("rawLatex").textContent = s.recognition.raw_latex;
@@ -487,7 +486,7 @@ export function runApp(role: Role): void {
         : accuracy >= 80 ? "ナイスチャレンジ！" : "挑戦おつかれさまでした！";
       $("endStats").textContent = `${seen}問中 ${s.correct}問正解 · 正解率 ${accuracy}%`;
       $("endAttempts").textContent = s.mode === "test"
-        ? `出題 ${seen}問 · 回答 ${s.attempts}回 · 不正解 ${s.wrongAttempts}回 · 残機 ${s.lives} / 3`
+        ? `出題 ${seen}問 · 回答 ${s.attempts}回 · 不正解 ${s.wrongAttempts}回`
         : `挑戦した問題 ${seen}問 · 残機 ${s.lives} / 3`;
       $("endStats").hidden = role === "controller";
       $("endAchievement").hidden = role === "controller";

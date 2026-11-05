@@ -43,7 +43,7 @@ export class Session {
     this.snapshot = {
       runId: crypto.randomUUID(), mode, phase: "guide", question: questions[0]!,
       round: 1, total: questions.length, correct: 0, streak: 0, attempts: 0, wrongAttempts: 0,
-      lives: EXHIBITION.lives, timedOut: false,
+      lives: mode === "exhibition" ? EXHIBITION.lives : null, timedOut: false,
       remainingMs: questionSeconds(questions[0]!) * 1000,
       questionTimeMs: questionSeconds(questions[0]!) * 1000,
       paused: false, endReason: null,
@@ -87,13 +87,14 @@ export class Session {
     if (!s.paused && s.phase === "writing") {
       s.remainingMs = Math.max(0, s.remainingMs - Math.max(0, now - this.lastTick));
       if (s.remainingMs === 0) {
-        s.lives = Math.max(0, (s.lives ?? EXHIBITION.lives) - 1); s.timedOut = true; s.streak = 0;
+        if (s.mode === "exhibition") s.lives = Math.max(0, (s.lives ?? EXHIBITION.lives) - 1);
+        s.timedOut = true; s.streak = 0;
         this.requestId = null; s.recognition = null; s.judgement = null;
         if (s.lives === 0 && s.mode === "exhibition") this.finish("timeout");
         else {
           s.phase = "result";
-          s.notice = s.lives === 0
-            ? "残機が0になりました。最後の問題を確認・報告してからテスト結果へ進んでください。"
+          s.notice = s.mode === "test"
+            ? "時間切れです。正答と問題内容を確認して、再テストまたは次の問題へ進んでください。"
             : `時間切れで残機が1減りました。残り${s.lives}。正答を確認して次へ進んでください。`;
         }
         this.lastTick = now; return true;
@@ -157,7 +158,6 @@ export class Session {
   next(prepare = false): boolean {
     const s = this.snapshot;
     if (s.phase !== "result") return false;
-    if (s.mode === "test" && s.lives === 0) { this.finish("timeout"); return true; }
     if (s.mode === "exhibition" && this.index + 1 === this.questions.length) { this.finish("completed"); return true; }
     this.index = (this.index + 1) % this.questions.length;
     s.question = this.questions[this.index]!;
@@ -168,7 +168,7 @@ export class Session {
     s.remainingMs = s.questionTimeMs; this.lastTick = this.now(); return true;
   }
   retryTest(prepare = false): boolean {
-    if (this.snapshot.mode !== "test" || this.snapshot.phase !== "result" || this.snapshot.lives === 0) return false;
+    if (this.snapshot.mode !== "test" || this.snapshot.phase !== "result") return false;
     this.snapshot.phase = prepare ? "countdown" : "writing"; this.snapshot.judgement = null; this.snapshot.recognition = null;
     this.snapshot.countdownRemainingMs = 0; this.snapshot.paused = prepare; this.snapshot.timedOut = false;
     this.snapshot.remainingMs = this.snapshot.questionTimeMs;

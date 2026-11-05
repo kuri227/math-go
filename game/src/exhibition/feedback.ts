@@ -12,8 +12,12 @@ export function resultFeedback(snapshot: Snapshot, role: Role): JudgementFeedbac
   if (snapshot.timedOut) {
     return {
       tone: "timeout",
-      title: "時間切れ · 残機 −1",
-      message: role === "controller" ? "モニターで正答と解説を確認してください。" : "正答を確認して、次の問題へ進みましょう。",
+      title: snapshot.mode === "test" ? "時間切れ" : "時間切れ · 残機 −1",
+      message: role === "controller"
+        ? "モニターで正答と解説を確認してください。"
+        : snapshot.mode === "test"
+          ? "正答を確認し、再テストまたは次の問題へ進めます。"
+          : "正答を確認して、次の問題へ進みましょう。",
     };
   }
   if (!snapshot.judgement) return null;

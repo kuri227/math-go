@@ -16,7 +16,8 @@ describe("judgement feedback", () => {
 
   it("distinguishes wrong answers and timeouts without relying on color", () => {
     expect(resultFeedback(snapshot({ judgement: { correct: false } as Snapshot["judgement"] }), "display")).toMatchObject({ tone: "wrong", title: "不正解" });
-    expect(resultFeedback(snapshot({ timedOut: true, judgement: null }), "display")).toMatchObject({ tone: "timeout", title: "時間切れ · 残機 −1" });
+    expect(resultFeedback(snapshot({ mode: "exhibition", timedOut: true, judgement: null }), "display")).toMatchObject({ tone: "timeout", title: "時間切れ · 残機 −1" });
+    expect(resultFeedback(snapshot({ mode: "test", timedOut: true, judgement: null }), "display")).toMatchObject({ tone: "timeout", title: "時間切れ" });
   });
 
   it("explains that exhibition wrong answers can be retried", () => {
