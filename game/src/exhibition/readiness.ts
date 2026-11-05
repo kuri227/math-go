@@ -18,12 +18,12 @@ export function setupAvailability(input: {
 }): SetupAvailability {
   if (input.questions === "error") return { ready: false, message: "問題を取得できませんでした。ページを更新してください。" };
   if (input.questions !== "ready") return { ready: false, message: "問題を準備しています。少しお待ちください。" };
-  if (input.recognition === "error") return { ready: false, message: "認識モデルを準備できませんでした。スタッフへお知らせください。" };
-  if (input.recognition === "pending") return { ready: false, message: "認識モデルを準備しています。少しお待ちください。" };
+  if (input.recognition === "error") return { ready: false, message: "手書き読み取りを準備できませんでした。スタッフへお知らせください。" };
+  if (input.recognition === "pending") return { ready: false, message: "手書き読み取りを準備しています。少しお待ちください。" };
   if (!input.connected) return { ready: false, message: "モニター画面との接続を待っています。" };
   if (input.mode === "test" && input.selectedCount === 0) return { ready: false, message: "テストする問題にチェックを入れてください。" };
   if (input.mode === "exhibition" && input.eligibleCount < input.requiredQuestions) {
-    return { ready: false, message: `この難易度の本番用問題を${input.requiredQuestions}問準備してください。` };
+    return { ready: false, message: `この難易度は問題が${input.requiredQuestions}問そろっていません。スタッフへお知らせください。` };
   }
   return { ready: true, message: "準備OK！" };
 }
@@ -39,9 +39,9 @@ export function resourceStatusCopy(input: {
   if (input.questions !== "ready") return "問題を準備中";
   if (input.role === "display") {
     if (!input.connected) return "表示準備OK";
-    return input.remoteRecognitionReady ? "準備OK" : "液タブで認識準備中";
+    return input.remoteRecognitionReady ? "準備OK" : "液タブで読み取り準備中";
   }
-  if (input.recognition === "error") return "認識準備に失敗";
-  if (input.recognition !== "ready") return "認識モデルを準備中";
+  if (input.recognition === "error") return "読み取り準備に失敗";
+  if (input.recognition !== "ready") return "手書き読み取りを準備中";
   return "準備OK";
 }

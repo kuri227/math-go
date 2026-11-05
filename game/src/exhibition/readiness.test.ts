@@ -16,7 +16,7 @@ describe("setupAvailability", () => {
 
   it("reports question and recognition failures separately", () => {
     expect(setupAvailability({ ...ready, questions: "error" }).message).toContain("問題を取得");
-    expect(setupAvailability({ ...ready, recognition: "error" }).message).toContain("認識モデル");
+    expect(setupAvailability({ ...ready, recognition: "error" }).message).toContain("手書き読み取り");
   });
 
   it("allows a fully prepared exhibition", () => {
@@ -26,7 +26,7 @@ describe("setupAvailability", () => {
 
 describe("resourceStatusCopy", () => {
   it("never claims that the monitor is loading the recognition model", () => {
-    expect(resourceStatusCopy({ role: "display", questions: "ready", recognition: "skipped", connected: true, remoteRecognitionReady: false })).toBe("液タブで認識準備中");
+    expect(resourceStatusCopy({ role: "display", questions: "ready", recognition: "skipped", connected: true, remoteRecognitionReady: false })).toBe("液タブで読み取り準備中");
     expect(resourceStatusCopy({ role: "display", questions: "ready", recognition: "skipped", connected: true, remoteRecognitionReady: true })).toBe("準備OK");
   });
 });

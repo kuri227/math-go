@@ -13,7 +13,7 @@ import { formulaScale } from "../game/formulaLayout";
 import { GAME_VOLUME_STORAGE_KEY, UrgencySound } from "../ui/UrgencySound";
 import { StatePublisher } from "../dual-screen/StatePublisher";
 import { connectionCopy } from "../dual-screen/connectionCopy";
-import { isSafeInkSnapshot, type SetupView } from "../dual-screen/messages";
+import { isSafeInkSnapshot, type ExhibitionAction, type SetupView } from "../dual-screen/messages";
 import { activity, clockRunning } from "./activity";
 import { byId as $, text } from "./dom";
 
@@ -31,6 +31,7 @@ import { displaySetupPresentation } from "./setupPresentation";
 import { configuredQuestions } from "./configuration";
 import { resultFeedback, retryFeedback, type JudgementFeedback } from "./feedback";
 import { renderJudgementIcon } from "./judgementIcons";
+import { visitorErrorMessage } from "./visitorError";
 import {
   requiresRecognitionModel,
   resourceStatusCopy,
@@ -142,7 +143,10 @@ export function runApp(role: Role): void {
     if (role !== "display") sound.playEffect("tap");
     void Promise.resolve().then(action).catch(showError);
   });
-  function showError(error: unknown): void { const text = error instanceof Error ? error.message : String(error); $(state() && !["guide", "finished"].includes(state()!.phase) ? "notice" : "setupStatus").textContent = text; }
+  function showError(error: unknown): void {
+    console.error(error);
+    $(state() && !["guide", "finished"].includes(state()!.phase) ? "notice" : "setupStatus").textContent = visitorErrorMessage(error);
+  }
   // Title, rules, difficulty, and staff-test setup.
   function showSetupView(view: typeof setupView): void {
     setupView = view;
@@ -206,7 +210,7 @@ export function runApp(role: Role): void {
     $("setupDescription").textContent = setupView === "staff" ? "確認する問題を選び、残機がなくなるまで順番に繰り返しテストします。" : "選んだ難易度の10問に挑戦しよう。";
     setAnimatedText("difficultyNumber", String(selectedLevel()), "is-level-changing");
     setAnimatedText("difficultyName", difficultyLabels[selectedLevel() - 1] ?? "", "is-level-changing");
-    $("poolSummary").textContent = selectedMode === "test" ? `${pool.length}問あります。選んだ問題は残機がなくなるまで繰り返し出題されます。` : eligible.length >= EXHIBITION.questions ? `1問${questionSeconds({ difficulty: selectedLevel() })}秒・全${EXHIBITION.questions}問です。` : `このレベルは本番用の問題が${EXHIBITION.questions}問そろっていません。`;
+    $("poolSummary").textContent = selectedMode === "test" ? `${pool.length}問あります。選んだ問題は残機がなくなるまで繰り返し出題されます。` : eligible.length >= EXHIBITION.questions ? `1問${questionSeconds({ difficulty: selectedLevel() })}秒・全${EXHIBITION.questions}問です。` : `このレベルは問題が${EXHIBITION.questions}問そろっていません。スタッフへお知らせください。`;
     const visibleIds = visibleQuestions.map(question => question.id);
     const visibleState = visibleSelectionState(visibleIds, selected);
     $("selectAllQuestions").textContent = visibleState.allSelected ? `表示中${visibleIds.length}問の選択を解除` : `表示中の${visibleIds.length}問を選択`;
@@ -326,7 +330,7 @@ export function runApp(role: Role): void {
     text("activityTitle", status?.title ?? ""); text("activityDescription", status?.description ?? "");
     $("recognitionProgress").hidden = !status?.busy;
     $("timerTrack").hidden = false;
-    $("timerFill").style.width = `${Math.max(0, s.remainingMs / s.questionTimeMs * 100)}%`;
+    $("timerFill").style.transform = `scaleX(${Math.max(0, Math.min(1, s.remainingMs / s.questionTimeMs))})`;
     $("timerTrack").dataset.urgent = String(clockRunning(s) && s.remainingMs <= 5000);
     $("countdown").hidden = phase !== "countdown";
     if (phase === "countdown") {
@@ -443,14 +447,25 @@ export function runApp(role: Role): void {
       showJudgementFeedback(transientFeedback);
     }
     if (phase === "finished") {
-      releaseDraft(); $("endTitle").textContent = s.endReason === "completed" ? "全問完了！" : s.endReason === "timeout" ? "残機0 · プレイ終了" : "プレイ終了";
-      $("endReason").textContent = role === "controller" ? "モニターで最終結果を確認できます。" : s.notice;
+      releaseDraft();
+      $("finished").dataset.reason = s.endReason ?? "stopped";
+      $("endTitle").textContent = s.endReason === "completed" ? "チャレンジ完走！" : s.endReason === "timeout" ? "今回の挑戦はここまで！" : "プレイを終了しました";
+      $("endReason").textContent = role === "controller"
+        ? "モニターで最終結果を確認できます。"
+        : s.endReason === "completed" ? "全10問の結果を発表します。"
+          : s.endReason === "timeout" ? "ここまでの結果を振り返りましょう。"
+            : "ここまでの結果です。";
       const seen = s.endReason === "completed" ? s.total : s.round;
-      $("endStats").textContent = `${seen}問中 ${s.correct}問正解 · 正解率 ${Math.round(s.correct / seen * 100)}%`;
+      const accuracy = seen > 0 ? Math.round(s.correct / seen * 100) : 0;
+      $("endAchievement").textContent = s.endReason === "completed"
+        ? s.correct === seen ? "全問正解！すばらしい！" : `${seen}問を最後まで走り切りました！`
+        : accuracy >= 80 ? "ナイスチャレンジ！" : "挑戦おつかれさまでした！";
+      $("endStats").textContent = `${seen}問中 ${s.correct}問正解 · 正解率 ${accuracy}%`;
       $("endAttempts").textContent = s.mode === "test"
         ? `出題 ${seen}問 · 回答 ${s.attempts}回 · 不正解 ${s.wrongAttempts}回 · 残機 ${s.lives} / 3`
         : `挑戦した問題 ${seen}問 · 残機 ${s.lives} / 3`;
       $("endStats").hidden = role === "controller";
+      $("endAchievement").hidden = role === "controller";
       $("endAttempts").hidden = role === "controller";
       $("backToSetup").hidden = role === "display";
       $("restart").hidden = role === "display";
@@ -465,12 +480,14 @@ export function runApp(role: Role): void {
   }
 
   // Apply one state transition locally, or relay it from Controller to Display.
-  async function action(action: "recognize" | "confirm" | "rewrite" | "next" | "retry-test" | "stop", data: { requestId?: string; response?: RecognitionResponse; error?: string } = {}): Promise<void> {
+  async function action(action: ExhibitionAction, data: { requestId?: string; response?: RecognitionResponse; error?: string } = {}): Promise<void> {
     const s = state(); if (!s?.question) return;
     if ((saveBusy || reportBusy) && action !== "recognize") return;
     if (role === "controller") { channel?.send({ type: "exhibition-action", action, runId: s.runId, questionId: s.question.id, ...data }); return; }
     if (!session) return;
-    if (action === "recognize") {
+    if (action === "pause") { session.pause(true); }
+    else if (action === "resume") { session.pause(false); }
+    else if (action === "recognize") {
       if (data.error) session.fail(data.requestId!, data.error);
       else if (data.response) session.recognized(data.requestId!, data.response);
       else session.beginRecognition(data.requestId!);
@@ -641,7 +658,26 @@ export function runApp(role: Role): void {
   on("rewrite", async () => { await action("rewrite"); if (state()?.phase === "writing") { pad.clear(); releaseDraft(); } });
   on("confirm", () => action("confirm")); on("next", () => action("next"));
   on("retryTest", async () => { await action("retry-test"); pad.clear(); memoPad.clear(); activePaper = "answer"; releaseDraft(); lastPreview = ""; });
-  on("stop", () => { if (saveBusy || reportBusy) { $("notice").textContent = "保存処理が終わるまでお待ちください。"; return; } return action("stop"); });
+  on("stop", async () => {
+    if (saveBusy || reportBusy) { $("notice").textContent = "保存処理が終わるまでお待ちください。"; return; }
+    await action("pause");
+    const dialog = $<HTMLDialogElement>("stopDialog");
+    if (!dialog.open) dialog.showModal();
+    requestAnimationFrame(() => $("continuePlay").focus());
+  });
+  on("continuePlay", async () => {
+    $<HTMLDialogElement>("stopDialog").close();
+    await action("resume");
+  });
+  on("confirmStop", async () => {
+    $<HTMLDialogElement>("stopDialog").close();
+    await action("stop");
+  });
+  $("stopDialog").addEventListener("cancel", event => {
+    event.preventDefault();
+    $<HTMLDialogElement>("stopDialog").close();
+    void action("resume").catch(showError);
+  });
   on("backToSetup", () => {
     setupView = selectedMode === "test" ? "staff" : "difficulty";
     if (role === "controller") channel?.send({ type: "exhibition-control", action: "back-to-setup", runId: state()?.runId });

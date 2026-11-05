@@ -29,6 +29,10 @@ describe("solo game layout contract", () => {
     expect(markup).toContain('class="result-body"');
     expect(markup).toContain('id="judgementFlash"');
     expect(markup).toContain('id="resultVerdict"');
+    expect(markup).toContain('id="stopDialog"');
+    expect(markup).toContain('id="continuePlay"');
+    expect(markup).toContain('id="confirmStop"');
+    expect(markup).toContain('id="endAchievement"');
     expect(markup).toContain('id="memoPad"');
     expect(markup).toContain("このメモはモニターへ送られず、採点・保存にも使いません");
     expect(markup).toContain("スタッフ用：認識の詳細");
