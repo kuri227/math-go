@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { DUAL_SCREEN_PROTOCOL_VERSION, isSafeInkSnapshot, MAX_INK_POINTS } from "./messages";
+import protocol from "../../../config/dual_screen_protocol.json";
+import { DUAL_SCREEN_PROTOCOL_VERSION, EXHIBITION_ACTIONS, isSafeInkSnapshot, MAX_INK_POINTS } from "./messages";
 
-it("bumps the protocol for role-owned readiness", () => {
-  expect(DUAL_SCREEN_PROTOCOL_VERSION).toBe(7);
+it("keeps both clients on the shared protocol contract", () => {
+  expect(DUAL_SCREEN_PROTOCOL_VERSION).toBe(8);
+  expect(EXHIBITION_ACTIONS).toEqual(protocol.exhibition_actions);
 });
 
 describe("ink relay validation", () => {

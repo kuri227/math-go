@@ -2,7 +2,7 @@ import math
 
 import pytest
 
-from backend.app.pairing import MAX_SELECTED_QUESTIONS, PROTOCOL_VERSION, PairHub
+from backend.app.pairing import EXHIBITION_ACTIONS, MAX_SELECTED_QUESTIONS, PROTOCOL_VERSION, PairHub
 
 
 def hello(role, connection="connection", sequence=1):
@@ -42,6 +42,13 @@ def test_each_role_can_send_only_its_protocol_messages():
     assert not PairHub.valid_message({**controller, "connectionId": "forged"}, "test", "controller", "connection")
     assert not PairHub.valid_message({**controller, "sequence": 0}, "test", "controller", "connection")
     assert not PairHub.valid_message({**controller, "action": "stop"}, "test", "controller", "connection")
+
+
+@pytest.mark.parametrize("action", sorted(EXHIBITION_ACTIONS))
+def test_every_shared_exhibition_action_is_accepted(action):
+    message = {**hello("controller"), "type": "exhibition-action", "action": action,
+               "runId": "run", "questionId": "question"}
+    assert PairHub.valid_message(message, "test", "controller", "connection")
 
 
 def test_setup_view_requires_a_known_view_and_bounded_difficulty():

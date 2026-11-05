@@ -5,6 +5,7 @@ describe("solo game layout contract", () => {
   it.each(["single", "display", "controller"] as const)("keeps optional tools collapsed for %s", role => {
     const markup = appMarkup(role);
     expect(markup).toContain('id="homeTitle"');
+    expect(markup).toContain('id="homeLink"');
     expect(markup).toContain('id="startGame"');
     expect(markup).toContain('id="showRules"');
     expect(markup).toContain('id="volume"');
@@ -33,6 +34,7 @@ describe("solo game layout contract", () => {
     expect(markup).toContain('id="continuePlay"');
     expect(markup).toContain('id="confirmStop"');
     expect(markup).toContain('id="endAchievement"');
+    expect(markup).toContain('id="guideDifficulty"');
     expect(markup).toContain('id="memoPad"');
     expect(markup).toContain("このメモはモニターへ送られず、採点・保存にも使いません");
     expect(markup).toContain("スタッフ用：認識の詳細");

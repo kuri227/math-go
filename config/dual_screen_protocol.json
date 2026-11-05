@@ -1,0 +1,13 @@
+{
+  "version": 8,
+  "exhibition_actions": [
+    "recognize",
+    "confirm",
+    "rewrite",
+    "next",
+    "retry-test",
+    "pause",
+    "resume",
+    "stop"
+  ]
+}

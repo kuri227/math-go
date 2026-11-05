@@ -1,11 +1,13 @@
 import type { RecognitionResponse } from "../domain/types";
 import type { Snapshot } from "../exhibition/Session";
 import type { InkSnapshot } from "../ui/HandwritingPad";
+import protocol from "../../../config/dual_screen_protocol.json";
 
-export const DUAL_SCREEN_PROTOCOL_VERSION = 7 as const;
+export const DUAL_SCREEN_PROTOCOL_VERSION = protocol.version;
 export type DualScreenRole = "display" | "controller";
 export type SetupView = "home" | "rules" | "difficulty" | "staff";
-export type ExhibitionAction = "recognize" | "confirm" | "rewrite" | "next" | "retry-test" | "pause" | "resume" | "stop";
+export const EXHIBITION_ACTIONS = ["recognize", "confirm", "rewrite", "next", "retry-test", "pause", "resume", "stop"] as const;
+export type ExhibitionAction = typeof EXHIBITION_ACTIONS[number];
 
 interface MessageBase {
   sessionId: string;

@@ -108,7 +108,6 @@ export function runApp(role: Role): void {
   const params = new URLSearchParams(location.search);
   const sessionId = params.get("session") || crypto.randomUUID();
   if (role !== "single" && !params.has("session")) { params.set("session", sessionId); history.replaceState(null, "", `${location.pathname}?${params}`); }
-  if (role !== "single") document.querySelector<HTMLAnchorElement>(".wordmark")!.href = `${location.pathname}?session=${encodeURIComponent(sessionId)}`;
   $<HTMLAnchorElement>("displayLink").href = `/display?session=${encodeURIComponent(sessionId)}`;
   $("displayLink").hidden = role === "display";
   const controllerLink = $<HTMLAnchorElement>("openControllerWaiting");
@@ -342,6 +341,10 @@ export function runApp(role: Role): void {
     }
     if (phase === "guide") {
       $("guideTitle").textContent = s.mode === "test" ? "問題検証・エンドレステスト" : "ゲームの遊び方";
+      $("guideDifficulty").hidden = s.mode === "test";
+      $("guideDifficultyLevel").textContent = `LEVEL ${s.question?.difficulty ?? selectedLevel()}`;
+      $("guideDifficultyName").textContent = s.question?.difficulty_label ?? difficultyLabels[selectedLevel() - 1] ?? "";
+      $("guideDifficultyTime").textContent = `1問 ${questionSeconds(s.question!)}秒 · 全${s.total}問`;
       $("guideDescription").textContent = s.mode === "test" ? `選択した${s.total}問を順番に繰り返します。` : `${s.question?.difficulty_label ?? "選んだ難易度"}の問題から${s.total}問に挑戦します。`;
       $("guideRules").textContent = s.mode === "test" ? "問題ごとの制限時間内に回答します。時間切れで残機が1つ減り、残機0か手動終了まで続きます。" : `1問${questionSeconds(s.question!)}秒。時間切れになると残機が1つ減ります。`;
       $("guidePrivacy").textContent = s.mode === "test" ? "データは自動保存しません。同意して確認した回答だけ、このPCへ保存できます。メモは保存されません。" : "";
@@ -625,6 +628,14 @@ export function runApp(role: Role): void {
   on("clearSelection", () => { selected.clear(); drawPicker(); });
   on("selectAllQuestions", () => { const ids = visibleQuestions.map(question => question.id); const { allSelected } = visibleSelectionState(ids, selected); for (const id of ids) { if (allSelected) selected.delete(id); else selected.add(id); } drawPicker(); });
   on("startGame", () => showSetupView("difficulty"));
+  const returnHome = () => {
+    setupView = "home";
+    selectedMode = "exhibition";
+    if (role === "controller") channel?.send({ type: "exhibition-control", action: "back-to-setup", runId: state()?.runId });
+    else { session = null; releaseDraft(); lastRender = ""; sendState(true); }
+    showSetupView("home");
+  };
+  on("homeLink", returnHome);
   on("showRules", () => showSetupView("rules"));
   on("rulesHome", () => showSetupView("home"));
   on("rulesContinue", () => showSetupView("difficulty"));
@@ -684,12 +695,7 @@ export function runApp(role: Role): void {
     else { session = null; releaseDraft(); lastRender = ""; render(); sendState(); }
     void client.fetchQuestions().then(qs => { setBank(qs); drawPicker(); }).catch(showError);
   });
-  on("backHome", () => {
-    setupView = "home";
-    selectedMode = "exhibition";
-    if (role === "controller") channel?.send({ type: "exhibition-control", action: "back-to-setup", runId: state()?.runId });
-    else { session = null; releaseDraft(); lastRender = ""; render(); sendState(); }
-  });
+  on("backHome", returnHome);
   on("restart", () => {
     const questions = selectedMode === "test" ? catalog.selected(selected) : chooseExhibition(bank, selectedLevel());
     if (!questions.length) return;

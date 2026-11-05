@@ -9,10 +9,14 @@ from collections import deque
 
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
+from .config import REPO_ROOT
 from .local_admin import loopback_host
 
 router = APIRouter()
-PROTOCOL_VERSION = 7
+with (REPO_ROOT / "config" / "dual_screen_protocol.json").open(encoding="utf-8") as protocol_file:
+    PROTOCOL = json.load(protocol_file)
+PROTOCOL_VERSION = PROTOCOL["version"]
+EXHIBITION_ACTIONS = frozenset(PROTOCOL["exhibition_actions"])
 MAX_MESSAGE_BYTES = 1_000_000
 MAX_SESSIONS = 32
 MAX_MESSAGES_PER_MINUTE = 1_200
@@ -151,7 +155,7 @@ class PairHub:
             return message.get("snapshot") is None or isinstance(message.get("snapshot"), dict)
         if message_type == "exhibition-action":
             return (
-                message.get("action") in {"recognize", "confirm", "rewrite", "next", "retry-test", "stop"}
+                message.get("action") in EXHIBITION_ACTIONS
                 and cls.valid_token(message.get("runId"))
                 and cls.valid_token(message.get("questionId"))
                 and (message.get("requestId") is None or cls.valid_token(message.get("requestId")))
