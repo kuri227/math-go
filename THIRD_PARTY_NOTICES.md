@@ -21,6 +21,11 @@
 | The Arplands | LordZintick | CC0 1.0 | [OpenGameArt](https://opengameart.org/content/the-arplands) |
 | Overworld Theme（original / alternate） | Louswan | CC0 1.0 | [OpenGameArt](https://opengameart.org/content/overworld-theme-0) |
 | Chiptune Chops（loop） | Eldritch Grim | CC0 1.0 | [OpenGameArt](https://opengameart.org/content/chiptune-chops) |
+| Empacotatron（menu / loop） | Fupi | CC0 1.0 | [OpenGameArt](https://opengameart.org/content/empacotatron) |
+| Sci-fi Puzzle In-Game 1 | MintoDog | CC0 1.0 | [OpenGameArt](https://opengameart.org/content/sci-fi-puzzle-in-game-1) |
+| Shine Blitz | zesona / Chris Murphy | CC0 1.0 | [OpenGameArt](https://opengameart.org/content/shine-blitz) |
+| Upbeat Chiptune Theme | nihilocrat | CC0 1.0 | [OpenGameArt](https://opengameart.org/content/upbeat-chiptune-theme) |
+| Charge! | Centurion_of_war | CC0 1.0 | [OpenGameArt](https://opengameart.org/content/charge) |
 
 ## セットアップ時に公式配布元から取得するもの
 
