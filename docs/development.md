@@ -8,7 +8,7 @@
 | --- | --- |
 | `game/` | TypeScript、DOM、Canvas、KaTeXによるゲーム画面 |
 | `backend/` | FastAPI、問題、採点、保存、モデルワーカー管理 |
-| `config/game_questions.json` | 516問の問題バンク |
+| `config/game_questions.json` | 526問の問題バンク |
 | `scripts/` | セットアップ、起動、検証、学習用スクリプト |
 | `requirements/` | Python依存関係 |
 | `docs/` | 現行仕様、運用、設計判断 |
