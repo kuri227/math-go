@@ -190,18 +190,45 @@ export class Session {
   }
 }
 
-export function chooseExhibition(bank: readonly Question[], difficulty: number, random = Math.random, questionCount: number = EXHIBITION.questions): Question[] {
+const questionFamily = (question: Question): string => question.id.replace(/-v\d+$/, "");
+
+export function chooseExhibition(
+  bank: readonly Question[],
+  difficulty: number,
+  random = Math.random,
+  questionCount: number = EXHIBITION.questions,
+  recentlyPlayed: readonly string[] = [],
+): Question[] {
   if (questionCount !== EXHIBITION.questions) {
     throw new RangeError(`通常ゲームは${EXHIBITION.questions}問で指定してください。`);
   }
   const pool = bank.filter(q => q.difficulty === difficulty && q.exhibition_enabled && q.review_status === "approved");
-  // Randomize within groups, then round-robin categories to avoid runs of variants.
+  const recent = new Set(recentlyPlayed);
+  // A family is one solution method with several numeric variants. Pick at
+  // most one variant from each family before falling back, so a ten-question
+  // game tests different ideas instead of the same calculation repeatedly.
   const shuffle = <T>(items: T[]): T[] => { for (let i = items.length - 1; i > 0; i--) { const j = Math.floor(random() * (i + 1)); [items[i], items[j]] = [items[j]!, items[i]!]; } return items; };
-  const groups = new Map<string, Question[]>();
-  for (const q of shuffle([...pool])) { const key = `${q.sublevel ?? 1}:${q.category}`; groups.set(key, [...(groups.get(key) ?? []), q]); }
-  const buckets = shuffle([...groups.values()]), selected: Question[] = [];
-  while (selected.length < questionCount && buckets.some(b => b.length)) {
-    for (const b of buckets) { const q = b.pop(); if (q) selected.push(q); if (selected.length === questionCount) break; }
+  const families = new Map<string, Question[]>();
+  for (const q of shuffle([...pool])) families.set(questionFamily(q), [...(families.get(questionFamily(q)) ?? []), q]);
+  const representatives = shuffle([...families.values()]).map(variants => {
+    const fresh = variants.filter(q => !recent.has(q.id));
+    return shuffle(fresh.length ? fresh : variants)[0]!;
+  });
+  const diverseOrder = (items: Question[]): Question[] => {
+    const groups = new Map<string, Question[]>();
+    for (const q of shuffle(items)) {
+      const key = `${q.sublevel ?? 1}:${q.category}`;
+      groups.set(key, [...(groups.get(key) ?? []), q]);
+    }
+    const buckets = shuffle([...groups.values()]), ordered: Question[] = [];
+    while (buckets.some(bucket => bucket.length)) for (const bucket of buckets) { const q = bucket.pop(); if (q) ordered.push(q); }
+    return ordered;
+  };
+  const fresh = diverseOrder(representatives.filter(q => !recent.has(q.id)));
+  const repeated = diverseOrder(representatives.filter(q => recent.has(q.id)));
+  const selected = [...fresh, ...repeated].slice(0, questionCount);
+  if (selected.length < questionCount) {
+    selected.push(...shuffle(pool.filter(q => !selected.some(item => item.id === q.id))).slice(0, questionCount - selected.length));
   }
-  return selected.sort((a, b) => (a.rank ?? 1) - (b.rank ?? 1));
+  return shuffle(selected);
 }

@@ -140,6 +140,13 @@ describe("two-mode game rules", () => {
     const chosen = chooseExhibition(questions, 1, () => 0.5);
     expect(chosen).toHaveLength(10);
     expect(new Set(chosen.map(question => question.id)).size).toBe(10);
+    expect(new Set(chosen.map(question => question.id.replace(/-v\d+$/, ""))).size).toBe(10);
+  });
+  it("prefers questions that were not used in the previous game", () => {
+    const first = chooseExhibition(questions, 4, () => 0.25);
+    const second = chooseExhibition(questions, 4, () => 0.25, 10, first.map(question => question.id));
+    const availableFreshFamilies = new Set(questions.filter(question => question.difficulty === 4 && question.exhibition_enabled && !first.some(previous => previous.id === question.id)).map(question => question.id.replace(/-v\d+$/, ""))).size;
+    expect(second.filter(question => !first.some(previous => previous.id === question.id)).length).toBe(Math.min(10, availableFreshFamilies));
   });
   it.each([0, 1, 7, 15])("rejects a non-production game length %s", count => {
     expect(() => chooseExhibition(questions, 1, Math.random, count)).toThrow("通常ゲームは10問");

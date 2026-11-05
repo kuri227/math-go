@@ -86,8 +86,9 @@ main { max-width:1600px; margin:auto; padding:24px clamp(16px,3vw,48px) 15px; }
 .field-hint { color:#525e73; font-size:.72rem; font-weight:600; line-height:1.4; }
 #staffTools { min-height:0; margin:20px 0 0; padding-top:20px; border-top:2px solid #d9dbe1; display:flex; flex-direction:column; }
 .staff-heading { flex:0 0 auto; display:flex; align-items:start; justify-content:space-between; gap:16px; margin-bottom:16px; }
-.staff-heading h2 { margin-bottom:4px; }
-.staff-heading > p { margin:0; color:#525e73; font-size:.85rem; }
+.staff-heading h2 { flex:0 0 auto; margin-bottom:4px; white-space:nowrap; }
+.staff-heading > p { flex:1 1 26rem; margin:0; color:#525e73; font-size:.85rem; }
+.staff-heading .dual-screen-note { flex:0 1 24rem; }
 .dual-screen-note { display:grid; gap:6px; padding:16px; border-radius:12px; background:#eef2fa; color:#26324b; }
 .dual-screen-note strong { font-size:.95rem; }
 .dual-screen-note span { line-height:1.6; }
@@ -195,7 +196,7 @@ body[data-role="display"][data-phase="setup"] .setup-display { height:100%; min-
 .prompt-space { flex:1; min-height:220px; display:flex; align-items:center; justify-content:center; padding:28px 0; }
 .prompt { font-size:clamp(1.2rem,2.2vw,1.8rem); font-weight:650; line-height:2; max-width:65ch; white-space:pre-line; overflow-wrap:anywhere; text-align:left; }
 .prompt.short-prompt { font-size:clamp(1.5rem,2.8vw,2.4rem); text-align:center; }
-.prompt .katex { font-size:1.1em; display:inline-block; max-width:100%; overflow-x:auto; overflow-y:hidden; vertical-align:middle; padding:2px 0; }
+.prompt .katex { font-size:1.1em; display:inline; max-width:none; overflow:visible; vertical-align:baseline; padding:0; }
 .katex { white-space:normal; }
 .input-pane { min-width:0; background:var(--paper); color:var(--ink); border-radius:14px; padding:16px; display:flex; flex-direction:column; }
 .input-heading { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:12px; flex-wrap:wrap; }
@@ -254,8 +255,8 @@ code { display:block; overflow-wrap:anywhere; white-space:pre-wrap; }
 .reading-surface > details > summary { padding:0; font-size:1.05rem; font-weight:750; min-height:48px; line-height:1.6; }
 .reading-surface > details[open] > summary { margin-bottom:20px; }
 .collection p { font-size:.9rem; }
-.check-line { margin:20px 0; font-size:.85rem; }
-.check-line input { margin-top:3px; }
+.check-line { display:flex; align-items:flex-start; gap:8px; margin:20px 0; font-size:.85rem; line-height:1.55; }
+.check-line input { flex:0 0 auto; margin-top:3px; }
 .result .solution > p { font-size:.9rem; }
 .result h2 { margin:0; font-size:clamp(1.55rem,3vw,2.5rem); line-height:1.08; }
 .judgement-flash { position:fixed; z-index:60; inset:0; display:grid; place-items:center; padding:24px; pointer-events:none; background:rgb(16 27 61 / .64); backdrop-filter:blur(3px); }
@@ -276,14 +277,38 @@ code { display:block; overflow-wrap:anywhere; white-space:pre-wrap; }
 .result-label,.solution > p:first-child { margin-bottom:8px; font-size:.9rem; font-weight:650; }
 .result-prompt { min-height:144px; display:grid; place-items:center; padding:20px; border-block:1px solid #d9dbe1; font-size:clamp(1.2rem,2.4vw,2rem); font-weight:650; line-height:1.75; overflow-wrap:anywhere; text-align:center; }
 .result-prompt .katex-display { max-width:100%; }
-.problem-report { margin-top:20px; padding-top:12px; border-top:1px solid #d9dbe1; }
+.test-workbench { margin-top:28px; padding:18px; border:1px solid #d9dbe1; border-radius:12px; background:#f4f5f8; }
+.test-workbench-heading { display:grid; grid-template-columns:1fr auto; gap:2px 20px; padding:0 4px 14px; }
+.test-workbench-heading p { grid-column:1 / -1; margin:0; color:#8b3122; font-size:.7rem; font-weight:850; letter-spacing:.12em; }
+.test-workbench-heading h3 { margin:0; font-size:1.12rem; }
+.test-workbench-heading span { color:#5b6475; font-size:.8rem; align-self:end; }
+.test-tool { margin:0; border-top:1px solid #d9dbe1; }
+.test-tool > details { margin:0; font-size:.9rem; }
+.test-tool summary { min-height:58px; padding:10px 8px; }
+.test-tool summary > span { display:inline-flex; flex-direction:column; gap:2px; margin-left:6px; vertical-align:middle; }
+.test-tool summary strong { font-size:.94rem; }
+.test-tool summary small { color:#626b7b; font-size:.74rem; font-weight:500; }
+.test-tool details[open] { padding-bottom:18px; }
+.test-tool details[open] > summary { margin-bottom:4px; }
+.test-tool details > :not(summary) { margin-inline:28px 8px; }
+.test-tool .field { margin-block:12px; }
+.test-tool-fields { display:grid; grid-template-columns:minmax(220px,.7fr) minmax(260px,1.3fr); gap:12px 24px; align-items:end; }
+.collection-label-grid { display:grid; grid-template-columns:minmax(260px,1fr) minmax(260px,1fr); gap:16px 24px; align-items:end; }
+.collection-label-grid .math-output { height:76px; padding:10px; }
+.field-caption { display:block; margin-bottom:6px; font-size:.78rem; font-weight:700; }
+.field > span { color:#626b7b; font-size:.75rem; font-weight:500; }
+.collection-checks { display:grid; gap:6px; margin:14px 8px 16px 28px; padding:12px 16px; border:1px solid #ccd0d8; border-radius:8px; }
+.collection-checks legend { padding-inline:6px; font-size:.78rem; font-weight:750; }
+.collection-checks .check-line { margin:7px 0; }
+.problem-report { margin-top:0; padding-top:0; border-top:1px solid #d9dbe1; }
 .problem-report > p { margin-bottom:8px; color:#525e73; font-size:.85rem; }
 .problem-report .field { margin:12px 0; }
 .problem-report button { margin-top:4px; }
 #issueStatus { min-height:1.6em; margin:10px 0 0; font-size:.85rem; overflow-wrap:anywhere; }
 #resultTitle,#endTitle,#inputHeading { scroll-margin-top:24px; }
 #explanation,#lastExplanation { margin:20px 0 0; line-height:1.9; overflow-wrap:anywhere; }
-#explanation .katex,#lastExplanation .katex { display:inline-block; max-width:100%; overflow:auto; vertical-align:middle; padding-block:4px; }
+#explanation .katex,#lastExplanation .katex { display:inline; max-width:none; overflow:visible; vertical-align:baseline; padding:0; }
+#explanation .katex-display,#lastExplanation .katex-display,.prompt .katex-display { display:block; max-width:100%; overflow-x:auto; overflow-y:hidden; padding:4px 0; }
 body[data-role="controller"] #play { max-width:1040px; margin-inline:auto; }
 body[data-role="controller"] #play > .reading-surface { max-width:none; }
 body[data-role="controller"][data-phase="result"] .result { display:flex; flex-direction:column; justify-content:center; }
@@ -300,6 +325,7 @@ body[data-phase="result"] .prompt-space { min-height:120px; }
 body[data-phase="result"][data-role="display"] .problem-pane { min-height:220px; }
 body[data-phase="result"] { padding-bottom:132px; }
 #resultActions { position:fixed; z-index:20; bottom:0; left:0; right:0; margin:0; padding:12px 16px max(12px,env(safe-area-inset-bottom)); background:var(--paper); border-top:1px solid #c5c9d2; }
+body[data-game-mode="test"][data-phase="result"] .result { overflow:auto; padding-bottom:84px; scrollbar-color:#647395 #edf0f4; }
 .end-stats { font-size:clamp(1.3rem,3vw,2rem); font-weight:800; }
 .finished { max-width:960px; text-align:center; }
 .finished > p,.finished #endSolution { margin-inline:auto; text-align:left; }
@@ -337,7 +363,7 @@ body:is([data-phase="countdown"],[data-phase="writing"],[data-phase="recognizing
 @media(min-width:1000px) { body[data-role="single"] .prompt { font-size:clamp(1.1rem,1.6vw,1.65rem); } }
 @media(max-width:760px) { .setup,.play-grid { grid-template-columns:minmax(0,1fr); } .intro { position:static; } .setup { padding-top:12px; gap:24px; } h1 { font-size:2rem; } .app-header { align-items:flex-start; } .header-actions { gap:8px; } #modelStatus { max-width:180px; } .home { min-height:calc(100svh - 92px); padding-inline:8px; } .home h1 { font-size:clamp(4rem,24vw,6.5rem); } .home-rules span { min-width:0; flex:1 1 105px; padding-inline:10px; } .home-actions { padding-inline:12px; } .home-actions button,.home-actions .action-link { width:100%; } .home-orbit { display:none; } .rule-cards { grid-template-columns:minmax(0,1fr); } .rule-cards li { display:grid; grid-template-columns:38px 1fr; gap:0 14px; } .rule-cards li > span { grid-row:span 2; margin:0; } .rule-cards li p { grid-column:2; } .rule-note { display:block; } .rule-note strong { display:block; margin-bottom:4px; } .problem-pane { min-height:0; max-height:220px; overflow-y:auto; padding:12px 4px; scrollbar-color:#94a9da #101b3d; } .problem-pane > p { flex-shrink:0; } .prompt-space { min-height:80px; padding:12px 0; flex:0 0 auto; } .prompt { font-size:1.15rem; } .prompt.short-prompt { font-size:1.5rem; } .play-grid { gap:16px; } main { padding-top:16px; } .play-toolbar { gap:12px; } .hud { gap:8px 16px; } .reading-surface { padding:20px; } .pad-wrap,body[data-role="controller"] .pad-wrap { height:190px; } }
 @media(max-width:760px) { body[data-role="display"] .problem-pane { max-height:none; overflow:visible; min-height:520px; } }
-@media(max-width:760px) { body:not([data-role="controller"])[data-phase="result"] .result-body { grid-template-columns:minmax(0,1fr); } body:not([data-role="controller"])[data-phase="result"] .result-question,body:not([data-role="controller"])[data-phase="result"] .result-answer { padding:0 0 20px; border-right:0; border-bottom:1px solid #d9dbe1; } }
+@media(max-width:760px) { body:not([data-role="controller"])[data-phase="result"] .result-body { grid-template-columns:minmax(0,1fr); } body:not([data-role="controller"])[data-phase="result"] .result-question,body:not([data-role="controller"])[data-phase="result"] .result-answer { padding:0 0 20px; border-right:0; border-bottom:1px solid #d9dbe1; } .test-workbench-heading { grid-template-columns:1fr; } .test-workbench-heading span { margin-top:3px; } .test-tool-fields,.collection-label-grid { grid-template-columns:minmax(0,1fr); } .test-tool details > :not(summary) { margin-inline:8px; } .collection-checks { margin-inline:8px; } }
 @media(max-width:760px) {
   .rule-cards li { grid-template-columns:34px minmax(0,1fr); gap:var(--space-1) var(--space-3); border-right:0; border-bottom:1px solid #d9dbe1; }
   .rule-cards li:last-child { border-bottom:0; }

@@ -15,6 +15,7 @@ export function configuredQuestions(
   bank: Question[],
   request: ConfigurationRequest,
   random: () => number = Math.random,
+  recentlyPlayed: readonly string[] = [],
 ): Question[] {
   if (!isMode(request.mode)
     || !Number.isInteger(request.difficulty) || request.difficulty < 1 || request.difficulty > 7
@@ -31,7 +32,7 @@ export function configuredQuestions(
   const questionById = new Map(bank.map(question => [question.id, question]));
   const questions = request.mode === "test"
     ? request.questionIds.map(id => questionById.get(id)).filter((question): question is Question => Boolean(question))
-    : chooseExhibition(bank, Math.trunc(request.difficulty), random, request.questionCount);
+    : chooseExhibition(bank, Math.trunc(request.difficulty), random, request.questionCount, recentlyPlayed);
   if (request.mode === "test" && (questions.length !== request.questionIds.length || questions.length !== request.questionCount)) {
     throw new Error("選択した問題を確認できませんでした。問題データを再読み込みしてください。");
   }

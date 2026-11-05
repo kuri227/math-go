@@ -51,16 +51,20 @@ export class UrgencySound {
     this.play(second <= 2 ? "tick-urgent" : "tick", 0.46);
   }
 
-  playEffect(effect: GameSoundEffect): void {
-    this.play(effect, EFFECT_VOLUME[effect]);
+  playEffect(effect: GameSoundEffect, streak = 0): void {
+    // A short, capped rise makes a streak feel rewarding without turning the
+    // sound shrill or making later questions noticeably louder.
+    const semitones = effect === "correct" ? Math.min(4, Math.max(0, streak - 1)) : 0;
+    this.play(effect, EFFECT_VOLUME[effect], 2 ** (semitones / 12));
   }
 
-  private play(name: string, volume: number): void {
+  private play(name: string, volume: number, playbackRate = 1): void {
     if (!this.isEnabled) return;
     const base = this.clips.get(name);
     if (!base) return;
     const clip = base.cloneNode(true) as HTMLAudioElement;
     clip.volume = volume * this.volumePercent / 100;
+    clip.playbackRate = playbackRate;
     void clip.play().catch(() => {});
   }
 

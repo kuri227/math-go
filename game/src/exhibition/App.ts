@@ -29,6 +29,7 @@ import {
 } from "./presentation";
 import { displaySetupPresentation } from "./setupPresentation";
 import { configuredQuestions } from "./configuration";
+import { recentQuestionIds, rememberQuestions } from "./questionHistory";
 import { resultFeedback, retryFeedback, type JudgementFeedback } from "./feedback";
 import { renderJudgementIcon } from "./judgementIcons";
 import { visitorErrorMessage } from "./visitorError";
@@ -137,6 +138,24 @@ export function runApp(role: Role): void {
     else if (!inkTimer) inkTimer = setTimeout(send, 40);
   };
   const selectedLevel = () => Number($<HTMLSelectElement>("difficulty").value);
+  const questionsForCurrentSetup = () => {
+    const level = selectedLevel();
+    const questions = selectedMode === "test"
+      ? catalog.selected(selected)
+      : chooseExhibition(bank, level, Math.random, EXHIBITION.questions, recentQuestionIds(level));
+    return { level, questions };
+  };
+  const sendConfiguration = (level: number, questions: Question[]) => channel?.send({
+    type: "exhibition-control",
+    action: "configure",
+    mode: selectedMode,
+    difficulty: level,
+    questionCount: questions.length,
+    questionIds: selectedMode === "test" ? questions.map(question => question.id) : [],
+  });
+  const rememberExhibitionQuestions = (level: number, questions: Question[]) => {
+    if (selectedMode === "exhibition") rememberQuestions(level, questions.map(question => question.id));
+  };
   const sendSetupView = (force = false) => { if (role === "controller") setupPublisher.publish({ view: setupView, difficulty: selectedLevel(), recognitionReady: modelReady }, force); };
   const on = (id: string, action: () => void | Promise<void>) => $(id).addEventListener("click", () => {
     if (role !== "display") sound.playEffect("tap");
@@ -285,6 +304,7 @@ export function runApp(role: Role): void {
     if (phase !== "countdown") pendingControllerReady = "";
     const previousPhase = document.body.dataset.phase;
     document.body.dataset.phase = phase;
+    document.body.dataset.gameMode = s?.mode ?? selectedMode;
     if (previousPhase !== phase) requestAnimationFrame(() => {
       if (document.body.dataset.phase !== phase) return;
       if (["recognizing", "preview", "judging"].includes(phase)) $("activityTitle").scrollIntoView({ block: "nearest" });
@@ -429,7 +449,9 @@ export function runApp(role: Role): void {
     if (preview && role !== "display" && !busy && canInput() && s.recognition?.request_id !== lastFocusedPreview) {
       lastFocusedPreview = s.recognition!.request_id; $("confirm").focus({ preventScroll: true });
     }
-    const canCollect = s.mode === "test" && role !== "display" && !!draft?.response && ["preview", "result"].includes(phase);
+    const showTestWorkbench = s.mode === "test" && role !== "display" && phase === "result";
+    $("testWorkbench").hidden = !showTestWorkbench;
+    const canCollect = showTestWorkbench && !!draft?.response;
     $("collection").hidden = !canCollect;
     $("review").hidden = s.mode !== "test" || phase !== "result" || role === "display";
     if (phase === "result" && s.judgement) {
@@ -476,7 +498,7 @@ export function runApp(role: Role): void {
     }
     if (previousPhase !== phase && previousPhase) {
       if (role !== "controller" && phase === "writing" && previousPhase === "countdown") sound.playEffect("start");
-      else if (role !== "controller" && phase === "result") sound.playEffect(s.timedOut ? "timeout" : s.judgement?.correct ? "correct" : "wrong");
+      else if (role !== "controller" && phase === "result") sound.playEffect(s.timedOut ? "timeout" : s.judgement?.correct ? "correct" : "wrong", s.streak);
       else if (role !== "controller" && phase === "finished") sound.playEffect("finish");
       else if (role !== "controller" && phase === "writing" && previousPhase === "judging") sound.playEffect("wrong");
     }
@@ -564,7 +586,9 @@ export function runApp(role: Role): void {
       if (message.action === "configure") {
         try {
           if (questionsState !== "ready") throw new Error("モニター側で問題を準備しています。少し待ってからもう一度お試しください。");
-          const questions = configuredQuestions(bank, message);
+          const recent = message.mode === "exhibition" ? recentQuestionIds(message.difficulty) : [];
+          const questions = configuredQuestions(bank, message, Math.random, recent);
+          if (message.mode === "exhibition") rememberQuestions(message.difficulty, questions.map(question => question.id));
           session = new Session(questions, message.mode); lastRender = ""; render(); sendState(true);
         } catch (error) {
           channel.send({ type: "setup-error", message: error instanceof Error ? error.message : String(error) });
@@ -642,12 +666,13 @@ export function runApp(role: Role): void {
   on("openStaffTools", () => { showSetupView("staff"); drawPicker(); });
   on("setupHome", () => showSetupView("home"));
   on("showGuide", () => {
-    const questions = selectedMode === "test" ? catalog.selected(selected) : chooseExhibition(bank, selectedLevel());
+    const { level, questions } = questionsForCurrentSetup();
     if (!modelReady || !connected || !questions.length) return;
     if (role === "controller") {
       $("setupStatus").textContent = "問題表示画面で設定を確認しています。";
-      channel?.send({ type: "exhibition-control", action: "configure", mode: selectedMode, difficulty: selectedLevel(), questionCount: questions.length, questionIds: selectedMode === "test" ? questions.map(q => q.id) : [] });
+      sendConfiguration(level, questions);
     } else {
+      rememberExhibitionQuestions(level, questions);
       session = new Session(questions, selectedMode); lastRender = ""; render(); sendState();
     }
   });
@@ -697,10 +722,10 @@ export function runApp(role: Role): void {
   });
   on("backHome", returnHome);
   on("restart", () => {
-    const questions = selectedMode === "test" ? catalog.selected(selected) : chooseExhibition(bank, selectedLevel());
+    const { level, questions } = questionsForCurrentSetup();
     if (!questions.length) return;
-    if (role === "controller") channel?.send({ type: "exhibition-control", action: "configure", mode: selectedMode, difficulty: selectedLevel(), questionCount: questions.length, questionIds: selectedMode === "test" ? questions.map(q => q.id) : [] });
-    else { session = new Session(questions, selectedMode); releaseDraft(); lastRender = ""; render(); sendState(true); }
+    if (role === "controller") sendConfiguration(level, questions);
+    else { rememberExhibitionQuestions(level, questions); session = new Session(questions, selectedMode); releaseDraft(); lastRender = ""; render(); sendState(true); }
   });
   on("fullscreen", async () => { try { if (document.fullscreenElement) await document.exitFullscreen(); else await document.documentElement.requestFullscreen(); } catch { $("modelStatus").textContent = "全画面にできませんでした。ブラウザーの全画面操作をお試しください。"; } });
   document.addEventListener("fullscreenchange", () => { $("fullscreen").textContent = document.fullscreenElement ? "全画面を終了" : "全画面"; });

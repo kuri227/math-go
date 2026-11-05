@@ -248,8 +248,8 @@
       "sublevel": 1,
       "rank": 5,
       "category": "くり下がり",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d1"
     },
     {
@@ -266,8 +266,8 @@
       "sublevel": 1,
       "rank": 5,
       "category": "くり下がり",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d1"
     },
     {
@@ -302,8 +302,8 @@
       "sublevel": 1,
       "rank": 6,
       "category": "たし算",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d1"
     },
     {
@@ -320,8 +320,8 @@
       "sublevel": 1,
       "rank": 6,
       "category": "たし算",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d1"
     },
     {
@@ -356,8 +356,8 @@
       "sublevel": 1,
       "rank": 7,
       "category": "くり上がり",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d1"
     },
     {
@@ -374,8 +374,8 @@
       "sublevel": 1,
       "rank": 7,
       "category": "くり上がり",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d1"
     },
     {
@@ -392,8 +392,8 @@
       "sublevel": 1,
       "rank": 8,
       "category": "ひき算・おつり",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d1"
     },
     {
@@ -410,8 +410,8 @@
       "sublevel": 1,
       "rank": 8,
       "category": "ひき算・おつり",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d1"
     },
     {
@@ -428,8 +428,8 @@
       "sublevel": 1,
       "rank": 8,
       "category": "ひき算・おつり",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d1"
     },
     {
@@ -446,8 +446,8 @@
       "sublevel": 1,
       "rank": 8,
       "category": "ひき算・おつり",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d1"
     },
     {
@@ -464,8 +464,8 @@
       "sublevel": 1,
       "rank": 8,
       "category": "ひき算・おつり",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d1"
     },
     {
@@ -482,8 +482,8 @@
       "sublevel": 1,
       "rank": 8,
       "category": "ひき算・おつり",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d1"
     },
     {
@@ -500,8 +500,8 @@
       "sublevel": 1,
       "rank": 9,
       "category": "九九・時間",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d1"
     },
     {
@@ -518,8 +518,8 @@
       "sublevel": 1,
       "rank": 9,
       "category": "九九・時間",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d1"
     },
     {
@@ -536,8 +536,8 @@
       "sublevel": 1,
       "rank": 9,
       "category": "九九・時間",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d1"
     },
     {
@@ -554,8 +554,8 @@
       "sublevel": 1,
       "rank": 9,
       "category": "九九・時間",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d1"
     },
     {
@@ -572,8 +572,8 @@
       "sublevel": 1,
       "rank": 9,
       "category": "九九・時間",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d1"
     },
     {
@@ -590,8 +590,8 @@
       "sublevel": 1,
       "rank": 9,
       "category": "九九・時間",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d1"
     },
     {
@@ -608,8 +608,8 @@
       "sublevel": 1,
       "rank": 10,
       "category": "空欄補充",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d1"
     },
     {
@@ -626,8 +626,8 @@
       "sublevel": 1,
       "rank": 10,
       "category": "空欄補充",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d1"
     },
     {
@@ -644,8 +644,8 @@
       "sublevel": 1,
       "rank": 10,
       "category": "空欄補充",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d1"
     },
     {
@@ -680,8 +680,8 @@
       "sublevel": 1,
       "rank": 1,
       "category": "かけ算",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d2"
     },
     {
@@ -698,8 +698,8 @@
       "sublevel": 1,
       "rank": 1,
       "category": "かけ算",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d2"
     },
     {
@@ -734,8 +734,8 @@
       "sublevel": 1,
       "rank": 2,
       "category": "わり算",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d2"
     },
     {
@@ -752,8 +752,8 @@
       "sublevel": 1,
       "rank": 2,
       "category": "わり算",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d2"
     },
     {
@@ -788,8 +788,8 @@
       "sublevel": 1,
       "rank": 3,
       "category": "整数の計算",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d2"
     },
     {
@@ -806,8 +806,8 @@
       "sublevel": 1,
       "rank": 3,
       "category": "整数の計算",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d2"
     },
     {
@@ -842,8 +842,8 @@
       "sublevel": 1,
       "rank": 4,
       "category": "小数",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d2"
     },
     {
@@ -860,8 +860,8 @@
       "sublevel": 1,
       "rank": 4,
       "category": "小数",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d2"
     },
     {
@@ -898,8 +898,8 @@
       "sublevel": 1,
       "rank": 5,
       "category": "分数",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d2"
     },
     {
@@ -917,8 +917,8 @@
       "sublevel": 1,
       "rank": 5,
       "category": "分数",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d2"
     },
     {
@@ -954,8 +954,8 @@
       "sublevel": 1,
       "rank": 6,
       "category": "かけ算",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d2"
     },
     {
@@ -972,8 +972,8 @@
       "sublevel": 1,
       "rank": 6,
       "category": "かけ算",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d2"
     },
     {
@@ -1008,8 +1008,8 @@
       "sublevel": 1,
       "rank": 7,
       "category": "割合・計算",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d2"
     },
     {
@@ -1026,8 +1026,8 @@
       "sublevel": 1,
       "rank": 7,
       "category": "割合・計算",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d2"
     },
     {
@@ -1062,8 +1062,8 @@
       "sublevel": 1,
       "rank": 8,
       "category": "文章題",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d2"
     },
     {
@@ -1080,8 +1080,8 @@
       "sublevel": 1,
       "rank": 8,
       "category": "文章題",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d2"
     },
     {
@@ -1116,8 +1116,8 @@
       "sublevel": 1,
       "rank": 9,
       "category": "規則・場合の数",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d2"
     },
     {
@@ -1134,8 +1134,8 @@
       "sublevel": 1,
       "rank": 9,
       "category": "規則・場合の数",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d2"
     },
     {
@@ -1170,8 +1170,8 @@
       "sublevel": 1,
       "rank": 10,
       "category": "文章題",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d2"
     },
     {
@@ -1224,8 +1224,8 @@
       "sublevel": 1,
       "rank": 1,
       "category": "正負の数",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d3"
     },
     {
@@ -1278,8 +1278,8 @@
       "sublevel": 1,
       "rank": 2,
       "category": "乗除",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d3"
     },
     {
@@ -1296,8 +1296,8 @@
       "sublevel": 1,
       "rank": 2,
       "category": "乗除",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d3"
     },
     {
@@ -1350,8 +1350,8 @@
       "sublevel": 1,
       "rank": 3,
       "category": "累乗",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d3"
     },
     {
@@ -1386,8 +1386,8 @@
       "sublevel": 1,
       "rank": 4,
       "category": "式の値",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d3"
     },
     {
@@ -1406,8 +1406,8 @@
       "sublevel": 1,
       "rank": 4,
       "category": "式の値",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d3"
     },
     {
@@ -1444,8 +1444,8 @@
       "sublevel": 1,
       "rank": 5,
       "category": "方程式",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d3"
     },
     {
@@ -1464,8 +1464,8 @@
       "sublevel": 1,
       "rank": 5,
       "category": "方程式",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d3"
     },
     {
@@ -1759,8 +1759,8 @@
       "sublevel": 2,
       "rank": 1,
       "category": "式の値",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d3"
     },
     {
@@ -1813,8 +1813,8 @@
       "sublevel": 2,
       "rank": 2,
       "category": "式の計算",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d3"
     },
     {
@@ -1868,8 +1868,8 @@
       "sublevel": 2,
       "rank": 3,
       "category": "連立方程式",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d3"
     },
     {
@@ -1925,8 +1925,8 @@
       "sublevel": 2,
       "rank": 4,
       "category": "連立方程式",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d3"
     },
     {
@@ -1982,8 +1982,8 @@
       "sublevel": 2,
       "rank": 5,
       "category": "一次関数",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d3"
     },
     {
@@ -2039,8 +2039,8 @@
       "sublevel": 2,
       "rank": 6,
       "category": "一次関数",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d3"
     },
     {
@@ -2096,8 +2096,8 @@
       "sublevel": 2,
       "rank": 7,
       "category": "角度",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d3"
     },
     {
@@ -2151,8 +2151,8 @@
       "sublevel": 2,
       "rank": 8,
       "category": "確率",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d3"
     },
     {
@@ -2207,8 +2207,8 @@
       "sublevel": 2,
       "rank": 9,
       "category": "文章題",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d3"
     },
     {
@@ -2262,8 +2262,8 @@
       "sublevel": 2,
       "rank": 10,
       "category": "発展",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d3"
     },
     {
@@ -2885,8 +2885,8 @@
       "sublevel": 1,
       "rank": 1,
       "category": "方程式",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d4"
     },
     {
@@ -2903,8 +2903,8 @@
       "sublevel": 1,
       "rank": 1,
       "category": "方程式",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d4"
     },
     {
@@ -2939,8 +2939,8 @@
       "sublevel": 1,
       "rank": 2,
       "category": "二次関数",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d4"
     },
     {
@@ -2957,8 +2957,8 @@
       "sublevel": 1,
       "rank": 2,
       "category": "二次関数",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d4"
     },
     {
@@ -3015,8 +3015,8 @@
       "sublevel": 1,
       "rank": 3,
       "category": "無理方程式",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d4"
     },
     {
@@ -3051,8 +3051,8 @@
       "sublevel": 1,
       "rank": 4,
       "category": "三角比",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d4"
     },
     {
@@ -3069,8 +3069,8 @@
       "sublevel": 1,
       "rank": 4,
       "category": "三角比",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d4"
     },
     {
@@ -3105,8 +3105,8 @@
       "sublevel": 1,
       "rank": 5,
       "category": "場合の数",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d4"
     },
     {
@@ -3123,8 +3123,8 @@
       "sublevel": 1,
       "rank": 5,
       "category": "場合の数",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d4"
     },
     {
@@ -3161,8 +3161,8 @@
       "sublevel": 1,
       "rank": 6,
       "category": "確率",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d4"
     },
     {
@@ -3180,8 +3180,8 @@
       "sublevel": 1,
       "rank": 6,
       "category": "確率",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d4"
     },
     {
@@ -3218,8 +3218,8 @@
       "sublevel": 1,
       "rank": 7,
       "category": "分散",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d4"
     },
     {
@@ -3237,8 +3237,8 @@
       "sublevel": 1,
       "rank": 7,
       "category": "分散",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d4"
     },
     {
@@ -3273,8 +3273,8 @@
       "sublevel": 1,
       "rank": 8,
       "category": "整数",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d4"
     },
     {
@@ -3291,8 +3291,8 @@
       "sublevel": 1,
       "rank": 8,
       "category": "整数",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d4"
     },
     {
@@ -3327,8 +3327,8 @@
       "sublevel": 1,
       "rank": 9,
       "category": "合同式",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d4"
     },
     {
@@ -3345,8 +3345,8 @@
       "sublevel": 1,
       "rank": 9,
       "category": "合同式",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d4"
     },
     {
@@ -3381,8 +3381,8 @@
       "sublevel": 1,
       "rank": 10,
       "category": "最小値",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d4"
     },
     {
@@ -3399,8 +3399,8 @@
       "sublevel": 1,
       "rank": 10,
       "category": "最小値",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d4"
     },
     {
@@ -3417,8 +3417,8 @@
       "sublevel": 2,
       "rank": 1,
       "category": "対数",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d4"
     },
     {
@@ -3435,8 +3435,8 @@
       "sublevel": 2,
       "rank": 1,
       "category": "対数",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d4"
     },
     {
@@ -3453,8 +3453,8 @@
       "sublevel": 2,
       "rank": 1,
       "category": "対数",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d4"
     },
     {
@@ -3489,8 +3489,8 @@
       "sublevel": 2,
       "rank": 2,
       "category": "三角関数",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d4"
     },
     {
@@ -3507,8 +3507,8 @@
       "sublevel": 2,
       "rank": 2,
       "category": "三角関数",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d4"
     },
     {
@@ -3525,8 +3525,8 @@
       "sublevel": 2,
       "rank": 3,
       "category": "等差数列",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d4"
     },
     {
@@ -3543,8 +3543,8 @@
       "sublevel": 2,
       "rank": 3,
       "category": "等差数列",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d4"
     },
     {
@@ -3561,8 +3561,8 @@
       "sublevel": 2,
       "rank": 3,
       "category": "等差数列",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d4"
     },
     {
@@ -3597,8 +3597,8 @@
       "sublevel": 2,
       "rank": 4,
       "category": "等比数列",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d4"
     },
     {
@@ -3615,8 +3615,8 @@
       "sublevel": 2,
       "rank": 4,
       "category": "等比数列",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d4"
     },
     {
@@ -3633,8 +3633,8 @@
       "sublevel": 2,
       "rank": 5,
       "category": "ベクトル",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d4"
     },
     {
@@ -3651,8 +3651,8 @@
       "sublevel": 2,
       "rank": 5,
       "category": "ベクトル",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d4"
     },
     {
@@ -3669,8 +3669,8 @@
       "sublevel": 2,
       "rank": 5,
       "category": "ベクトル",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d4"
     },
     {
@@ -3687,8 +3687,8 @@
       "sublevel": 2,
       "rank": 6,
       "category": "複素数",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d4"
     },
     {
@@ -3705,8 +3705,8 @@
       "sublevel": 2,
       "rank": 6,
       "category": "複素数",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d4"
     },
     {
@@ -3723,8 +3723,8 @@
       "sublevel": 2,
       "rank": 6,
       "category": "複素数",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d4"
     },
     {
@@ -3741,8 +3741,8 @@
       "sublevel": 2,
       "rank": 7,
       "category": "微分",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d4"
     },
     {
@@ -3759,8 +3759,8 @@
       "sublevel": 2,
       "rank": 7,
       "category": "微分",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d4"
     },
     {
@@ -3777,8 +3777,8 @@
       "sublevel": 2,
       "rank": 7,
       "category": "微分",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d4"
     },
     {
@@ -3795,8 +3795,8 @@
       "sublevel": 2,
       "rank": 8,
       "category": "積分",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d4"
     },
     {
@@ -3813,8 +3813,8 @@
       "sublevel": 2,
       "rank": 8,
       "category": "積分",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d4"
     },
     {
@@ -3831,8 +3831,8 @@
       "sublevel": 2,
       "rank": 8,
       "category": "積分",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d4"
     },
     {
@@ -3850,8 +3850,8 @@
       "sublevel": 2,
       "rank": 9,
       "category": "面積",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d4"
     },
     {
@@ -3869,8 +3869,8 @@
       "sublevel": 2,
       "rank": 9,
       "category": "面積",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d4"
     },
     {
@@ -3888,8 +3888,8 @@
       "sublevel": 2,
       "rank": 9,
       "category": "面積",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d4"
     },
     {
@@ -3907,8 +3907,8 @@
       "sublevel": 2,
       "rank": 10,
       "category": "確率分布",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d4"
     },
     {
@@ -3926,8 +3926,8 @@
       "sublevel": 2,
       "rank": 10,
       "category": "確率分布",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d4"
     },
     {
@@ -3944,8 +3944,8 @@
       "sublevel": 2,
       "rank": 10,
       "category": "確率分布",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d4"
     },
     {
@@ -3962,8 +3962,8 @@
       "sublevel": 3,
       "rank": 1,
       "category": "極限",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d4"
     },
     {
@@ -3980,8 +3980,8 @@
       "sublevel": 3,
       "rank": 1,
       "category": "極限",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d4"
     },
     {
@@ -3998,8 +3998,8 @@
       "sublevel": 3,
       "rank": 1,
       "category": "極限",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d4"
     },
     {
@@ -4017,8 +4017,8 @@
       "sublevel": 3,
       "rank": 2,
       "category": "微分",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d4"
     },
     {
@@ -4036,8 +4036,8 @@
       "sublevel": 3,
       "rank": 2,
       "category": "微分",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d4"
     },
     {
@@ -4055,8 +4055,8 @@
       "sublevel": 3,
       "rank": 2,
       "category": "微分",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d4"
     },
     {
@@ -4073,8 +4073,8 @@
       "sublevel": 3,
       "rank": 3,
       "category": "微分",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d4"
     },
     {
@@ -4091,8 +4091,8 @@
       "sublevel": 3,
       "rank": 3,
       "category": "微分",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d4"
     },
     {
@@ -4109,8 +4109,8 @@
       "sublevel": 3,
       "rank": 3,
       "category": "微分",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d4"
     },
     {
@@ -4128,8 +4128,8 @@
       "sublevel": 3,
       "rank": 4,
       "category": "積分",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d4"
     },
     {
@@ -4185,8 +4185,8 @@
       "sublevel": 3,
       "rank": 5,
       "category": "置換積分",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d4"
     },
     {
@@ -4205,8 +4205,8 @@
       "sublevel": 3,
       "rank": 5,
       "category": "置換積分",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d4"
     },
     {
@@ -4225,8 +4225,8 @@
       "sublevel": 3,
       "rank": 5,
       "category": "置換積分",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d4"
     },
     {
@@ -4243,8 +4243,8 @@
       "sublevel": 3,
       "rank": 6,
       "category": "部分積分",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d4"
     },
     {
@@ -4261,8 +4261,8 @@
       "sublevel": 3,
       "rank": 6,
       "category": "部分積分",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d4"
     },
     {
@@ -4279,8 +4279,8 @@
       "sublevel": 3,
       "rank": 6,
       "category": "部分積分",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d4"
     },
     {
@@ -5065,8 +5065,8 @@
       "sublevel": 2,
       "rank": 1,
       "category": "微分方程式",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d5"
     },
     {
@@ -5119,8 +5119,8 @@
       "sublevel": 2,
       "rank": 2,
       "category": "微分方程式",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d5"
     },
     {
@@ -5174,8 +5174,8 @@
       "sublevel": 2,
       "rank": 3,
       "category": "微分方程式",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d5"
     },
     {
@@ -5229,8 +5229,8 @@
       "sublevel": 2,
       "rank": 4,
       "category": "期待値",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d5"
     },
     {
@@ -5286,8 +5286,8 @@
       "sublevel": 2,
       "rank": 5,
       "category": "指数分布",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d5"
     },
     {
@@ -5342,8 +5342,8 @@
       "sublevel": 2,
       "rank": 6,
       "category": "ポアソン分布",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d5"
     },
     {
@@ -5396,8 +5396,8 @@
       "sublevel": 2,
       "rank": 7,
       "category": "分散",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d5"
     },
     {
@@ -5450,8 +5450,8 @@
       "sublevel": 2,
       "rank": 8,
       "category": "発散",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d5"
     },
     {
@@ -5504,8 +5504,8 @@
       "sublevel": 2,
       "rank": 9,
       "category": "回転",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d5"
     },
     {
@@ -5558,8 +5558,8 @@
       "sublevel": 2,
       "rank": 10,
       "category": "流束",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d5"
     },
     {
@@ -6701,8 +6701,8 @@
       "sublevel": 2,
       "rank": 1,
       "category": "群の位数",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d6"
     },
     {
@@ -6755,8 +6755,8 @@
       "sublevel": 2,
       "rank": 2,
       "category": "部分群",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d6"
     },
     {
@@ -6809,8 +6809,8 @@
       "sublevel": 2,
       "rank": 3,
       "category": "有限体",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d6"
     },
     {
@@ -6863,8 +6863,8 @@
       "sublevel": 2,
       "rank": 4,
       "category": "既約多項式",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d6"
     },
     {
@@ -6917,8 +6917,8 @@
       "sublevel": 2,
       "rank": 5,
       "category": "体拡大",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d6"
     },
     {
@@ -6971,8 +6971,8 @@
       "sublevel": 2,
       "rank": 6,
       "category": "ガロア群",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d6"
     },
     {
@@ -7025,8 +7025,8 @@
       "sublevel": 2,
       "rank": 7,
       "category": "商環",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d6"
     },
     {
@@ -7079,8 +7079,8 @@
       "sublevel": 2,
       "rank": 8,
       "category": "表現",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d6"
     },
     {
@@ -7133,8 +7133,8 @@
       "sublevel": 2,
       "rank": 9,
       "category": "クルル次元",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d6"
     },
     {
@@ -7187,8 +7187,8 @@
       "sublevel": 2,
       "rank": 10,
       "category": "対称群",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d6"
     },
     {
@@ -8337,8 +8337,8 @@
       "sublevel": 2,
       "rank": 1,
       "category": "大域次元",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d7"
     },
     {
@@ -8391,8 +8391,8 @@
       "sublevel": 2,
       "rank": 2,
       "category": "Tor",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d7"
     },
     {
@@ -8445,8 +8445,8 @@
       "sublevel": 2,
       "rank": 3,
       "category": "Ext",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d7"
     },
     {
@@ -8499,8 +8499,8 @@
       "sublevel": 2,
       "rank": 4,
       "category": "Tor",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d7"
     },
     {
@@ -8553,8 +8553,8 @@
       "sublevel": 2,
       "rank": 5,
       "category": "Ext",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d7"
     },
     {
@@ -8607,8 +8607,8 @@
       "sublevel": 2,
       "rank": 6,
       "category": "斉次成分",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d7"
     },
     {
@@ -8661,8 +8661,8 @@
       "sublevel": 2,
       "rank": 7,
       "category": "加群",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d7"
     },
     {
@@ -8715,8 +8715,8 @@
       "sublevel": 2,
       "rank": 8,
       "category": "円分体",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d7"
     },
     {
@@ -8769,8 +8769,8 @@
       "sublevel": 2,
       "rank": 9,
       "category": "有限体上の点",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d7"
     },
     {
@@ -8823,8 +8823,8 @@
       "sublevel": 2,
       "rank": 10,
       "category": "ゼータ関数",
-      "review_status": "pending",
-      "exhibition_enabled": false,
+      "review_status": "approved",
+      "exhibition_enabled": true,
       "source": "friend-2026-10-d7"
     },
     {
@@ -9402,6 +9402,166 @@
       "review_status": "pending",
       "exhibition_enabled": false,
       "source": "friend-2026-10-d7"
+    },
+    {
+      "id": "d1-s2-r01-v01",
+      "question": "2, 4, 6, 8 と並んでいます。次の数を答えなさい。",
+      "question_latex": "2,4,6,8,\\square",
+      "prompt": "$2, 4, 6, 8$ と並んでいます。次の数を答えなさい。",
+      "instruction": "問題文を読んで、求められた答えを書いてください",
+      "answer": ["10"],
+      "description": "2ずつ大きくなる並びです。$8+2=10$。",
+      "difficulty": 1,
+      "sublevel": 2,
+      "rank": 1,
+      "category": "数の規則",
+      "review_status": "approved",
+      "exhibition_enabled": true,
+      "source": "curated-diversity-2026-11"
+    },
+    {
+      "id": "d1-s2-r02-v01",
+      "question": "午後3時から2時間たつと、午後何時ですか。",
+      "question_latex": "3+2",
+      "prompt": "午後3時から2時間たつと、午後何時ですか。数字で答えなさい。",
+      "instruction": "問題文を読んで、求められた答えを書いてください",
+      "answer": ["5"],
+      "description": "3時から1時間後は4時、2時間後は5時です。",
+      "difficulty": 1,
+      "sublevel": 2,
+      "rank": 2,
+      "category": "時計",
+      "review_status": "approved",
+      "exhibition_enabled": true,
+      "source": "curated-diversity-2026-11"
+    },
+    {
+      "id": "d1-s2-r03-v01",
+      "question": "12このあめを3人に同じ数ずつ分けます。1人分は何こですか。",
+      "question_latex": "12\\div3",
+      "prompt": "12このあめを3人に同じ数ずつ分けます。1人分は何こですか。",
+      "instruction": "問題文を読んで、求められた答えを書いてください",
+      "answer": ["4"],
+      "description": "$12\\div3=4$ なので、1人分は4こです。",
+      "difficulty": 1,
+      "sublevel": 2,
+      "rank": 3,
+      "category": "同じ数に分ける",
+      "review_status": "approved",
+      "exhibition_enabled": true,
+      "source": "curated-diversity-2026-11"
+    },
+    {
+      "id": "d1-s2-r04-v01",
+      "question": "ある数に7をたすと12になります。ある数を求めなさい。",
+      "question_latex": "\\square+7=12",
+      "prompt": "$\\square+7=12$。$\\square$ に入る数を答えなさい。",
+      "instruction": "問題文を読んで、求められた答えを書いてください",
+      "answer": ["5"],
+      "description": "$12-7=5$ なので、入る数は5です。",
+      "difficulty": 1,
+      "sublevel": 2,
+      "rank": 4,
+      "category": "逆算",
+      "review_status": "approved",
+      "exhibition_enabled": true,
+      "source": "curated-diversity-2026-11"
+    },
+    {
+      "id": "d1-s2-r05-v01",
+      "question": "10円玉が3まい、1円玉が4まいあります。合わせて何円ですか。",
+      "question_latex": "10\\times3+1\\times4",
+      "prompt": "10円玉が3まい、1円玉が4まいあります。合わせて何円ですか。",
+      "instruction": "問題文を読んで、求められた答えを書いてください",
+      "answer": ["34"],
+      "description": "$10\\times3=30$ 円と4円を合わせて34円です。",
+      "difficulty": 1,
+      "sublevel": 2,
+      "rank": 5,
+      "category": "お金",
+      "review_status": "approved",
+      "exhibition_enabled": true,
+      "source": "curated-diversity-2026-11"
+    },
+    {
+      "id": "d2-s2-r01-v01",
+      "question": "1/2 + 1/4 を計算しなさい。",
+      "question_latex": "\\frac{1}{2}+\\frac{1}{4}",
+      "prompt": "$\\frac{1}{2}+\\frac{1}{4}$ を計算しなさい。",
+      "instruction": "問題文を読んで、求められた答えを書いてください",
+      "answer": ["\\frac{3}{4}", "3/4"],
+      "description": "$\\frac{1}{2}=\\frac{2}{4}$ なので、$\\frac{2}{4}+\\frac{1}{4}=\\frac{3}{4}$。",
+      "difficulty": 2,
+      "sublevel": 2,
+      "rank": 1,
+      "category": "分数",
+      "review_status": "approved",
+      "exhibition_enabled": true,
+      "source": "curated-diversity-2026-11"
+    },
+    {
+      "id": "d2-s2-r02-v01",
+      "question": "12、18、15 の平均を求めなさい。",
+      "question_latex": "(12+18+15)\\div3",
+      "prompt": "$12, 18, 15$ の平均を求めなさい。",
+      "instruction": "問題文を読んで、求められた答えを書いてください",
+      "answer": ["15"],
+      "description": "合計は45です。$45\\div3=15$。",
+      "difficulty": 2,
+      "sublevel": 2,
+      "rank": 2,
+      "category": "平均",
+      "review_status": "approved",
+      "exhibition_enabled": true,
+      "source": "curated-diversity-2026-11"
+    },
+    {
+      "id": "d2-s2-r03-v01",
+      "question": "面積が48 cm^2、横が6 cmの長方形があります。たては何cmですか。",
+      "question_latex": "48\\div6",
+      "prompt": "面積が $48\\,\\mathrm{cm}^2$、横が $6\\,\\mathrm{cm}$ の長方形があります。たては何cmですか。",
+      "instruction": "問題文を読んで、求められた答えを書いてください",
+      "answer": ["8"],
+      "description": "長方形のたては、面積を横で割って $48\\div6=8$ cmです。",
+      "difficulty": 2,
+      "sublevel": 2,
+      "rank": 3,
+      "category": "面積の逆算",
+      "review_status": "approved",
+      "exhibition_enabled": true,
+      "source": "curated-diversity-2026-11"
+    },
+    {
+      "id": "d2-s2-r04-v01",
+      "question": "3人分にクッキーが12枚必要です。同じ数ずつ配るとき、5人分には何枚必要ですか。",
+      "question_latex": "12\\div3\\times5",
+      "prompt": "3人分にクッキーが12枚必要です。同じ数ずつ配るとき、5人分には何枚必要ですか。",
+      "instruction": "問題文を読んで、求められた答えを書いてください",
+      "answer": ["20"],
+      "description": "1人分は $12\\div3=4$ 枚。5人分は $4\\times5=20$ 枚です。",
+      "difficulty": 2,
+      "sublevel": 2,
+      "rank": 4,
+      "category": "比例",
+      "review_status": "approved",
+      "exhibition_enabled": true,
+      "source": "curated-diversity-2026-11"
+    },
+    {
+      "id": "d2-s2-r05-v01",
+      "question": "午前9時35分から午前10時20分までは何分ですか。",
+      "question_latex": "25+20",
+      "prompt": "午前9時35分から午前10時20分までは何分ですか。",
+      "instruction": "問題文を読んで、求められた答えを書いてください",
+      "answer": ["45"],
+      "description": "10時までは25分、そこから20分なので、合わせて45分です。",
+      "difficulty": 2,
+      "sublevel": 2,
+      "rank": 5,
+      "category": "時間",
+      "review_status": "approved",
+      "exhibition_enabled": true,
+      "source": "curated-diversity-2026-11"
     }
   ]
 }
