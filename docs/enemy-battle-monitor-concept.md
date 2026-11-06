@@ -2,6 +2,39 @@
 
 更新日：2026-11-06。文化祭の来場者と観客が、問題を解く行為を「敵への攻撃」として直感的に楽しめるモニター表示の設計案です。液タブの入力操作は大きく変えず、モニター側の見せ方と判定演出を強化します。
 
+## 実装基準に合わせた画面案
+
+![実装可能なモニター画面](mockups/enemy-battle-monitor-realistic-v2.png)
+
+こちらを実装時の基準案とします。1920×1080を基準に、通常のCSS Gridで左68%、右32%へ分割しています。問題、HUD、筆跡、案内文はDOMとKaTeX、敵だけを透過2Dスプライトとして描画します。回答中は攻撃軌跡や粒子を表示せず、敵の小さな待機動作だけに留めます。
+
+画面を縮小した場合は、1280px以上で同じ2列、900〜1279pxでは問題72%・敵28%、900px未満または縦画面では敵を問題面の右上へ小さく重ねます。問題文は最低28px、主要数式は最低40pxを確保し、敵より問題を優先します。
+
+### 現実的な技術構成
+
+推奨構成は、現在のTypeScript / Vite / DOM / KaTeXを維持し、演出層だけを追加する方法です。
+
+- HUD・問題・筆跡・案内：HTML、CSS Grid、KaTeX
+- 敵：透過WebPのスプライトシート。`idle`、`appear`、`hit`、`defeat`、`attack`、`escape`の6種類
+- 待機・被弾・HP：CSS AnimationsまたはWeb Animations API
+- 攻撃軌跡：SVG pathと`stroke-dashoffset`
+- 破片：Canvas 2Dで最大20個。撃破時だけ約700ms描画
+- 複数演出の時系列制御：必要になった段階でMotionのmini版を追加
+
+Motionのmini版はHTML・SVGのアニメーションに絞った小さな構成を提供しており、現行DOMへ部分導入できます。敵や破片を数十体以上へ増やす場合だけ、右側の敵領域をPixiJSへ置き換えます。PixiJSのParticleContainerは大量の軽量パーティクル向けですが、この展示の20個程度では導入しません。Phaserはスプライトアニメーションを標準で扱えますが、画面全体のゲームループと状態管理を持つため、現行Sessionとの責務重複が大きく、全面移行時以外は採用しません。
+
+公式資料： [Motion animate](https://motion.dev/docs/animate) / [PixiJS ParticleContainer](https://pixijs.com/8.x/guides/components/scene-objects/particle-container) / [Phaser Sprite](https://docs.phaser.io/phaser/concepts/gameobjects/sprite)
+
+### 制作量の目安
+
+- 敵1体：6アニメーション、合計40〜55フレーム、1枚のWebPアトラス
+- SVG：照準、攻撃軌跡、HP、命中マークの4点
+- 効果音：出現、命中、撃破、反撃、離脱の5点
+- 実装：敵表示コンポーネント、状態Presenter、演出キュー、reduced-motion対応
+- 最初の検証対象：1体、難易度1、正解・誤答・時間切れ・スキップの4分岐
+
+以下の画像は、演出方向を強く確認するために作成した初期コンセプトです。画面構造の実装基準にはせず、敵の造形と撃破表現の参考に限定します。
+
 ![問題と敵を同時に表示するモニター画面](mockups/enemy-battle-monitor.png)
 
 ## 基本ルール
