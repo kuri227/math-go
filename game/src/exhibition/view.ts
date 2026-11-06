@@ -18,7 +18,7 @@ export function appMarkup(role: Role): string {
       : "";
   return `
     <header class="app-header"><button type="button" id="homeLink" class="wordmark" aria-label="タイトルへ戻る">数学で<span>GO</span></button>
-      <div class="header-actions"><span id="connection" role="status"></span><span id="modelStatus" role="status">ゲームを準備中</span><label class="volume-control" for="volume"><span>音量</span><input id="volume" type="range" min="0" max="100" step="5" value="70" aria-label="効果音の音量"><output id="volumeValue" for="volume">70%</output></label>${button("fullscreen", "全画面")}</div></header>
+      <div class="header-actions"><span id="connection" role="status"></span><span id="modelStatus" role="status">ゲームを準備中</span><label class="volume-control" for="volume"><span>音量</span><input id="volume" type="range" min="0" max="100" step="5" value="70" aria-label="ゲーム音量"><output id="volumeValue" for="volume">70%</output></label>${button("fullscreen", "全画面")}</div></header>
     <main>
       <section id="home" class="home" aria-labelledby="homeTitle">
         <div class="home-orbit" aria-hidden="true"><span>+</span><span>×</span><span>π</span><span>√</span></div>
@@ -54,8 +54,8 @@ export function appMarkup(role: Role): string {
           <section id="inputPane" class="input-pane" aria-label="手書き用紙"><div id="inputHeading" class="input-heading"><h2 id="paperTitle">回答を書く</h2><div id="paperSwitch" class="paper-switch" aria-label="用紙を切り替える">${button("showAnswer", "回答用紙")}${button("showMemo", "メモ用紙")}</div></div>
             <div id="padWrap" class="pad-wrap"><canvas id="pad" class="drawing-pad" aria-label="手書き回答欄"></canvas><p id="padHint" class="pad-hint">ここに答えを書いてください</p><span id="pointer" class="pad-pointer" hidden aria-hidden="true"></span></div>
             <div id="memoWrap" class="pad-wrap" hidden><canvas id="memoPad" class="drawing-pad" aria-label="採点されないメモ欄"></canvas><p id="memoHint" class="pad-hint memo-hint">このメモはモニターへ送られず、採点・保存にも使いません</p><span id="memoPointer" class="pad-pointer memo-pointer" hidden aria-hidden="true"></span></div>
-            <div id="preview" class="preview" hidden><h2>書いた答えと合っていますか？</h2><div class="preview-comparison"><figure><figcaption>書いた答え</figcaption><img id="inkImage" alt="余白を切り取った手書き回答"></figure><div><p>読み取った答え</p><div id="recognized" class="math-output"></div></div></div><details id="recognitionDetails"><summary>スタッフ用：認識の詳細</summary><code id="rawLatex"></code><p id="timing"></p></details></div>
-            <div id="inputActions" class="input-actions"><div id="editActions" class="edit-actions">${button("undo", "1画戻す")}${button("clear", "現在の用紙を全消去")}</div><div id="writingActions">${button("backToAnswer", "回答用紙へ戻る", true)}${button("recognize", "読み取りを確認", true)}</div><div id="previewActions" hidden>${button("rewrite", "書き直す")}${button("confirm", "この内容で回答", true)}</div></div>
+            <div id="preview" class="preview" hidden><h2>書いた答えと合っていますか？</h2><div class="preview-comparison"><figure><figcaption>書いた答え</figcaption><img id="inkImage" src="/game-assets/answer-paper.svg" alt="余白を切り取った手書き回答"></figure><div><p>読み取った答え</p><div id="recognized" class="math-output"></div></div></div><details id="recognitionDetails"><summary>スタッフ用：認識の詳細</summary><code id="rawLatex"></code><p id="timing"></p></details></div>
+            <div id="inputActions" class="input-actions"><div id="editActions" class="edit-actions">${button("undo", "1画戻す")}${button("clear", "現在の用紙を全消去")}</div><div id="writingActions" class="primary-actions">${button("backToAnswer", "回答用紙へ戻る", true)}${button("skip", "この問題をスキップ")}${button("recognize", "読み取りを確認", true)}</div><div id="previewActions" class="primary-actions" hidden>${button("rewrite", "書き直す")}${button("confirm", "この内容で回答", true)}</div></div>
           </section></div>
         <p id="notice" class="notice" role="status" aria-live="polite"></p>
         <section id="result" class="result reading-surface" hidden aria-labelledby="resultTitle">
@@ -74,5 +74,6 @@ export function appMarkup(role: Role): string {
       </section>
       <section id="finished" class="reading-surface finished" hidden aria-labelledby="endTitle"><div class="finish-burst" aria-hidden="true"><span>+</span><span>×</span><span>√</span></div><h1 id="endTitle"></h1><p id="endAchievement" class="end-achievement"></p><p id="endReason"></p><p id="endStats" class="end-stats"></p><p id="endAttempts"></p><div id="endSolution" hidden><h2>最後の問題</h2><div id="lastPrompt"></div><p>正答例</p><div id="lastAnswer"></div><p id="lastExplanation"></p></div><div class="actions end-actions">${button("restart", "もう一度挑戦", true)}${button("backToSetup", "難易度を選び直す")}${button("backHome", "タイトルへ")}</div></section>
       <dialog id="stopDialog" class="stop-dialog" aria-labelledby="stopDialogTitle"><div class="stop-dialog-panel"><h2 id="stopDialogTitle">プレイを終了しますか？</h2><p>ここまでの結果を表示して、このプレイを終了します。</p><div class="actions">${button("continuePlay", "ゲームを続ける", true)}${button("confirmStop", "プレイを終了する")}</div></div></dialog>
+      <dialog id="skipDialog" class="stop-dialog" aria-labelledby="skipDialogTitle"><div class="stop-dialog-panel"><h2 id="skipDialogTitle">この問題をスキップしますか？</h2><p>正答と解説を表示します。残機は減りません。</p><div class="actions">${button("cancelSkip", "問題に戻る", true)}${button("confirmSkip", "スキップする")}</div></div></dialog>
     </main>`;
 }

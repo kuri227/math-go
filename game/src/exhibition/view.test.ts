@@ -9,7 +9,7 @@ describe("solo game layout contract", () => {
     expect(markup).toContain('id="startGame"');
     expect(markup).toContain('id="showRules"');
     expect(markup).toContain('id="volume"');
-    expect(markup).toContain('aria-label="効果音の音量"');
+    expect(markup).toContain('aria-label="ゲーム音量"');
     expect(markup).toContain("白い用紙に答えを書く");
     expect(markup).toContain(role === "controller" ? "回答とメモはこの液タブ" : "問題はモニター、回答用紙とメモ用紙は液タブ");
     expect(markup).toContain('id="openStaffTools"');
@@ -31,6 +31,9 @@ describe("solo game layout contract", () => {
     expect(markup).toContain('id="judgementFlash"');
     expect(markup).toContain('id="resultVerdict"');
     expect(markup).toContain('id="stopDialog"');
+    expect(markup).toContain('id="skipDialog"');
+    expect(markup).toContain('id="skip"');
+    expect(markup.match(/class="primary-actions"/g)).toHaveLength(2);
     expect(markup).toContain('id="continuePlay"');
     expect(markup).toContain('id="confirmStop"');
     expect(markup).toContain('id="endAchievement"');

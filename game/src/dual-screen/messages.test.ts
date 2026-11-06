@@ -3,7 +3,7 @@ import protocol from "../../../config/dual_screen_protocol.json";
 import { DUAL_SCREEN_PROTOCOL_VERSION, EXHIBITION_ACTIONS, isSafeInkSnapshot, MAX_INK_POINTS } from "./messages";
 
 it("keeps both clients on the shared protocol contract", () => {
-  expect(DUAL_SCREEN_PROTOCOL_VERSION).toBe(8);
+  expect(DUAL_SCREEN_PROTOCOL_VERSION).toBe(9);
   expect(EXHIBITION_ACTIONS).toEqual(protocol.exhibition_actions);
 });
 

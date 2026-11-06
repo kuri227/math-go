@@ -104,6 +104,21 @@ describe("two-mode game rules", () => {
     expect(session.snapshot.phase).toBe("writing");
     expect(session.snapshot.endReason).toBeNull();
   });
+  it("skips a writing question without consuming a life or recording an answer", () => {
+    const session = new Session(questions.slice(0, 2), "exhibition");
+    session.start();
+    expect(session.skip()).toBe(true);
+    expect(session.snapshot).toMatchObject({ phase: "result", skipped: true, skippedCount: 1, lives: 3, attempts: 0, streak: 0 });
+    expect(session.skip()).toBe(false);
+    expect(session.next()).toBe(true);
+    expect(session.snapshot).toMatchObject({ phase: "writing", skipped: false, skippedCount: 1, round: 2 });
+  });
+  it("allows a confirmed skip while the confirmation dialog has paused the clock", () => {
+    const session = new Session(questions.slice(0, 1), "test");
+    session.start(); session.pause(true);
+    expect(session.skip()).toBe(true);
+    expect(session.snapshot).toMatchObject({ phase: "result", skipped: true, paused: false, lives: null });
+  });
   it("requires confirmation, rejects duplicate and out-of-order responses", () => {
     const s = new Session(questions.slice(0, 1), "test"); s.start();
     expect(s.beginJudge("x")).toBe(false); s.beginRecognition("a");

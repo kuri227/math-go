@@ -11,6 +11,7 @@ import { DualScreenChannel } from "../dual-screen/DualScreenChannel";
 import { WebSocketTransport } from "../dual-screen/WebSocketTransport";
 import { formulaScale } from "../game/formulaLayout";
 import { GAME_VOLUME_STORAGE_KEY, UrgencySound } from "../ui/UrgencySound";
+import { BackgroundMusic } from "../ui/BackgroundMusic";
 import { StatePublisher } from "../dual-screen/StatePublisher";
 import { connectionCopy } from "../dual-screen/connectionCopy";
 import { isSafeInkSnapshot, type ExhibitionAction, type SetupView } from "../dual-screen/messages";
@@ -52,11 +53,14 @@ export function runApp(role: Role): void {
   // Shared browser services and local UI state.
   const client = new RecognitionClient();
   const sound = new UrgencySound();
+  const music = new BackgroundMusic(sound.volume);
   const volume = $<HTMLInputElement>("volume");
   const updateVolume = (percent: number) => {
     volume.value = String(percent);
     volume.setAttribute("aria-valuetext", percent === 0 ? "ミュート" : `${percent}パーセント`);
     $("volumeValue").textContent = `${percent}%`;
+    volume.style.setProperty("--volume-percent", `${percent}%`);
+    music.setVolume(percent);
   };
   updateVolume(sound.volume);
   volume.addEventListener("input", () => updateVolume(sound.setVolume(Number(volume.value))));
@@ -301,6 +305,7 @@ export function runApp(role: Role): void {
   function render(): void {
     const s = state();
     const phase = s?.phase ?? "setup";
+    if (role !== "display") void music.setTrack(["writing", "recognizing", "preview", "judging", "countdown", "result"].includes(phase) ? "play" : "menu");
     if (phase !== "countdown") pendingControllerReady = "";
     const previousPhase = document.body.dataset.phase;
     document.body.dataset.phase = phase;
@@ -379,7 +384,7 @@ export function runApp(role: Role): void {
     prompt.style.transform = `scale(${scale})`;
     const second = Math.ceil(s.remainingMs / 1000), soundKey = `${s.runId}:${s.round}:${second}`;
     if (role !== "controller" && clockRunning(s) && second > 0 && second <= 5 && lastSound !== soundKey) { lastSound = soundKey; sound.playUrgency(second); }
-    const renderKey = `${key}:${phase}:${s.notice}:${s.recognition?.request_id}:${s.judgement?.correct}:${s.paused}:${connected}:${modelReady}`;
+    const renderKey = `${key}:${phase}:${s.notice}:${s.recognition?.request_id}:${s.judgement?.correct}:${s.timedOut}:${s.skipped}:${s.skippedCount}:${s.paused}:${connected}:${modelReady}`;
     if (renderKey === lastRender) return; lastRender = renderKey;
     const q = s.question!;
     if (role !== "controller" && phase !== "countdown") {
@@ -405,6 +410,7 @@ export function runApp(role: Role): void {
     $("paperTitle").textContent = activePaper === "answer" ? "回答を書く" : "採点されないメモ";
     $("backToAnswer").hidden = activePaper !== "memo";
     $("recognize").hidden = activePaper === "memo";
+    $("skip").hidden = activePaper === "memo";
     $("inputHeading").hidden = !writing && phase !== "recognizing";
     $("editActions").hidden = !writing && phase !== "recognizing";
     $("inputActions").hidden = !["writing", "recognizing", "preview", "judging"].includes(phase);
@@ -412,7 +418,7 @@ export function runApp(role: Role): void {
     $("stop").hidden = role === "display";
     pad.setDisabled(!writing || !canInput() || busy || activePaper !== "answer");
     memoPad.setDisabled(!writing || !canInput() || busy || activePaper !== "memo");
-    for (const id of ["undo", "clear", "recognize"]) $<HTMLButtonElement>(id).disabled = !writing || !canInput() || busy;
+    for (const id of ["undo", "clear", "recognize", "skip"]) $<HTMLButtonElement>(id).disabled = !writing || !canInput() || busy;
     $<HTMLButtonElement>("confirm").disabled = !preview || !canInput() || busy;
     $<HTMLButtonElement>("rewrite").disabled = !preview || !canInput() || busy;
     $("writingActions").hidden = !writing && phase !== "recognizing";
@@ -422,15 +428,15 @@ export function runApp(role: Role): void {
     $("result").hidden = phase !== "result";
     $("problemReport").hidden = s.mode !== "test" || role === "display" || phase !== "result";
     $("resultQuestion").hidden = role === "controller";
-    $("resultAnswer").hidden = role === "controller" || s.timedOut || !s.recognition;
+    $("resultAnswer").hidden = role === "controller" || s.timedOut || s.skipped || !s.recognition;
     $("solution").hidden = role === "controller";
     if (phase === "result" && role !== "controller") {
       richText(q.prompt ?? `${q.instruction}\n$${q.display_latex}$`, $("resultPrompt"));
-      if (!s.timedOut && s.recognition) renderMath(s.recognition.raw_latex, $("resultRecognized"));
+      if (!s.timedOut && !s.skipped && s.recognition) renderMath(s.recognition.raw_latex, $("resultRecognized"));
     }
-    if (phase === "result" && s.timedOut) {
+    if (phase === "result" && (s.timedOut || s.skipped)) {
       $("expected").textContent = "正答を読み込んでいます。"; $("explanation").textContent = "";
-      if (role !== "controller") void loadTimeoutSolution(s);
+      if (role !== "controller") void loadUnansweredSolution(s);
     }
     $("retryTest").hidden = s.mode !== "test" || role === "display";
     $("next").hidden = role === "display";
@@ -465,7 +471,7 @@ export function runApp(role: Role): void {
       $("resultVerdictMessage").textContent = feedback.message;
     }
     const transientFeedback = feedback ?? (phase === "writing" && s.notice.startsWith("不正解です") ? retryFeedback() : null);
-    const feedbackKey = transientFeedback ? `${s.runId}:${s.round}:${s.attempts}:${transientFeedback.tone}` : "";
+    const feedbackKey = transientFeedback ? `${s.runId}:${s.round}:${s.attempts}:${s.skippedCount}:${transientFeedback.tone}` : "";
     if (transientFeedback && feedbackKey !== lastFeedbackKey) {
       lastFeedbackKey = feedbackKey;
       showJudgementFeedback(transientFeedback);
@@ -486,8 +492,8 @@ export function runApp(role: Role): void {
         : accuracy >= 80 ? "ナイスチャレンジ！" : "挑戦おつかれさまでした！";
       $("endStats").textContent = `${seen}問中 ${s.correct}問正解 · 正解率 ${accuracy}%`;
       $("endAttempts").textContent = s.mode === "test"
-        ? `出題 ${seen}問 · 回答 ${s.attempts}回 · 不正解 ${s.wrongAttempts}回`
-        : `挑戦した問題 ${seen}問 · 残機 ${s.lives} / 3`;
+        ? `出題 ${seen}問 · 回答 ${s.attempts}回 · スキップ ${s.skippedCount}問 · 不正解 ${s.wrongAttempts}回`
+        : `挑戦した問題 ${seen}問 · スキップ ${s.skippedCount}問 · 残機 ${s.lives} / 3`;
       $("endStats").hidden = role === "controller";
       $("endAchievement").hidden = role === "controller";
       $("endAttempts").hidden = role === "controller";
@@ -497,7 +503,7 @@ export function runApp(role: Role): void {
     }
     if (previousPhase !== phase && previousPhase) {
       if (role !== "controller" && phase === "writing" && previousPhase === "countdown") sound.playEffect("start");
-      else if (role !== "controller" && phase === "result") sound.playEffect(s.timedOut ? "timeout" : s.judgement?.correct ? "correct" : "wrong", s.streak);
+      else if (role !== "controller" && phase === "result") sound.playEffect(s.skipped ? "tap" : s.timedOut ? "timeout" : s.judgement?.correct ? "correct" : "wrong", s.streak);
       else if (role !== "controller" && phase === "finished") sound.playEffect("finish");
       else if (role !== "controller" && phase === "writing" && previousPhase === "judging") sound.playEffect("wrong");
     }
@@ -523,6 +529,7 @@ export function runApp(role: Role): void {
       try { const result = await client.judge(s.question.id, recognition.raw_latex); if (session === current) session.judged(requestId, result); }
       catch (e) { if (session === current) session.fail(requestId, `判定できませんでした。もう一度回答を送れます。${String(e)}`); }
     } else if (action === "rewrite") { session.rewrite(); }
+    else if (action === "skip") { session.skip(); }
     else if (action === "next") { if (saveBusy) return; session.next(role === "display"); if (role === "single" && session.snapshot.phase === "countdown") session.readyForCountdown(); }
     else if (action === "retry-test") { session.retryTest(role === "display"); if (role === "single" && session.snapshot.phase === "countdown") session.readyForCountdown(); }
     else if (action === "stop") { session.finish("stopped"); }
@@ -539,12 +546,12 @@ export function runApp(role: Role): void {
       richText(s.question.prompt ?? s.question.display, $("lastPrompt")); renderMath(solution.expected_latex, $("lastAnswer")); richText(solution.explanation, $("lastExplanation")); $("endSolution").hidden = false;
     } catch { $("endAttempts").textContent += " 正答の取得に失敗しました。スタッフへお知らせください。"; }
   }
-  async function loadTimeoutSolution(s: Snapshot): Promise<void> {
+  async function loadUnansweredSolution(s: Snapshot): Promise<void> {
     const questionId = s.question!.id, runId = s.runId;
     try {
       const solution = await client.fetchSolution(questionId);
       const current = state();
-      if (current?.runId !== runId || current.question?.id !== questionId || current.phase !== "result" || !current.timedOut) return;
+      if (current?.runId !== runId || current.question?.id !== questionId || current.phase !== "result" || (!current.timedOut && !current.skipped)) return;
       renderMath(solution.expected_latex, $("expected")); richText(solution.explanation, $("explanation"));
     } catch { if (state()?.runId === runId && state()?.phase === "result" && state()?.question?.id === questionId) $("explanation").textContent = "正答を取得できませんでした。次へ進むか、スタッフへお知らせください。"; }
   }
@@ -693,6 +700,27 @@ export function runApp(role: Role): void {
   on("rewrite", async () => { await action("rewrite"); if (state()?.phase === "writing") { pad.clear(); releaseDraft(); } });
   on("confirm", () => action("confirm")); on("next", () => action("next"));
   on("retryTest", async () => { await action("retry-test"); pad.clear(); memoPad.clear(); activePaper = "answer"; releaseDraft(); lastPreview = ""; });
+  on("skip", async () => {
+    if (state()?.phase !== "writing" || busy) return;
+    await action("pause");
+    const dialog = $<HTMLDialogElement>("skipDialog");
+    if (!dialog.open) dialog.showModal();
+    requestAnimationFrame(() => $("cancelSkip").focus());
+  });
+  on("cancelSkip", async () => {
+    $<HTMLDialogElement>("skipDialog").close();
+    await action("resume");
+  });
+  on("confirmSkip", async () => {
+    $<HTMLDialogElement>("skipDialog").close();
+    await action("skip");
+    pad.clear(); memoPad.clear(); activePaper = "answer"; releaseDraft(); lastPreview = "";
+  });
+  $("skipDialog").addEventListener("cancel", event => {
+    event.preventDefault();
+    $<HTMLDialogElement>("skipDialog").close();
+    void action("resume").catch(showError);
+  });
   on("stop", async () => {
     if (saveBusy || reportBusy) { $("notice").textContent = "保存処理が終わるまでお待ちください。"; return; }
     await action("pause");

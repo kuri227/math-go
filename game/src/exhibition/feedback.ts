@@ -2,13 +2,20 @@ import type { Snapshot } from "./Session";
 import type { Role } from "./view";
 
 export type JudgementFeedback = {
-  tone: "correct" | "wrong" | "timeout";
+  tone: "correct" | "wrong" | "timeout" | "skip";
   title: string;
   message: string;
 };
 
 export function resultFeedback(snapshot: Snapshot, role: Role): JudgementFeedback | null {
   if (snapshot.phase !== "result") return null;
+  if (snapshot.skipped) {
+    return {
+      tone: "skip",
+      title: "スキップ",
+      message: role === "controller" ? "モニターで正答と解説を確認してください。" : "正答と解説を確認して、次へ進みましょう。",
+    };
+  }
   if (snapshot.timedOut) {
     return {
       tone: "timeout",

@@ -21,6 +21,8 @@ export interface Snapshot {
   wrongAttempts: number;
   lives: number | null;
   timedOut: boolean;
+  skipped: boolean;
+  skippedCount: number;
   remainingMs: number;
   questionTimeMs: number;
   countdownRemainingMs: number;
@@ -43,7 +45,7 @@ export class Session {
     this.snapshot = {
       runId: crypto.randomUUID(), mode, phase: "guide", question: questions[0]!,
       round: 1, total: questions.length, correct: 0, streak: 0, attempts: 0, wrongAttempts: 0,
-      lives: mode === "exhibition" ? EXHIBITION.lives : null, timedOut: false,
+      lives: mode === "exhibition" ? EXHIBITION.lives : null, timedOut: false, skipped: false, skippedCount: 0,
       remainingMs: questionSeconds(questions[0]!) * 1000,
       questionTimeMs: questionSeconds(questions[0]!) * 1000,
       paused: false, endReason: null,
@@ -88,7 +90,7 @@ export class Session {
       s.remainingMs = Math.max(0, s.remainingMs - Math.max(0, now - this.lastTick));
       if (s.remainingMs === 0) {
         if (s.mode === "exhibition") s.lives = Math.max(0, (s.lives ?? EXHIBITION.lives) - 1);
-        s.timedOut = true; s.streak = 0;
+        s.timedOut = true; s.skipped = false; s.streak = 0;
         this.requestId = null; s.recognition = null; s.judgement = null;
         if (s.lives === 0 && s.mode === "exhibition") this.finish("timeout");
         else {
@@ -141,7 +143,7 @@ export class Session {
   judged(id: string, result: JudgementResponse): boolean {
     const s = this.snapshot;
     if (s.phase !== "judging" || id !== this.requestId || result.question_id !== s.question?.id) return false;
-    this.requestId = null; s.attempts++; s.judgement = result;
+    this.requestId = null; s.attempts++; s.judgement = result; s.skipped = false;
     if (result.correct || s.mode === "test") {
       const alreadyAnswered = this.outcomes.has(s.round);
       this.outcomes.set(s.round, result.correct);
@@ -155,6 +157,23 @@ export class Session {
     }
     this.lastTick = this.now(); return true;
   }
+  skip(): boolean {
+    const s = this.snapshot;
+    this.tick();
+    if (s.phase !== "writing") return false;
+    this.requestId = null;
+    s.recognition = null;
+    s.judgement = null;
+    s.timedOut = false;
+    s.skipped = true;
+    s.skippedCount += 1;
+    s.streak = 0;
+    s.paused = false;
+    s.phase = "result";
+    s.notice = "この問題をスキップしました。正答と解説を確認して、次の問題へ進めます。";
+    this.lastTick = this.now();
+    return true;
+  }
   next(prepare = false): boolean {
     const s = this.snapshot;
     if (s.phase !== "result") return false;
@@ -162,7 +181,7 @@ export class Session {
     this.index = (this.index + 1) % this.questions.length;
     s.question = this.questions[this.index]!;
     s.round += 1;
-    s.phase = prepare ? "countdown" : "writing"; s.recognition = null; s.judgement = null; s.notice = prepare ? "次の問題を準備しています。" : ""; s.timedOut = false;
+    s.phase = prepare ? "countdown" : "writing"; s.recognition = null; s.judgement = null; s.notice = prepare ? "次の問題を準備しています。" : ""; s.timedOut = false; s.skipped = false;
     s.countdownRemainingMs = 0; s.paused = prepare;
     s.questionTimeMs = questionSeconds(s.question) * 1000;
     s.remainingMs = s.questionTimeMs; this.lastTick = this.now(); return true;
@@ -170,7 +189,7 @@ export class Session {
   retryTest(prepare = false): boolean {
     if (this.snapshot.mode !== "test" || this.snapshot.phase !== "result") return false;
     this.snapshot.phase = prepare ? "countdown" : "writing"; this.snapshot.judgement = null; this.snapshot.recognition = null;
-    this.snapshot.countdownRemainingMs = 0; this.snapshot.paused = prepare; this.snapshot.timedOut = false;
+    this.snapshot.countdownRemainingMs = 0; this.snapshot.paused = prepare; this.snapshot.timedOut = false; this.snapshot.skipped = false;
     this.snapshot.remainingMs = this.snapshot.questionTimeMs;
     this.snapshot.notice = prepare ? "用紙を準備しています。" : ""; return true;
   }

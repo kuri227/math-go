@@ -5,6 +5,7 @@ import { resultFeedback, retryFeedback } from "./feedback";
 const snapshot = (overrides: Partial<Snapshot>): Snapshot => ({
   phase: "result",
   timedOut: false,
+  skipped: false,
   judgement: { correct: true },
   ...overrides,
 } as Snapshot);
@@ -18,6 +19,10 @@ describe("judgement feedback", () => {
     expect(resultFeedback(snapshot({ judgement: { correct: false } as Snapshot["judgement"] }), "display")).toMatchObject({ tone: "wrong", title: "不正解" });
     expect(resultFeedback(snapshot({ mode: "exhibition", timedOut: true, judgement: null }), "display")).toMatchObject({ tone: "timeout", title: "時間切れ · 残機 −1" });
     expect(resultFeedback(snapshot({ mode: "test", timedOut: true, judgement: null }), "display")).toMatchObject({ tone: "timeout", title: "時間切れ" });
+  });
+
+  it("labels skipped questions separately from wrong answers", () => {
+    expect(resultFeedback(snapshot({ skipped: true, judgement: null }), "display")).toMatchObject({ tone: "skip", title: "スキップ" });
   });
 
   it("explains that exhibition wrong answers can be retried", () => {

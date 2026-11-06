@@ -6,7 +6,7 @@ import protocol from "../../../config/dual_screen_protocol.json";
 export const DUAL_SCREEN_PROTOCOL_VERSION = protocol.version;
 export type DualScreenRole = "display" | "controller";
 export type SetupView = "home" | "rules" | "difficulty" | "staff";
-export const EXHIBITION_ACTIONS = ["recognize", "confirm", "rewrite", "next", "retry-test", "pause", "resume", "stop"] as const;
+export const EXHIBITION_ACTIONS = ["recognize", "confirm", "rewrite", "skip", "next", "retry-test", "pause", "resume", "stop"] as const;
 export type ExhibitionAction = typeof EXHIBITION_ACTIONS[number];
 
 interface MessageBase {

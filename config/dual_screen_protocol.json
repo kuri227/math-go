@@ -1,9 +1,10 @@
 {
-  "version": 8,
+  "version": 9,
   "exhibition_actions": [
     "recognize",
     "confirm",
     "rewrite",
+    "skip",
     "next",
     "retry-test",
     "pause",
