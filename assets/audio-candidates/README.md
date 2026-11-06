@@ -1,6 +1,6 @@
 # BGM試聴候補
 
-本番採用前の比較用素材です。`game/public`の外に置いているため、ゲームからは読み込まれず本番ビルドにも入りません。すべてOpenGameArtでCC0 1.0と明示された音源で、展示・改変・Gitでの再配布にクレジット必須の条件はありません。ただし、採用時も出典と作者名は第三者ライセンス一覧へ残します。
+比較用の原音です。この場所のファイルはゲームから直接読み込みません。Empacotatronの2本だけは正規化した派生物を本番BGMとして採用しています。すべてOpenGameArtでCC0 1.0と明示された音源で、展示・改変・Gitでの再配布にクレジット必須の条件はありません。出典と作者名は第三者ライセンス一覧へ残します。
 
 | ファイル | 作者・原題 | 長さ／形式 | 想定する場面 | 確認した条件 |
 |---|---|---:|---|---|
@@ -8,8 +8,8 @@
 | `overworld-original.ogg` | Louswan「Overworld Theme」 | 33秒・OGG・ステレオ | 難易度選択または低難易度。明るい候補 | [配布ページ](https://opengameart.org/content/overworld-theme-0)でCC0、cheerful、loopableと明示 |
 | `overworld-alternate.ogg` | Louswan「Overworld Theme」alternate | 41秒・OGG・ステレオ | 上記の比較案 | 同上 |
 | `chiptune-chops-loop.wav` | Eldritch Grim「Chiptune Chops」loop | 14秒・WAV・モノラル | 回答中。短くゲーム感を強くする候補 | [配布ページ](https://opengameart.org/content/chiptune-chops)でCC0、loop同梱、帰属不要と明示 |
-| `empacotatron-menu.ogg` | Fupi「Empacotatron」menu | 12秒・OGG・ステレオ | 難易度選択。同じ曲のプレイ版へ自然につなぐ候補 | [配布ページ](https://opengameart.org/content/empacotatron)でCC0、energetic、arcade、menu variationと明示 |
-| `empacotatron-loop.ogg` | Fupi「Empacotatron」loop | 80秒・OGG・ステレオ | 回答中。メニュー版と統一感を作る高エネルギー候補 | 同上 |
+| `empacotatron-menu.ogg` | Fupi「Empacotatron」menu | 12秒・OGG・ステレオ | **採用**。難易度選択用の原音 | [配布ページ](https://opengameart.org/content/empacotatron)でCC0、energetic、arcade、menu variationと明示 |
+| `empacotatron-loop.ogg` | Fupi「Empacotatron」loop | 80秒・OGG・ステレオ | **採用**。回答中用の原音 | 同上 |
 | `sci-fi-puzzle-138bpm.ogg` | MintoDog「Sci-fi Puzzle In-Game 1」 | 139秒・OGG・ステレオ | 回答中。数学・パズル感と長い展開を両立する候補 | [配布ページ](https://opengameart.org/content/sci-fi-puzzle-in-game-1)でCC0、138 BPM、puzzle、loopableと明示 |
 | `shine-blitz-140bpm.ogg` | zesona / Chris Murphy「Shine Blitz」 | 62秒・OGG・ステレオ | 回答中。明るさと疾走感を強める候補 | [配布ページ](https://opengameart.org/content/shine-blitz)でCC0、140 BPM、upbeat、happy、loopableと明示 |
 | `upbeat-chiptune-theme.ogg` | nihilocrat「Upbeat Chiptune Theme」 | 57秒・OGG・ステレオ | 難易度選択。レトロゲーム感を強める候補 | [配布ページ](https://opengameart.org/content/upbeat-chiptune-theme)でCC0、menu music由来と明示 |
@@ -33,3 +33,5 @@ CC0 1.0: <https://creativecommons.org/publicdomain/zero/1.0/>
 4. 高揚感型：選択画面は1または3、回答中は`shine-blitz-140bpm.ogg`
 
 矢印の左が選択画面、右が回答中です。`charge.ogg`は常時BGMではなく、高連続正解時の短い盛り上がり候補として比較します。
+
+採用したEmpacotatronの原音はこの場所に保持し、-18 LUFS・True Peak -2 dBへ正規化した本番用ファイルを`game/public/audio/bgm-*.ogg`に配置しています。
