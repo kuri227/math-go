@@ -38,6 +38,10 @@ data/custom/*
 !data/custom/.gitkeep
 data/training/
 
+# Local character artwork and previews derived from it
+/data/img/
+/docs/mockups/quiz-host-*.png
+
 # Generated benchmark artifacts
 results/*.csv
 results/*.json
