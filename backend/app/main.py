@@ -80,8 +80,10 @@ def _bounded_text(name: str, value: str, maximum: int, *, required: bool = False
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     registry.start_all()
-    yield
-    registry.close()
+    try:
+        yield
+    finally:
+        registry.close()
 
 
 app = FastAPI(title="数学でGO Recognition Service", version="0.1.0a1", lifespan=lifespan)
@@ -105,6 +107,14 @@ if (GAME_DIST_DIR / "audio").is_dir():
 
 
 # Visitor and staff pages.
+@app.get("/api/v1/display/quiz-host.png", include_in_schema=False)
+def quiz_host_artwork() -> FileResponse:
+    artwork = REPO_ROOT / "data" / "img" / "5EC55D0C-E5A6-433F-AEDF-DCB81C9BAFF4.png"
+    if not artwork.is_file():
+        raise HTTPException(status_code=404)
+    return FileResponse(artwork, media_type="image/png", headers={"Cache-Control": "no-cache"})
+
+
 @app.get("/", include_in_schema=False)
 def index() -> FileResponse:
     game_index = GAME_DIST_DIR / "index.html"

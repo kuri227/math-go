@@ -37,12 +37,13 @@ export class HandwritingPad {
   private logicalWidth = 0;
   private logicalHeight = 0;
   private revision = 0;
+  private remoteInk: InkSnapshot | null = null;
 
   constructor(
     private readonly canvas: HTMLCanvasElement,
     private readonly hint: HTMLElement,
     private readonly pointerPreview: HTMLElement,
-    private readonly onInkChange?: (snapshot: InkSnapshot) => void,
+    private readonly onInkChange?: () => void,
   ) {
     const context = canvas.getContext("2d");
     if (!context) throw new Error("Canvas 2D context is unavailable");
@@ -54,10 +55,12 @@ export class HandwritingPad {
   }
 
   get hasInk(): boolean {
-    return this.strokes.length > 0 || Boolean(this.activeStroke?.length);
+    return this.strokes.length > 0 || Boolean(this.activeStroke?.length)
+      || Boolean(this.remoteInk?.strokes.some(stroke => stroke.length > 0));
   }
 
   clear(): void {
+    this.remoteInk = null;
     this.strokes = [];
     this.activeStroke = null;
     this.pointerId = null;
@@ -88,26 +91,25 @@ export class HandwritingPad {
   }
 
   importInkSnapshot(snapshot: InkSnapshot): void {
-    if (snapshot.version !== 1 || snapshot.revision < this.revision) return;
-    const width = Math.max(1, this.cssWidth);
-    const height = Math.max(1, this.cssHeight);
+    if (snapshot.version !== 1 || (this.remoteInk && snapshot.revision < this.remoteInk.revision)) return;
+    // Keep the original coordinates even when a snapshot arrives while the
+    // replica is hidden during the countdown or its layout is changing.
+    this.remoteInk = snapshot;
+    this.redraw();
+  }
+
+  private projectRemoteInk(snapshot: InkSnapshot, width: number, height: number): Stroke[] {
     const sourceWidth = Math.max(0.01, snapshot.aspectRatio);
     const scale = Math.min(width / sourceWidth, height);
     const offsetX = (width - sourceWidth * scale) / 2;
     const offsetY = (height - scale) / 2;
-    this.revision = snapshot.revision;
-    this.logicalWidth = width;
-    this.logicalHeight = height;
-    this.activeStroke = null;
-    this.pointerId = null;
-    this.strokes = snapshot.strokes.map(stroke => stroke.map(point => ({
+    return snapshot.strokes.map(stroke => stroke.map(point => ({
       x: offsetX + point.x * sourceWidth * scale,
       y: offsetY + point.y * scale,
       pressure: point.pressure,
       time: 0,
       pointerType: "remote",
     })));
-    this.redraw();
   }
 
   setDisabled(disabled: boolean): void {
@@ -260,12 +262,16 @@ export class HandwritingPad {
   }
 
   private redraw(): void {
-    const ratio = this.canvas.width / Math.max(1, this.cssWidth);
+    const width = Math.max(1, this.cssWidth);
+    const ratio = this.canvas.width / width;
     this.context.setTransform(1, 0, 0, 1, 0, 0);
     this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.context.fillStyle = "#ffffff";
     this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
-    this.drawStrokes(this.context, this.strokes, 0, 0, ratio);
+    const strokes = this.remoteInk
+      ? this.projectRemoteInk(this.remoteInk, width, Math.max(1, this.cssHeight))
+      : this.strokes;
+    this.drawStrokes(this.context, strokes, 0, 0, ratio);
     this.updateHint();
   }
 
@@ -323,7 +329,7 @@ export class HandwritingPad {
 
   private changed(increment = true): void {
     if (increment) this.revision++;
-    this.onInkChange?.(this.exportInkSnapshot());
+    this.onInkChange?.();
   }
 }
 

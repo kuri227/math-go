@@ -2,7 +2,7 @@ import "@fontsource-variable/m-plus-1";
 import "katex/dist/katex.min.css";
 import "./app.css";
 import { RecognitionClient } from "../api/RecognitionClient";
-import { HandwritingPad, type CroppedImage, type InkSnapshot } from "../ui/HandwritingPad";
+import { HandwritingPad, type CroppedImage } from "../ui/HandwritingPad";
 import { renderMath } from "../ui/renderMath";
 import { richText } from "./richText";
 import { Session, chooseExhibition, EXHIBITION, questionSeconds, type Mode, type Snapshot } from "./Session";
@@ -10,7 +10,7 @@ import type { Question, RecognitionResponse } from "../domain/types";
 import { DualScreenChannel } from "../dual-screen/DualScreenChannel";
 import { WebSocketTransport } from "../dual-screen/WebSocketTransport";
 import { formulaScale } from "../game/formulaLayout";
-import { GAME_VOLUME_STORAGE_KEY, UrgencySound } from "../ui/UrgencySound";
+import { correctFinalNoteMs, GAME_VOLUME_STORAGE_KEY, UrgencySound } from "../ui/UrgencySound";
 import { BackgroundMusic } from "../ui/BackgroundMusic";
 import { StatePublisher } from "../dual-screen/StatePublisher";
 import { connectionCopy } from "../dual-screen/connectionCopy";
@@ -49,6 +49,16 @@ import {
 export function runApp(role: Role): void {
   document.body.dataset.role = role;
   $("app").innerHTML = appMarkup(role);
+  if (role === "display") {
+    const host = document.createElement("img");
+    host.className = "quiz-host";
+    host.alt = "";
+    host.decoding = "async";
+    host.hidden = true;
+    host.addEventListener("load", () => { host.hidden = false; }, { once: true });
+    $("problemPane").before(host);
+    host.src = "/api/v1/display/quiz-host.png";
+  }
 
   // Shared browser services and local UI state.
   const client = new RecognitionClient();
@@ -71,8 +81,9 @@ export function runApp(role: Role): void {
   document.addEventListener("pointerdown", () => sound.arm(), { once: true, passive: true });
   document.addEventListener("keydown", () => sound.arm(), { once: true });
   let lastSound = "";
-  let publishAnswerInk = (_snapshot?: InkSnapshot, _force?: boolean): void => {};
-  const pad = new HandwritingPad($<HTMLCanvasElement>("pad"), $("padHint"), $("pointer"), snapshot => publishAnswerInk(snapshot));
+  let publishAnswerInk = (_force?: boolean): void => {};
+  const pad = new HandwritingPad($<HTMLCanvasElement>("pad"), $("padHint"), $("pointer"),
+    role === "controller" ? () => publishAnswerInk() : undefined);
   const memoPad = new HandwritingPad($<HTMLCanvasElement>("memoPad"), $("memoHint"), $("memoPointer"));
   const replicaPad = new HandwritingPad($<HTMLCanvasElement>("replicaPad"), $("replicaHint"), $("replicaPointer"));
   replicaPad.setDisabled(true);
@@ -89,6 +100,7 @@ export function runApp(role: Role): void {
   let lastFocusedPreview = "", controllerConnectionId: string | null = null;
   let activePaper: Paper = "answer", inkGeneration = 0, inkTimer: ReturnType<typeof setTimeout> | null = null;
   let feedbackTimer: ReturnType<typeof setTimeout> | null = null, lastFeedbackKey = "";
+  let feedbackSequence = 0;
   const motionValues = new Map<string, string>();
   const setAnimatedText = (id: string, value: string, animationClass = "is-changing") => {
     const element = $(id), previous = motionValues.get(id);
@@ -102,7 +114,6 @@ export function runApp(role: Role): void {
       element.addEventListener("animationend", () => element.classList.remove(animationClass), { once: true });
     });
   };
-  let pendingInk: InkSnapshot | null = null;
   let pendingControllerReady = "";
   let replicaGeneration = -1;
   let draft: { image: CroppedImage; strokes: object; response?: RecognitionResponse; questionId: string; runId: string } | null = null;
@@ -127,16 +138,18 @@ export function runApp(role: Role): void {
   const setupPublisher = new StatePublisher<{ view: SetupView; difficulty: number; recognitionReady: boolean }>(value => channel?.send({ type: "setup-view", ...value }));
   const controllerSnapshot = (): Snapshot | null => session ? toControllerSnapshot(session.snapshot) : null;
   const sendState = (force = false) => { if (role === "display") publisher.publish(controllerSnapshot(), force); };
-  publishAnswerInk = (snapshot = pad.exportInkSnapshot(), force = false) => {
+  publishAnswerInk = (force = false) => {
     if (role !== "controller" || !channel || !connected) return;
     const s = state();
     if (!s?.question || !["countdown", "writing", "recognizing", "preview", "judging"].includes(s.phase)) return;
-    pendingInk = snapshot;
+    const generation = inkGeneration;
     const send = () => {
       inkTimer = null;
-      const latest = pendingInk; pendingInk = null;
-      if (latest && isSafeInkSnapshot(latest)) channel.send({ type: "ink-snapshot", runId: s.runId, questionId: s.question!.id, generation: inkGeneration, ink: latest });
-      else if (latest) $("notice").textContent = "回答が長いため、モニターへの筆跡同期を停止しました。回答と読み取りは液タブで続けられます。";
+      const current = state();
+      if (!connected || generation !== inkGeneration || current?.runId !== s.runId || current.question?.id !== s.question?.id) return;
+      const latest = pad.exportInkSnapshot();
+      if (isSafeInkSnapshot(latest)) channel.send({ type: "ink-snapshot", runId: s.runId, questionId: s.question!.id, generation, ink: latest });
+      else $("notice").textContent = "回答が長いため、モニターへの筆跡同期を停止しました。回答と読み取りは液タブで続けられます。";
     };
     if (force) { if (inkTimer) clearTimeout(inkTimer); send(); }
     else if (!inkTimer) inkTimer = setTimeout(send, 40);
@@ -204,16 +217,38 @@ export function runApp(role: Role): void {
       remoteRecognitionReady: remoteSetup.recognitionReady,
     });
   }
-  function showJudgementFeedback(feedback: JudgementFeedback): void {
+  function showJudgementFeedback(feedback: JudgementFeedback, streak: number): void {
     const flash = $("judgementFlash");
+    const sequence = ++feedbackSequence;
     if (feedbackTimer) clearTimeout(feedbackTimer);
     flash.hidden = true;
+    flash.classList.remove("is-ring-ready");
     flash.dataset.tone = feedback.tone;
-    renderJudgementIcon($("judgementFlashIcon"), feedback.tone);
-    $("judgementFlashTitle").textContent = feedback.title;
-    $("judgementFlashMessage").textContent = feedback.message;
+    const icon = $("judgementFlashIcon");
+    if (feedback.tone === "correct") {
+      // Both strokes share endpoints with the same visual center.
+      icon.innerHTML = '<svg class="answer-check" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path class="answer-check-line" d="M10 27h28"/><path class="answer-check-mark" pathLength="1" d="m10 25 9 9 19-20"/></svg>';
+      flash.style.setProperty("--correct-note-delay", `${correctFinalNoteMs(streak)}ms`);
+    } else renderJudgementIcon(icon, feedback.tone);
+    const milestone = feedback.tone === "correct" && streak === 10;
+    $("judgementFlashTitle").textContent = milestone ? "10連続正解！" : feedback.streakLabel?.split(" · ")[0] ?? feedback.title;
+    const counter = $("judgementFlashStreak");
+    counter.hidden = !feedback.streakLabel || milestone;
+    $("judgementFlashPrevious").textContent = String(streak - 1);
+    $("judgementFlashCurrent").textContent = `${streak}問`;
+    $("judgementFlashMessage").textContent = feedback.streakLabel ? `${feedback.title} ${feedback.message}` : feedback.message;
+    flash.classList.toggle("has-streak", Boolean(feedback.streakLabel));
+    flash.classList.toggle("is-streak-milestone", milestone);
     requestAnimationFrame(() => {
+      if (sequence !== feedbackSequence) return;
       flash.hidden = false;
+      if (feedback.tone === "correct") {
+        const cueRing = () => {
+          if (sequence === feedbackSequence && !flash.hidden) flash.classList.add("is-ring-ready");
+        };
+        if (role === "controller") cueRing();
+        else sound.playEffect("correct", streak, cueRing);
+      }
       feedbackTimer = setTimeout(() => { flash.hidden = true; }, 1300);
     });
   }
@@ -296,12 +331,48 @@ export function runApp(role: Role): void {
     requestAnimationFrame(() => requestAnimationFrame(() => {
       const current = state();
       if (!connected || !modelReady || current?.phase !== "countdown" || !current.paused || `${current.runId}:${current.question?.id}` !== readyKey) return;
-      publishAnswerInk(undefined, true);
+      publishAnswerInk(true);
       channel?.send({ type: "exhibition-control", action: "controller-ready", runId: current.runId, questionId: current.question!.id });
     }));
   }
   // Render the current snapshot. Session remains the source of game rules;
   // this function only derives visibility, copy, focus, and presentation.
+  const prompt = $("prompt"), promptSpace = prompt.parentElement!;
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+  let promptSize = { width: 0, height: 0, availableWidth: 0, availableHeight: 0 };
+  if (role !== "controller") {
+    const observer = new ResizeObserver(() => {
+      promptSize = {
+        width: prompt.offsetWidth, height: prompt.offsetHeight,
+        availableWidth: promptSpace.clientWidth, availableHeight: promptSpace.clientHeight,
+      };
+    });
+    observer.observe(prompt);
+    observer.observe(promptSpace);
+  }
+
+  function renderClock(s: Snapshot): void {
+    const running = clockRunning(s);
+    const ratio = Math.max(0, Math.min(1, s.remainingMs / s.questionTimeMs));
+    text("time", `${remainingSeconds(s.remainingMs)}秒${running ? "" : " · 時計停止中"}`);
+    $("timerFill").style.transform = `scaleX(${ratio})`;
+    const urgent = String(running && s.remainingMs <= 5000);
+    const track = $("timerTrack");
+    if (track.dataset.urgent !== urgent) track.dataset.urgent = urgent;
+    if (role !== "controller") {
+      const { width, height, availableWidth, availableHeight } = promptSize;
+      const scale = !reducedMotion.matches && ["writing", "recognizing", "preview", "judging"].includes(s.phase)
+        && (s.question?.prompt ?? "").length < 48 && width && height && availableWidth && availableHeight
+        ? formulaScale(width, height, availableWidth, availableHeight, ratio) : 1;
+      prompt.style.transform = `scale(${scale})`;
+      const second = Math.ceil(s.remainingMs / 1000), soundKey = `${s.runId}:${s.round}:${second}`;
+      if (running && second > 0 && second <= 5 && lastSound !== soundKey) {
+        lastSound = soundKey;
+        sound.playUrgency(second);
+      }
+    }
+  }
+
   function render(): void {
     const s = state();
     const phase = s?.phase ?? "setup";
@@ -334,9 +405,10 @@ export function runApp(role: Role): void {
     $("play").hidden = ["setup", "guide", "finished"].includes(phase);
     $("finished").hidden = phase !== "finished";
     if (!s) return;
-    const key = `${s.runId}:${s.question?.id}`;
+    const key = `${s.runId}:${s.round}:${s.question?.id}`;
     const questionChanged = key !== lastQuestion;
     if (questionChanged) {
+      if (inkTimer !== null) { clearTimeout(inkTimer); inkTimer = null; }
       lastQuestion = key; inkGeneration++;
       if (role !== "display") { pad.clear(); memoPad.clear(); activePaper = "answer"; }
       replicaGeneration = -1; replicaPad.clear(); releaseDraft(); lastPreview = ""; $("saveStatus").textContent = ""; $("reviewNotice").textContent = "";
@@ -348,15 +420,14 @@ export function runApp(role: Role): void {
     setAnimatedText("correct", `正解 ${s.correct}`); setAnimatedText("streak", `連続 ${s.streak}`);
     $("lives").hidden = s.mode === "test";
     if (s.mode === "exhibition") setAnimatedText("lives", `残機 ${s.lives ?? EXHIBITION.lives} / ${EXHIBITION.lives}`);
-    $("time").hidden = false; text("time", `${remainingSeconds(s.remainingMs)}秒${clockRunning(s) ? "" : " · 時計停止中"}`);
+    $("time").hidden = false;
+    renderClock(s);
     $("time").dataset.paused = String(!clockRunning(s));
     const status = activity(s);
     $("activity").hidden = !status;
     text("activityTitle", status?.title ?? ""); text("activityDescription", status?.description ?? "");
     $("recognitionProgress").hidden = !status?.busy;
     $("timerTrack").hidden = false;
-    $("timerFill").style.transform = `scaleX(${Math.max(0, Math.min(1, s.remainingMs / s.questionTimeMs))})`;
-    $("timerTrack").dataset.urgent = String(clockRunning(s) && s.remainingMs <= 5000);
     $("countdown").hidden = phase !== "countdown";
     if (phase === "countdown") {
       const seconds = Math.ceil(s.countdownRemainingMs / 1000);
@@ -372,18 +443,10 @@ export function runApp(role: Role): void {
       $("guideDifficultyName").textContent = s.question?.difficulty_label ?? difficultyLabels[selectedLevel() - 1] ?? "";
       $("guideDifficultyTime").textContent = `1問 ${questionSeconds(s.question!)}秒 · 全${s.total}問`;
       $("guideDescription").textContent = s.mode === "test" ? `選択した${s.total}問を順番に繰り返します。` : `${s.question?.difficulty_label ?? "選んだ難易度"}の問題から${s.total}問に挑戦します。`;
-      $("guideRules").textContent = s.mode === "test" ? "時間切れでも終了しません。正答を確認しながら、手動で終了するまで検証を続けられます。" : `1問${questionSeconds(s.question!)}秒。時間切れになると残機が1つ減ります。`;
+      $("guideRules").textContent = s.mode === "test" ? "時間切れでも終了しません。正答を確認しながら、手動で終了するまで検証を続けられます。" : `1問${questionSeconds(s.question!)}秒。時間切れ・スキップで残機が1つ減ります。`;
       $("guidePrivacy").textContent = s.mode === "test" ? "データは自動保存しません。同意して確認した回答だけ、このPCへ保存できます。メモは保存されません。" : "";
       $("guidePrivacy").hidden = s.mode !== "test";
     }
-    const prompt = $("prompt"), space = prompt.parentElement!;
-    const timed = ["writing", "recognizing", "preview", "judging"].includes(s.phase);
-    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const scale = !reducedMotion && timed && (s.question?.prompt ?? "").length < 48
-      ? formulaScale(prompt.offsetWidth, prompt.offsetHeight, space.clientWidth, space.clientHeight, s.remainingMs / s.questionTimeMs) : 1;
-    prompt.style.transform = `scale(${scale})`;
-    const second = Math.ceil(s.remainingMs / 1000), soundKey = `${s.runId}:${s.round}:${second}`;
-    if (role !== "controller" && clockRunning(s) && second > 0 && second <= 5 && lastSound !== soundKey) { lastSound = soundKey; sound.playUrgency(second); }
     const renderKey = `${key}:${phase}:${s.notice}:${s.recognition?.request_id}:${s.judgement?.correct}:${s.timedOut}:${s.skipped}:${s.skippedCount}:${s.paused}:${connected}:${modelReady}`;
     if (renderKey === lastRender) return; lastRender = renderKey;
     const q = s.question!;
@@ -468,23 +531,24 @@ export function runApp(role: Role): void {
       $("resultVerdict").dataset.tone = feedback.tone;
       renderJudgementIcon($("resultVerdictIcon"), feedback.tone);
       $("resultTitle").textContent = feedback.title;
-      $("resultVerdictMessage").textContent = feedback.message;
+      $("resultVerdictMessage").textContent = feedback.streakLabel ? `${feedback.streakLabel}。 ${feedback.message}` : feedback.message;
     }
     const transientFeedback = feedback ?? (phase === "writing" && s.notice.startsWith("不正解です") ? retryFeedback() : null);
     const feedbackKey = transientFeedback ? `${s.runId}:${s.round}:${s.attempts}:${s.skippedCount}:${transientFeedback.tone}` : "";
     if (transientFeedback && feedbackKey !== lastFeedbackKey) {
       lastFeedbackKey = feedbackKey;
-      showJudgementFeedback(transientFeedback);
+      showJudgementFeedback(transientFeedback, s.streak);
     }
     if (phase === "finished") {
       releaseDraft();
       $("finished").dataset.reason = s.endReason ?? "stopped";
-      $("endTitle").textContent = s.endReason === "completed" ? "チャレンジ完走！" : s.endReason === "timeout" ? "今回の挑戦はここまで！" : "プレイを終了しました";
-      $("endReason").textContent = role === "controller"
+      const outOfLives = s.endReason === "timeout" || s.endReason === "skip";
+      $("endTitle").textContent = s.endReason === "completed" ? "チャレンジ完走！" : outOfLives ? "今回の挑戦はここまで！" : "プレイを終了しました";
+      $("endReason").textContent = outOfLives
+        ? `${s.endReason === "skip" ? "スキップ" : "時間切れ"}で残機が0になりました。`
+        : role === "controller"
         ? "モニターで最終結果を確認できます。"
-        : s.endReason === "completed" ? "全10問の結果を発表します。"
-          : s.endReason === "timeout" ? "ここまでの結果を振り返りましょう。"
-            : "ここまでの結果です。";
+        : s.endReason === "completed" ? "全10問の結果を発表します。" : "ここまでの結果です。";
       const seen = s.endReason === "completed" ? s.total : s.round;
       const accuracy = seen > 0 ? Math.round(s.correct / seen * 100) : 0;
       $("endAchievement").textContent = s.endReason === "completed"
@@ -503,7 +567,7 @@ export function runApp(role: Role): void {
     }
     if (previousPhase !== phase && previousPhase) {
       if (role !== "controller" && phase === "writing" && previousPhase === "countdown") sound.playEffect("start");
-      else if (role !== "controller" && phase === "result") sound.playEffect(s.skipped ? "tap" : s.timedOut ? "timeout" : s.judgement?.correct ? "correct" : "wrong", s.streak);
+      else if (role !== "controller" && phase === "result" && !s.judgement?.correct) sound.playEffect(s.skipped ? "tap" : s.timedOut ? "timeout" : "wrong");
       else if (role !== "controller" && phase === "finished") sound.playEffect("finish");
       else if (role !== "controller" && phase === "writing" && previousPhase === "judging") sound.playEffect("wrong");
     }
@@ -612,11 +676,14 @@ export function runApp(role: Role): void {
       const s = session?.snapshot;
       if (!s?.question || message.runId !== s.runId || message.questionId !== s.question.id || !isSafeInkSnapshot(message.ink)) return;
       if (message.generation < replicaGeneration) return;
+      if (replicaGeneration >= 0 && message.generation > replicaGeneration) replicaPad.clear();
       replicaGeneration = message.generation;
       replicaPad.importInkSnapshot(message.ink);
-      $("replicaStatus").textContent = connected ? "入力画面の回答を同期中" : "同期停止中";
+      text("replicaStatus", connected ? "入力画面の回答を同期中" : "同期停止中");
     } else if (role === "display" && message.type === "hello") {
       if (controllerConnectionId !== null && controllerConnectionId !== message.connectionId) {
+        replicaGeneration = -1;
+        replicaPad.clear();
         session?.cancelRecognition();
         // A replacement tab has no original PNG. Never ask it to confirm an
         // orphaned preview that it cannot visually verify.
@@ -624,7 +691,7 @@ export function runApp(role: Role): void {
       }
       controllerConnectionId = message.connectionId; sendState(true);
     } else if (role === "controller" && message.type === "hello") {
-      publishAnswerInk(undefined, true);
+      publishAnswerInk(true);
       sendSetupView(true);
     }
   });
@@ -701,8 +768,15 @@ export function runApp(role: Role): void {
   on("confirm", () => action("confirm")); on("next", () => action("next"));
   on("retryTest", async () => { await action("retry-test"); pad.clear(); memoPad.clear(); activePaper = "answer"; releaseDraft(); lastPreview = ""; });
   on("skip", async () => {
-    if (state()?.phase !== "writing" || busy) return;
+    const snapshot = state();
+    if (snapshot?.phase !== "writing" || busy) return;
     await action("pause");
+    if (state()?.phase !== "writing") return;
+    $("skipCost").textContent = snapshot.lives === 1
+      ? "残機が0になり、チャレンジが終了します。最後の問題の正答と解説を表示します。"
+      : snapshot.mode === "exhibition"
+        ? "残機が1つ減ります。正答と解説を表示します。"
+        : "正答と解説を表示します。";
     const dialog = $<HTMLDialogElement>("skipDialog");
     if (!dialog.open) dialog.showModal();
     requestAnimationFrame(() => $("cancelSkip").focus());
@@ -811,7 +885,17 @@ export function runApp(role: Role): void {
     else if (state()?.phase === "preview") { event.preventDefault(); void action("confirm"); }
   });
   // Startup and the only game clock. Controller never advances time locally.
-  setInterval(() => { if (role !== "controller" && session) { const expired = session.tick(); render(); sendState(); if (expired) void loadLastSolution(session.snapshot); } }, 100);
+  if (role !== "controller") setInterval(() => {
+    if (!session) return;
+    const snapshot = session.snapshot;
+    const phase = snapshot.phase;
+    if (snapshot.paused || (phase !== "writing" && phase !== "countdown")) return;
+    const expired = session.tick();
+    if (phase === "writing" && snapshot.phase === phase) renderClock(snapshot);
+    else render();
+    sendState();
+    if (expired) void loadLastSolution(snapshot);
+  }, 100);
   render(); updateResourceStatus(); updateSetup();
   void client.fetchQuestions().then(questions => {
     setBank(questions);

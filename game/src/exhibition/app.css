@@ -187,6 +187,82 @@ body[data-role="display"][data-phase="setup"] .setup-display { height:100%; min-
 .guide-difficulty p { margin:0; color:#525e73; font-size:.82rem; font-weight:700; white-space:nowrap; }
 .actions { display:flex; justify-content:flex-end; flex-wrap:wrap; gap:12px; margin-top:24px; }
 /* Active game: HUD, prompt, handwriting, and mirrored answer. */
+/* The portrait is decorative. The board only reserves its space after it loads. */
+body[data-role="display"] .play-grid:has(.quiz-host:not([hidden])) {
+  --host-height: min(46svh, 460px, 98vw);
+  position: relative;
+  isolation: isolate;
+  padding-top: calc(var(--host-height) * .41);
+  background: radial-gradient(ellipse at 50% 26%, #624052, transparent 64%);
+}
+body[data-role="display"] .quiz-host {
+  position: absolute;
+  inset-block-start: calc(var(--host-height) * -.08);
+  inset-inline-start: 50%;
+  translate: -50% 0;
+  height: var(--host-height);
+  width: auto;
+  z-index: -1;
+  pointer-events: none;
+}
+body[data-role="display"] .quiz-host:not([hidden]) + .problem-pane {
+  width: min(100%, 68rem);
+  justify-self: center;
+  min-height: 0;
+  max-height: none;
+  border: 0;
+  border-radius: 14px;
+  padding: clamp(12px, 2svh, 26px) clamp(12px, 3vw, 42px);
+  color: var(--ink);
+  background: linear-gradient(90deg, #fffdf7ed, var(--paper) 22% 78%, #fffdf7ed);
+}
+body[data-role="display"] .quiz-host:not([hidden]) + .problem-pane .muted {
+  color: #46536c;
+}
+body[data-role="display"] .quiz-host:not([hidden]) + .problem-pane .prompt-space {
+  min-height: 0;
+  padding-block: clamp(8px, 2svh, 26px);
+  align-items: safe center;
+  overflow: auto;
+}
+body[data-role="display"] .quiz-host:not([hidden]) + .problem-pane .prompt {
+  font-size: clamp(1.15rem, 3.4vw, 3.5rem);
+  line-height: 1.65;
+}
+body[data-role="display"] .quiz-host:not([hidden]) + .problem-pane .answer-replica {
+  min-height: 0;
+  flex: 0 0 auto;
+  border-color: #bfc6d4;
+}
+body[data-role="display"] .quiz-host:not([hidden]) + .problem-pane .replica-paper {
+  height: clamp(64px, 13svh, 150px);
+  min-height: 0;
+  flex: none;
+  background: white;
+}
+@media (max-height: 650px) {
+  body[data-role="display"] .play-grid:has(.quiz-host:not([hidden])) {
+    --host-height: min(38svh, 98vw);
+  }
+  body[data-role="display"] .quiz-host:not([hidden]) + .problem-pane {
+    padding-block: 8px;
+  }
+  body[data-role="display"] .quiz-host:not([hidden]) + .problem-pane .prompt-space {
+    padding-block: 6px;
+  }
+  body[data-role="display"] #play:has(.quiz-host:not([hidden])) .notice {
+    margin-block: 4px 0;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  body[data-role="display"] .quiz-host:not([hidden]) + .problem-pane.question-arrive {
+    animation: quiz-board-arrive .32s cubic-bezier(.16,1,.3,1);
+  }
+  @keyframes quiz-board-arrive {
+    from { clip-path: inset(0 0 25% round 14px); opacity: .75; }
+    to { clip-path: inset(0 round 14px); opacity: 1; }
+  }
+}
 .play-toolbar { display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-bottom:16px; }
 .play-toolbar p { margin:0; font-weight:700; }
 .hud { display:grid; gap:4px; font-variant-numeric:tabular-nums; font-size:.95rem; }
@@ -273,6 +349,28 @@ code { display:block; overflow-wrap:anywhere; white-space:pre-wrap; }
 .judgement-flash-card > div,.result-verdict > div { min-width:0; }
 .judgement-flash-card strong { display:block; font-size:clamp(2.5rem,8vw,5rem); font-weight:900; line-height:1; letter-spacing:-.04em; }
 .judgement-flash-card p,.result-verdict p { margin:8px 0 0; font-weight:650; line-height:1.55; }
+.judgement-flash.has-streak .judgement-flash-card strong { font-size:clamp(1.5rem,4.4vw,3.2rem); line-height:1.2; }
+.submitted-answer { position:relative; min-width:0; min-height:0; display:flex; flex:1 1 auto; flex-direction:column; }
+body[data-phase="judging"] :is(.submitted-answer,.replica-paper)::after {
+  content:"";
+  position:absolute;
+  inset:auto 14% 8px;
+  height:2px;
+  background:#117a70;
+  transform-origin:left;
+  pointer-events:none;
+}
+.answer-check { width:100%; height:100%; display:block; }
+.answer-check-line { opacity:0; }
+.streak-counter { position:relative; font-size:clamp(1.5rem,5vw,3.5rem); line-height:1.1; font-variant-numeric:tabular-nums; overflow:hidden; }
+.streak-counter span { position:absolute; inset:0; opacity:0; }
+.streak-counter b { display:block; }
+.judgement-flash.is-streak-milestone .judgement-flash-card {
+  --verdict-bg:#fff6dd;
+  --verdict-ink:#704500;
+  --verdict-edge:#986000;
+  border:2px solid var(--verdict-edge);
+}
 .judgement-icon { flex:0 0 auto; display:block; width:clamp(64px,11vw,104px); aspect-ratio:1; color:var(--verdict-edge); }
 .judgement-icon .lucide-verdict-icon { display:block; width:100%; height:100%; stroke:currentColor; }
 .judgement-flash[data-tone="wrong"] .judgement-flash-card,.result-verdict[data-tone="wrong"] { --verdict-bg:#fff1ee; --verdict-ink:#8b2418; --verdict-edge:#c33b28; }
@@ -558,6 +656,28 @@ body:is([data-phase="countdown"],[data-phase="writing"],[data-phase="recognizing
   .problem-pane.question-arrive .prompt { animation:question-arrive .46s cubic-bezier(.16,1,.3,1) both; }
   .judgement-flash { animation:verdict-backdrop .22s ease-out both; }
   .judgement-flash[data-tone="correct"] .judgement-flash-card { animation:verdict-arrive .46s cubic-bezier(.16,1,.3,1) both; }
+  body[data-phase="judging"] :is(.submitted-answer,.replica-paper)::after { animation:answer-send .22s ease-out both; }
+  .judgement-flash[data-tone="correct"] .judgement-icon { position:relative; }
+  .judgement-flash.is-ring-ready .judgement-icon::after,
+  .judgement-flash.is-ring-ready.is-streak-milestone .judgement-icon::before {
+    content:"";
+    position:absolute;
+    inset:5%;
+    border:2px solid currentColor;
+    border-radius:50%;
+    animation:streak-ring .58s var(--correct-note-delay,210ms) ease-out both;
+  }
+  .judgement-flash.is-streak-milestone .judgement-icon::before { inset:-10%; animation-delay:calc(var(--correct-note-delay,210ms) + 90ms); }
+  .answer-check-line { animation:answer-line-away .14s ease-out both; }
+  .answer-check-mark { stroke-dasharray:1; animation:answer-check-draw .22s .04s ease-out both; }
+  .streak-counter span { animation:streak-previous .26s ease-in both; }
+  .streak-counter b { animation:streak-current .38s .10s cubic-bezier(.16,1,.3,1) both; }
+  @keyframes answer-send { from { transform:scaleX(0); } }
+  @keyframes answer-line-away { from { opacity:1; } to { opacity:0; } }
+  @keyframes answer-check-draw { from { stroke-dashoffset:1; } to { stroke-dashoffset:0; } }
+  @keyframes streak-previous { from { opacity:1; } to { opacity:0; transform:translateY(-90%); } }
+  @keyframes streak-current { from { opacity:0; transform:translateY(80%); } to { opacity:1; transform:translateY(0); } }
+  @keyframes streak-ring { from { opacity:.65; transform:scale(.84); } to { opacity:0; transform:scale(1.24); } }
   .judgement-flash[data-tone="wrong"] .judgement-flash-card { animation:wrong-settle .38s cubic-bezier(.16,1,.3,1) both; }
   .judgement-flash[data-tone="timeout"] .judgement-flash-card { animation:timeout-arrive .42s cubic-bezier(.16,1,.3,1) both; }
   .judgement-flash[data-tone="skip"] .judgement-flash-card { animation:skip-slide .42s cubic-bezier(.16,1,.3,1) both; }
@@ -585,7 +705,7 @@ body:is([data-phase="countdown"],[data-phase="writing"],[data-phase="recognizing
   @keyframes wrong-settle { 0% { opacity:.3; transform:translateX(-14px); } 58% { transform:translateX(5px); } 100% { opacity:1; transform:translateX(0); } }
   @keyframes timeout-arrive { from { opacity:.3; transform:translateY(18px); } to { opacity:1; transform:translateY(0); } }
   @keyframes correct-mark { from { clip-path:circle(0 at 50% 50%); } to { clip-path:circle(75% at 50% 50%); } }
-  @keyframes skip-slide { from { opacity:.35; transform:translateX(-54px); clip-path:inset(0 45% 0 0); } to { opacity:1; transform:translateX(0); clip-path:inset(0); } }
+  @keyframes skip-slide { from { opacity:.55; transform:translateX(-24px); } to { opacity:1; transform:translateX(0); } }
 }
 @media(prefers-reduced-motion:reduce) {
   button,.action-link,#timerFill { transition-duration:0s; }

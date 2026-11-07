@@ -13,6 +13,16 @@ const EFFECT_VOLUME: Readonly<Record<GameSoundEffect, number>> = {
   finish: 0.62,
 };
 const source = (name: string) => `/audio/${name}.wav`;
+// A minor third and then a fifth are easier to hear over the BGM.
+const CORRECT_STREAK_SEMITONES = [0, 3, 7, 9, 12] as const;
+
+export function correctPlaybackRate(streak: number): number {
+  const stage = Math.min(CORRECT_STREAK_SEMITONES.length - 1, Math.max(0, Math.floor(streak) - 1));
+  return 2 ** ((CORRECT_STREAK_SEMITONES[stage] ?? 0) / 12);
+}
+
+// The third note in generate_game_sfx.mjs starts at 210 ms at normal speed.
+export const correctFinalNoteMs = (streak: number): number => 210 / correctPlaybackRate(streak);
 
 export class UrgencySound {
   private volumePercent = this.loadVolume();
@@ -51,21 +61,25 @@ export class UrgencySound {
     this.play(second <= 2 ? "tick-urgent" : "tick", 0.46);
   }
 
-  playEffect(effect: GameSoundEffect, streak = 0): void {
-    // A short, capped rise makes a streak feel rewarding without turning the
-    // sound shrill or making later questions noticeably louder.
-    const semitones = effect === "correct" ? Math.min(4, Math.max(0, streak - 1)) : 0;
-    this.play(effect, EFFECT_VOLUME[effect], 2 ** (semitones / 12));
+  playEffect(effect: GameSoundEffect, streak = 0, onPlaying?: () => void): void {
+    this.play(effect, EFFECT_VOLUME[effect], effect === "correct" ? correctPlaybackRate(streak) : 1, onPlaying);
   }
 
-  private play(name: string, volume: number, playbackRate = 1): void {
-    if (!this.isEnabled) return;
+  private play(name: string, volume: number, playbackRate = 1, onPlaying?: () => void): void {
     const base = this.clips.get(name);
-    if (!base) return;
+    if (!this.isEnabled || !base) {
+      onPlaying?.();
+      return;
+    }
     const clip = base.cloneNode(true) as HTMLAudioElement;
     clip.volume = volume * this.volumePercent / 100;
+    clip.preservesPitch = playbackRate === 1;
     clip.playbackRate = playbackRate;
-    void clip.play().catch(() => {});
+    if (onPlaying) clip.addEventListener("playing", onPlaying, { once: true });
+    void clip.play().catch(() => {
+      if (onPlaying) clip.removeEventListener("playing", onPlaying);
+      onPlaying?.();
+    });
   }
 
   private loadVolume(): number {

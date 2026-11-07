@@ -5,15 +5,18 @@ export type JudgementFeedback = {
   tone: "correct" | "wrong" | "timeout" | "skip";
   title: string;
   message: string;
+  streakLabel?: string;
 };
 
 export function resultFeedback(snapshot: Snapshot, role: Role): JudgementFeedback | null {
-  if (snapshot.phase !== "result") return null;
+  const lastLifeSkipped = snapshot.phase === "finished" && snapshot.endReason === "skip";
+  if (snapshot.phase !== "result" && !lastLifeSkipped) return null;
   if (snapshot.skipped) {
     return {
       tone: "skip",
-      title: "スキップ",
-      message: role === "controller" ? "モニターで正答と解説を確認してください。" : "正答と解説を確認して、次へ進みましょう。",
+      title: snapshot.mode === "exhibition" ? "スキップ · 残機 −1" : "スキップ",
+      message: lastLifeSkipped ? "残機が0になり、チャレンジ終了です。"
+        : role === "controller" ? "モニターで正答と解説を確認してください。" : "正答と解説を確認して、次へ進みましょう。",
     };
   }
   if (snapshot.timedOut) {
@@ -29,9 +32,13 @@ export function resultFeedback(snapshot: Snapshot, role: Role): JudgementFeedbac
   }
   if (!snapshot.judgement) return null;
   if (snapshot.judgement.correct) {
+    const streakLabel = snapshot.streak >= 3
+      ? `${(snapshot.question?.difficulty ?? 0) >= 4 ? "難問連続正解中" : "連続正解中"} · ${snapshot.streak}問`
+      : undefined;
     return {
       tone: "correct",
       title: "正解！",
+      streakLabel,
       message: role === "controller" ? "正解です！ モニターで解説を確認してください。" : "お見事！ 正答と解説を確認できます。",
     };
   }

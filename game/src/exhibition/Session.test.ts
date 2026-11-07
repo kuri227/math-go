@@ -104,14 +104,24 @@ describe("two-mode game rules", () => {
     expect(session.snapshot.phase).toBe("writing");
     expect(session.snapshot.endReason).toBeNull();
   });
-  it("skips a writing question without consuming a life or recording an answer", () => {
+  it("charges one life for a confirmed exhibition skip without recording an answer", () => {
     const session = new Session(questions.slice(0, 2), "exhibition");
     session.start();
     expect(session.skip()).toBe(true);
-    expect(session.snapshot).toMatchObject({ phase: "result", skipped: true, skippedCount: 1, lives: 3, attempts: 0, streak: 0 });
+    expect(session.snapshot).toMatchObject({ phase: "result", skipped: true, skippedCount: 1, lives: 2, attempts: 0, streak: 0 });
     expect(session.skip()).toBe(false);
     expect(session.next()).toBe(true);
     expect(session.snapshot).toMatchObject({ phase: "writing", skipped: false, skippedCount: 1, round: 2 });
+  });
+  it("ends the challenge on the last life lost to a skip", () => {
+    const session = new Session(questions.slice(0, 3), "exhibition");
+    session.start();
+    for (let round = 1; round <= 3; round++) {
+      expect(session.skip()).toBe(true);
+      if (round < 3) expect(session.next()).toBe(true);
+    }
+    expect(session.snapshot).toMatchObject({ phase: "finished", endReason: "skip", lives: 0, skippedCount: 3, timedOut: false });
+    expect(session.next()).toBe(false);
   });
   it("allows a confirmed skip while the confirmation dialog has paused the clock", () => {
     const session = new Session(questions.slice(0, 1), "test");

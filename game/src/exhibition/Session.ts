@@ -27,7 +27,7 @@ export interface Snapshot {
   questionTimeMs: number;
   countdownRemainingMs: number;
   paused: boolean;
-  endReason: "completed" | "timeout" | "stopped" | null;
+  endReason: "completed" | "timeout" | "skip" | "stopped" | null;
   recognition: RecognitionResponse | null;
   judgement: JudgementResponse | null;
   notice: string;
@@ -169,6 +169,13 @@ export class Session {
     s.skippedCount += 1;
     s.streak = 0;
     s.paused = false;
+    if (s.lives !== null) {
+      s.lives = Math.max(0, s.lives - 1);
+      if (s.lives === 0) {
+        this.finish("skip");
+        return true;
+      }
+    }
     s.phase = "result";
     s.notice = "この問題をスキップしました。正答と解説を確認して、次の問題へ進めます。";
     this.lastTick = this.now();
@@ -196,7 +203,10 @@ export class Session {
   finish(reason: Snapshot["endReason"]): void {
     if (this.snapshot.phase === "finished") return;
     this.requestId = null; this.snapshot.phase = "finished"; this.snapshot.endReason = reason;
-    this.snapshot.recognition = null; this.snapshot.notice = reason === "timeout" ? "時間切れが3回となり、残機が0になったため終了しました。" : reason === "completed" ? "選んだ問題をすべて終えました。" : "プレイを終了しました。";
+    this.snapshot.recognition = null;
+    this.snapshot.notice = reason === "skip" || reason === "timeout"
+      ? "残機が0になったため終了しました。"
+      : reason === "completed" ? "選んだ問題をすべて終えました。" : "プレイを終了しました。";
   }
 
   private startPreparedQuestion(): void {
